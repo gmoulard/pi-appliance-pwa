@@ -6,8 +6,8 @@ Changements à faire dans la console de [pi-appliance](https://github.com/gmoula
 
 - Dans « Mon Pi », pour l'administrateur connecté seulement : une carte « Application mobile » avec un code QR et le même lien, prêt à copier ou à partager.
 - Lien : `https://app.pi-appliance.com/#add?` suivi de paramètres d'adresse (encodés comme une adresse web) :
-  - `n` : nom du Pi (`controltower`) ;
-  - `l` : adresse à la maison (`https://controltower.local/pi-appliance`) ;
+  - `n` : nom du Pi (`salon`) ;
+  - `l` : adresse à la maison (`https://salon.local/pi-appliance`) ;
   - `w` : adresse sur internet, s'il en a une ;
   - `id` : identifiant stable et non secret, l'empreinte de la clé publique du Pi (`device.key`, Ed25519), par exemple les 16 premiers caractères de son SHA-256 en hexadécimal ;
   - `s` : services, une entrée par service, nom et adresse.

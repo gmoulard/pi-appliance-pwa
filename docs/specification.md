@@ -9,7 +9,7 @@ L'application mobile pi-appliance est une **application web installable** (PWA) 
 - **la documentation dans la poche**, lisible sans réseau : c'est justement quand le Pi ou le Wi-Fi ne marchent pas qu'on en a besoin (premier démarrage, Wi-Fi de configuration, mot de passe oublié, diagnostic) ;
 - **un lien direct vers ses Pi** : la liste des appliances de la personne, chacune avec un bouton qui ouvre sa console ou ses services.
 
-Projet séparé de pi-appliance (dépôt `gmoulard/pi-appliance-pwa`), décidé le 2026-11-21 (TODO-5.16 de pi-appliance).
+pi-appliance a quatre parties, qui portent toutes ce nom : **l'image** à flasher sur la carte SD, **le socle** toujours installé sur le Pi avec sa **console** web, **cette application mobile**, et **la commande `pia`** du Pi pour les personnes à l'aise avec la ligne de commande. L'application est l'une de ces parties (vocabulaire : section 2 de la spécification de pi-appliance) ; projet séparé (dépôt `gmoulard/pi-appliance-pwa`), décidé le 2026-11-21 (TODO-5.16 de pi-appliance).
 
 ### 1.1 Public visé
 
@@ -44,7 +44,7 @@ Une liste « Mes Pi », vide au départ, gardée sur le téléphone, **par ordre
 
 ### 4.1 Ajouter un Pi
 
-1. **Code QR de la console** (le plus simple) : la console de pi-appliance affiche, dans « Mon Pi » et seulement à l'administrateur connecté, un code QR qui contient une adresse `https://app.pi-appliance.com/#add?...`, et le même lien prêt à partager (message, courriel). Il porte le nom du Pi, son adresse `.local`, son adresse sur internet, ses services et leurs adresses, et un **identifiant stable** non secret (l'empreinte de la clé du Pi) : un Pi qui change de nom (`pi-appliance-1a2b` devenu `controltower`) met à jour sa fiche au lieu d'en créer une deuxième. Jamais de mot de passe ni de clé ; le code QR (pas le lien à partager) porte en plus un code d'appairage à usage unique (4.4).
+1. **Code QR de la console** (le plus simple) : la console de pi-appliance affiche, dans « Mon Pi » et seulement à l'administrateur connecté, un code QR qui contient une adresse `https://app.pi-appliance.com/#add?...`, et le même lien prêt à partager (message, courriel). Il porte le nom du Pi, son adresse `.local`, son adresse sur internet, ses services et leurs adresses, et un **identifiant stable** non secret (l'empreinte de la clé du Pi) : un Pi qui change de nom (`pi-appliance-1a2b` devenu `salon`) met à jour sa fiche au lieu d'en créer une deuxième. Jamais de mot de passe ni de clé ; le code QR (pas le lien à partager) porte en plus un code d'appairage à usage unique (4.4).
    - Lien réalisé par pi-appliance : `#add?id=…&l=…&n=…&s=…&w=…`, un paramètre `s` par service, valeur `<nom>,<adresse>` coupée à la première virgule ; `&c=<code>` à la fin, dans le code QR seulement.
    - **L'application lit le code elle-même** (« Scanner le code de mon Pi », caméra du téléphone, jsQR chargé seulement à ce moment-là ; un code QR qui ne vient pas d'une console est signalé et la lecture continue ; la caméra s'arrête dès qu'un code est lu ou qu'on quitte l'écran). Sur iPhone, l'application de l'écran d'accueil ne partage pas ses données avec Safari : un code scanné avec l'appareil photo ouvrirait Safari, et le Pi ajouté là n'apparaîtrait pas dans l'application. Sur Android, l'appareil photo marche aussi.
 2. **Saisie à la main** : nom du Pi ou adresse IP (`192.168.1.196`) ; l'application complète `.local` et `/pi-appliance`.
