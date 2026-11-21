@@ -9,7 +9,7 @@ L'application mobile pi-appliance est une **application web installable** (PWA) 
 - **la documentation dans la poche**, lisible sans réseau : c'est justement quand le Pi ou le Wi-Fi ne marchent pas qu'on en a besoin (premier démarrage, Wi-Fi de configuration, mot de passe oublié, diagnostic) ;
 - **un lien direct vers ses Pi** : la liste des appliances de la personne, chacune avec un bouton qui ouvre sa console ou ses services.
 
-pi-appliance a quatre parties, qui portent toutes ce nom : **l'image** à flasher sur la carte SD, **le socle** toujours installé sur le Pi avec sa **console** web, **cette application mobile**, et **la commande `pia`** du Pi pour les personnes à l'aise avec la ligne de commande. L'application est l'une de ces parties (vocabulaire : section 2 de la spécification de pi-appliance) ; projet séparé (dépôt `gmoulard/pi-appliance-pwa`), décidé le 2026-11-21 (TODO-5.16 de pi-appliance).
+pi-appliance a trois parties, qui portent toutes ce nom : **l'image** à flasher sur la carte SD, **le socle** toujours installé sur le Pi (sa **console** web, ses outils et la commande **`pia`**), et **cette application mobile**. L'application est l'une de ces parties (vocabulaire : section 2 de la spécification de pi-appliance) ; projet séparé (dépôt `gmoulard/pi-appliance-pwa`), décidé le 2026-11-21 (TODO-5.16 de pi-appliance).
 
 ### 1.1 Public visé
 
