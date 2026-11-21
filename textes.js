@@ -34,6 +34,7 @@ window.TEXTES = {
     "installer.titre": "Mettre l'application sur l'écran d'accueil",
     "installer.android": "Sur Android, avec Chrome : touchez le bouton ci-dessous, ou le menu ⋮ puis « Ajouter à l'écran d'accueil ».",
     "installer.bouton": "Installer",
+    "installer.firefox": "Sur Android, avec Firefox : touchez le menu ⋮ puis « Ajouter à l'écran d'accueil » (ou « Installer »).",
     "installer.iphone": "Sur iPhone, avec Safari : touchez « Partager » (le carré avec une flèche), puis « Sur l'écran d'accueil ».",
     "installer.deja": "L'application est déjà installée sur ce téléphone.",
     "fermer": "Fermer",

@@ -63,7 +63,7 @@ Une liste « Mes Pi », vide au départ, gardée sur le téléphone, **par ordre
 ## 5. Écrans
 
 - **Premier écran** : « Mes Pi » s'il y a au moins un Pi ; sinon un accueil avec « Ajouter mon Pi » et « Lire la documentation ».
-- **Installation sur l'écran d'accueil** : une aide toujours présente dans le menu (bouton sur Android, « Partager » puis « Sur l'écran d'accueil » sur iPhone), jamais proposée d'elle-même.
+- **Installation sur l'écran d'accueil** : une aide toujours présente dans le menu, jamais proposée d'elle-même : bouton « Installer » avec Chrome sur Android ; menu ⋮ puis « Ajouter à l'écran d'accueil » avec Firefox sur Android, qui n'a pas ce bouton ; « Partager » puis « Sur l'écran d'accueil » sur iPhone. Installation essayée sur l'Android de l'utilisateur le 2026-11-21 : réussie avec Chrome ; avec Firefox, le bouton n'existe pas.
 - **Langue** : celle du téléphone, avec un choix dans les réglages, quand il y aura plus d'une langue (1.1).
 
 ## 6. À faire dans pi-appliance
