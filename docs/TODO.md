@@ -28,6 +28,8 @@ Avancement de l'application mobile pi-appliance ([spécification](specification.
 - [ ] État toujours affiché, et services relus dans `api/hello`. Fait le 2026-11-21 : état deviné sans `api/hello`, vérification à la maison après un geste (autorisation de Chrome), lecture de `api/hello` selon le format de la demande. Restent : format définitif de pi-appliance, essai avec un vrai Pi.
 - [ ] Côté pi-appliance : [demande](demande-pi-appliance.md) reprise dans une session de pi-appliance (code QR et lien dans « Mon Pi », `api/hello`, liens vers l'application ; TODO-5.16 de pi-appliance). Confiée le 2026-11-21 à une session de pi-appliance (« pi-appliance : prise en compte de l'application mobile (PWA) »).
 
+- [ ] Appairage (4.4) : clé du téléphone (WebCrypto, non exportable, IndexedDB), appairage au lien `#add?...&c=…`, connexion signée à « Ouvrir ». Côté pi-appliance : demande, section 4.
+
 ## 4. Finitions
 
 - [ ] Interface en français, textes à part et sens de lecture prêts pour les autres langues ; charte graphique de pi-appliance.

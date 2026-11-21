@@ -59,3 +59,12 @@ L'iPhone n'accepte pas d'icône transparente : il lui faut aussi un fond.
 2. Android seulement dans la première version
 
 **Réponse :** 1
+
+## Appairage (2026-11-21)
+
+Proposé après « J'aimerais ne plus jamais avoir à remplir mon identifiant et mon mot de passe une fois la connexion réussie ». Réponse : **A1, B1, C2**, reprise dans la spécification, 4.4.
+
+- A. Code d'appairage dans le code QR : 1. accepté (10 minutes, une seule fois, administrateur connecté) ; 2. code à 6 chiffres à recopier. **Réponse : 1.**
+- B. Double authentification : 1. l'appairage compte pour les deux facteurs ; 2. code demandé à chaque ouverture. **Réponse : 1.**
+- C. Durée : 1. jusqu'au retrait, ou un an sans servir ; 2. jusqu'au retrait, sans limite. **Réponse : 2.**
+

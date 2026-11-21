@@ -44,7 +44,7 @@ Une liste « Mes Pi », vide au départ, gardée sur le téléphone, **par ordre
 
 ### 4.1 Ajouter un Pi
 
-1. **Code QR de la console** (le plus simple) : la console de pi-appliance affiche, dans « Mon Pi » et seulement à l'administrateur connecté, un code QR qui contient une adresse `https://app.pi-appliance.com/#add?...`, et le même lien prêt à partager (message, courriel). Il porte le nom du Pi, son adresse `.local`, son adresse sur internet, ses services et leurs adresses, et un **identifiant stable** non secret (l'empreinte de la clé du Pi) : un Pi qui change de nom (`pi-appliance-1a2b` devenu `controltower`) met à jour sa fiche au lieu d'en créer une deuxième. Jamais de mot de passe ni de clé.
+1. **Code QR de la console** (le plus simple) : la console de pi-appliance affiche, dans « Mon Pi » et seulement à l'administrateur connecté, un code QR qui contient une adresse `https://app.pi-appliance.com/#add?...`, et le même lien prêt à partager (message, courriel). Il porte le nom du Pi, son adresse `.local`, son adresse sur internet, ses services et leurs adresses, et un **identifiant stable** non secret (l'empreinte de la clé du Pi) : un Pi qui change de nom (`pi-appliance-1a2b` devenu `controltower`) met à jour sa fiche au lieu d'en créer une deuxième. Jamais de mot de passe ni de clé ; le code QR (pas le lien à partager) porte en plus un code d'appairage à usage unique (4.4).
    - **L'application lit le code elle-même** (bouton « Scanner le code », caméra du téléphone). Sur iPhone, l'application de l'écran d'accueil ne partage pas ses données avec Safari : un code scanné avec l'appareil photo ouvrirait Safari, et le Pi ajouté là n'apparaîtrait pas dans l'application. Sur Android, l'appareil photo marche aussi.
 2. **Saisie à la main** : nom du Pi ou adresse IP (`192.168.1.196`) ; l'application complète `.local` et `/pi-appliance`.
 3. **Recherche à la maison** : un navigateur ne peut pas lister les appareils du réseau (pas de mDNS depuis une page web). L'application essaie donc des noms connus — ceux de la liste, `pi-appliance.local`, `pi-appliance-2.local`… — et dit lesquels répondent. **Ses limites sont dites clairement à l'écran** :
@@ -64,6 +64,18 @@ Une liste « Mes Pi », vide au départ, gardée sur le téléphone, **par ordre
 - **État affiché toujours**, même incertain : « répond à la maison », « répond sur internet », « ne répond pas », avec une mention quand il est incertain (par exemple « ne répond pas — ou alerte du certificat pas encore acceptée »).
 - **Services mis à jour par le Pi** : à chaque ouverture de l'application, la liste des services de chaque Pi qui répond est relue dans `api/hello` ; le code QR donne la première liste.
 
+### 4.4 Appairage : ouvrir la console sans mot de passe
+
+Choix de l'utilisateur du 2026-11-21 (A1, B1, C2) : un téléphone appairé à un Pi ouvre la console déjà connecté, sans retaper l'identifiant ni le mot de passe.
+
+- **Clé du téléphone** : à son premier appairage, l'application crée une paire de clés ECDSA P-256 avec le navigateur (WebCrypto), la clé secrète **non exportable**, gardée dans IndexedDB : le navigateur s'en sert pour signer, mais personne ne peut la lire, pas même l'application. Une seule clé par téléphone, pour tous ses Pi. Elle est désignée par son empreinte (RFC 7638, SHA-256 en base64url).
+- **Appairage, une fois par Pi** : le code QR de « Mon Pi », affiché seulement à l'administrateur connecté, porte un **code d'appairage** (`c`) valable 10 minutes et une seule fois ; le lien à partager ne le porte pas. Après « Ajouter et appairer », l'application ouvre dans le navigateur une page du Pi en lui envoyant (formulaire `POST`, rien dans l'adresse) le code, la clé publique, un nom d'appareil et une preuve signée ; le Pi enregistre la clé pour le compte qui a affiché le code et ouvre la console, déjà connectée.
+- **Connexion** : « Ouvrir » envoie de la même façon un message signé (le Pi, l'heure, un numéro à usage unique) ; le Pi vérifie la signature et ouvre la session. Comme l'application ne lit aucune réponse du Pi, le certificat fait par le Pi ne bloque rien (une fois son alerte acceptée) ; la clé, enregistrée sur le Pi, vaut pour l'adresse de la maison comme pour celle d'internet.
+- **Double authentification** (B1) : un appairage fait pendant une session avec double authentification compte pour les deux facteurs.
+- **Durée** (C2) : sans limite, jusqu'à ce que l'appareil soit retiré dans « Mon compte → Appareils » (par exemple un téléphone perdu).
+- **Si le Pi ne reconnaît plus le téléphone** (appareil retiré, Pi remis à zéro) : la console affiche son écran de connexion habituel ; rescanner le code QR appaire de nouveau.
+- Protocole détaillé : [demande-pi-appliance.md](demande-pi-appliance.md), section 4.
+
 ## 5. Écrans
 
 - **Premier écran** : « Mes Pi » s'il y a au moins un Pi ; sinon un accueil avec « Ajouter mon Pi » et « Lire la documentation ».
@@ -76,6 +88,7 @@ Cette application attend de la console de pi-appliance (demande à reprendre dan
 
 - le code QR et le lien de partage dans « Mon Pi » (4.1) ;
 - la demande `api/hello` (4.3) ;
+- l'appairage et la connexion par la clé du téléphone, et la liste des appareils dans « Mon compte » (4.4) ;
 - un lien « Application mobile » sur www.pi-appliance.com et dans la console.
 
 ## 7. Questions ouvertes
