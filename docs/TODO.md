@@ -26,7 +26,7 @@ Avancement de l'application mobile pi-appliance ([spécification](specification.
 - [ ] Ajout par code QR, lu par l'application (jsQR) ou par l'appareil photo sur Android ; lien `#add?...` ; identifiant stable.
 - [ ] Recherche à la maison parmi les noms connus, avec ses limites dites à l'écran.
 - [ ] État toujours affiché, et services relus dans `api/hello`.
-- [ ] Côté pi-appliance : [demande](demande-pi-appliance.md) reprise dans une session de pi-appliance (code QR et lien dans « Mon Pi », `api/hello`, liens vers l'application ; TODO-5.16 de pi-appliance).
+- [ ] Côté pi-appliance : [demande](demande-pi-appliance.md) reprise dans une session de pi-appliance (code QR et lien dans « Mon Pi », `api/hello`, liens vers l'application ; TODO-5.16 de pi-appliance). Confiée le 2026-11-21 à une session de pi-appliance (« pi-appliance : prise en compte de l'application mobile (PWA) »).
 
 ## 4. Finitions
 
