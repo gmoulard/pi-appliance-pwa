@@ -20,9 +20,12 @@
 # Mises à jour) : par /usr/local/lib/pi-appliance/updates.sh, qui remet
 # l'ancienne version si la nouvelle ne démarre pas dans les 2 minutes.
 #
-#   sudo sh mettre-a-jour-pi.sh                 dernière version stable
-#   sudo sh mettre-a-jour-pi.sh --version v0.1.6  une version précise
-#   sudo sh mettre-a-jour-pi.sh --forcer        réinstaller même si déjà à jour
+#   sudo sh mettre-a-jour-pi.sh [version] [--forcer]
+#
+#   version    version à installer, par exemple v0.1.6 (ou 0.1.6) ; sans elle,
+#              la dernière version stable publiée. Une version plus ancienne
+#              que celle installée est acceptée quand elle est donnée ici.
+#   --forcer   réinstaller même si cette version est déjà installée
 #
 # Pour l'avoir sur le Pi :
 #   curl -fsSLO https://raw.githubusercontent.com/gmoulard/pi-appliance-pwa/main/outils/mettre-a-jour-pi.sh
@@ -49,7 +52,12 @@ while [ $# -gt 0 ]; do
 	--version) [ $# -ge 2 ] || echec "--version demande un numéro, par exemple v0.1.6."; version_voulue=$2; shift 2 ;;
 	--forcer | --force) forcer=1; shift ;;
 	-h | --aide | --help) sed -n '/^# Met à jour/,/^$/p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
-	*) echec "option inconnue : $1 (voir --aide)." ;;
+	-*) echec "option inconnue : $1 (voir --aide)." ;;
+	*)
+		[ -z "$version_voulue" ] || echec "une seule version à la fois (« $version_voulue » et « $1 »)."
+		version_voulue=$1
+		shift
+		;;
 	esac
 done
 
@@ -71,7 +79,10 @@ installee=$("$CONSOLE" -version 2>/dev/null || true)
 dire "Version installée : ${installee:-inconnue}"
 
 if [ -n "$version_voulue" ]; then
+	saisie=$version_voulue
 	case "$version_voulue" in v*) ;; *) version_voulue=v$version_voulue ;; esac
+	printf '%s' "$version_voulue" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$' ||
+		echec "« $saisie » n'est pas un numéro de version (exemple : v0.1.6)."
 	chemin=/releases/tags/$version_voulue
 else
 	chemin=/releases/latest
@@ -82,9 +93,9 @@ json=$(curl -fsSL --retry 3 --max-time 60 -H "Accept: application/vnd.github+jso
 etiquette=$(printf '%s' "$json" | jq -r '.tag_name // ""')
 printf '%s' "$etiquette" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$' || echec "numéro de version inattendu : « $etiquette »."
 if [ -z "$version_voulue" ] && printf '%s' "$json" | jq -e '.prerelease or .draft' >/dev/null; then
-	echec "la dernière version publiée ($etiquette) est une préversion : donnez-la avec --version pour l'installer."
+	echec "la dernière version publiée ($etiquette) est une préversion : donnez son numéro en paramètre pour l'installer."
 fi
-dire "Dernière version : $etiquette"
+if [ -n "$version_voulue" ]; then dire "Version demandée : $etiquette"; else dire "Dernière version : $etiquette"; fi
 
 if [ "$forcer" != 1 ] && [ "$etiquette" = "$installee" ]; then
 	dire "Le Pi est déjà à jour. (--forcer pour réinstaller cette version.)"
