@@ -30,6 +30,8 @@ Avancement de l'application mobile pi-appliance ([spécification](specification.
 
 - [ ] Appairage (4.4) : clé du téléphone (WebCrypto, non exportable, IndexedDB), appairage au lien `#add?...&c=…`, connexion signée à « Ouvrir ». Côté application fait le 2026-11-21 (`cle.js`, essayé dans Chromium avec un faux Pi, signatures vérifiées par Node). Côté pi-appliance : demande, section 4, confiée à sa session. Reste l'essai avec un vrai Pi.
 
+- [x] Script `outils/mettre-a-jour-pi.sh`, à lancer sur le Pi en SSH : dernière version de pi-appliance sur GitHub, archive vérifiée (SHA-256), installée par `updates.sh appliance` comme depuis la console (2026-11-21, demande de l'utilisateur ; essayé avec un faux Pi). À essayer sur le vrai Pi ; sa place serait plutôt dans pi-appliance (par exemple `pia mise-a-jour`).
+
 ## 4. Finitions
 
 - [ ] Interface en français, textes à part et sens de lecture prêts pour les autres langues ; charte graphique de pi-appliance.
