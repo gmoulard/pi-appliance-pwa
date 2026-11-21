@@ -35,7 +35,7 @@ const PAGES = ["guide-utilisateur", "faq", "installation", "marketplace", "essai
 // Fichiers de l'application, copiés tels quels.
 const APPLICATION = [
   "index.html", "app.css", "app.js", "textes.js", "recherche.js", "sw.js",
-  "manifest.webmanifest", "CNAME",
+  "manifest.webmanifest",
   "icones/symbole.svg", "icones/favicon.svg", "icones/icone.svg",
   "icones/icone-192.png", "icones/icone-512.png", "icones/apple-touch-icon.png",
 ];
@@ -231,6 +231,10 @@ function main() {
   const sortie = path.resolve(o.out);
   fs.rmSync(sortie, { recursive: true, force: true });
   fs.mkdirSync(path.join(sortie, "doc"), { recursive: true });
+
+  // Domaine personnalisé de GitHub Pages, s'il est donné par un fichier CNAME
+  // (le domaine se règle aussi dans les réglages de Pages, sans ce fichier).
+  if (fs.existsSync(path.join(RACINE, "CNAME"))) fs.copyFileSync(path.join(RACINE, "CNAME"), path.join(sortie, "CNAME"));
 
   for (const f of APPLICATION) {
     const source = path.join(RACINE, f);
