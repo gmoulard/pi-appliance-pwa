@@ -20,8 +20,8 @@
 # Mises à jour) : par /usr/local/lib/pi-appliance/updates.sh, qui remet
 # l'ancienne version si la nouvelle ne démarre pas dans les 2 minutes.
 #
-#   sudo sh mettre-a-jour-pi.sh [version] [--forcer]
-#   sh mettre-a-jour-pi.sh -l
+#   sudo sh pia-update [version] [--forcer]
+#   sh pia-update -l
 #
 #   version    version à installer, par exemple v0.1.6 (ou 0.1.6) ; sans elle,
 #              la dernière version stable publiée. Une version plus ancienne
@@ -30,8 +30,8 @@
 #   -l         liste des versions disponibles, sans rien installer
 #
 # Pour l'avoir sur le Pi :
-#   curl -fsSLO https://raw.githubusercontent.com/gmoulard/pi-appliance-pwa/main/outils/mettre-a-jour-pi.sh
-#   sudo sh mettre-a-jour-pi.sh
+#   curl -fsSLO https://raw.githubusercontent.com/gmoulard/pi-appliance-pwa/main/outils/pia-update
+#   sudo sh pia-update
 
 set -eu
 
