@@ -200,6 +200,16 @@
     }).catch(() => window.open(`${adresse}/`, "_blank", "noopener"));
   }
 
+  // Rompre l'appairage (spécification 4.4) : le Pi est prévenu par un message
+  // signé ; sur le téléphone, la fiche n'est plus marquée appairée, même si le
+  // Pi ne répond pas (il faudra alors retirer l'appareil dans sa console).
+  function desappairer(pi) {
+    const adresse = adresseAOuvrir(pi).replace(/\/$/, "");
+    window.cleTelephone.retirer(adresse, pi.id).catch(() => {});
+    enregistrer({ ...pi, appaire: false });
+    afficherListe();
+  }
+
   function texteEtat(pi) {
     const e = etats.get(pi.maison);
     if (!e || e.enCours) return { texte: t("etat.verification"), classe: "attente" };
@@ -224,10 +234,19 @@
           pi.internet ? el("span", { texte: pi.internet }) : null),
         el("div", { class: "actions" },
           el("a", { class: "bouton", href: adresseAOuvrir(pi), target: "_blank", rel: "noopener", onclick: (event) => ouvrir(pi, event), texte: t("pi.ouvrir") }),
+          appairable(pi) ? el("button", {
+            type: "button", class: "bouton secondaire",
+            onclick: () => {
+              if (window.confirm(t("pi.desappairer.confirmer", { nom: pi.nom }))) desappairer(pi);
+            },
+            texte: t("pi.desappairer"),
+          }) : null,
           el("button", {
             type: "button", class: "bouton secondaire",
             onclick: () => {
-              if (window.confirm(t("pi.supprimer.confirmer", { nom: pi.nom }))) {
+              const appaire = appairable(pi);
+              if (window.confirm(t(appaire ? "pi.supprimer.confirmer.appaire" : "pi.supprimer.confirmer", { nom: pi.nom }))) {
+                if (appaire) desappairer(pi);
                 supprimer(pi.maison);
                 etats.delete(pi.maison);
                 route();

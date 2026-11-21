@@ -66,5 +66,5 @@ Proposé après « J'aimerais ne plus jamais avoir à remplir mon identifiant et
 
 - A. Code d'appairage dans le code QR : 1. accepté (10 minutes, une seule fois, administrateur connecté) ; 2. code à 6 chiffres à recopier. **Réponse : 1.**
 - B. Double authentification : 1. l'appairage compte pour les deux facteurs ; 2. code demandé à chaque ouverture. **Réponse : 1.**
-- C. Durée : 1. jusqu'au retrait, ou un an sans servir ; 2. jusqu'au retrait, sans limite. **Réponse : 2.**
+- C. Durée : 1. jusqu'au retrait, ou un an sans servir ; 2. jusqu'au retrait, sans limite. **Réponse : 2**, « avec rupture possible dans l'appli ou dans le Pi ».
 

@@ -140,7 +140,17 @@
     return true;
   }
 
+  // Rupture de l'appairage depuis l'application (demande, 4.7) : le Pi oublie
+  // la clé de ce téléphone.
+  async function retirer(base, idPi) {
+    const c = await lireCle();
+    if (!c || !c.privee) return false;
+    const message = `retirer|${idPi}|${Math.floor(Date.now() / 1000)}|${aleatoire(16)}`;
+    envoyer(`${base}/appareil/retirer`, { cle: c.empreinte, message, signature: await signer(c, message) });
+    return true;
+  }
+
   const disponible = !!(window.crypto && crypto.subtle && window.indexedDB);
 
-  window.cleTelephone = { disponible, cle, lireCle, appairer, connecter, empreinte, signer };
+  window.cleTelephone = { disponible, cle, lireCle, appairer, connecter, retirer, empreinte, signer };
 })();

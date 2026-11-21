@@ -185,6 +185,13 @@ function verifier(condition, message) {
     } else {
       verifier(false, "connexion signée envoyée au Pi");
     }
+    // Rupture depuis l'application : le Pi reçoit un message signé « retirer ».
+    await page.goto(adresse);
+    await page.locator("#liste-pi li", { hasText: "grenier" }).locator("button", { hasText: "Désappairer" }).click();
+    const retrait = await attendreRecu("/pi-appliance/appareil/retirer");
+    verifier(!!retrait && retrait.champs.message.startsWith("retirer|fedcba9876543210|") && jwk && await verifierSignature(jwk, retrait.champs.message, retrait.champs.signature),
+      "désappairer : message signé « retirer » envoyé au Pi");
+    verifier((await page.locator("#liste-pi li", { hasText: "grenier" }).locator(".badge").count()) === 0, "désappairer : le Pi n'est plus marqué « appairé »");
     for (const autre of contexte.pages()) if (autre !== page) await autre.close();
 
     await contexte.setOffline(true);

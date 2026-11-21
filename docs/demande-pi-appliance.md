@@ -53,7 +53,7 @@ Formulaire (`application/x-www-form-urlencoded`), envoyé par une navigation dan
 | `code` | le code d'appairage `c` |
 | `cle` | la clé publique, JWK en JSON |
 | `appareil` | nom de l'appareil, 64 caractères au plus (« Téléphone Android », modifiable ensuite dans la console) |
-| `message` | `appairer|<id du Pi>|<code>` |
+| `message` | `appairer\|<id du Pi>\|<code>` |
 | `signature` | signature de `message` (preuve que le téléphone a la clé secrète) |
 
 Le Pi vérifie le code (existant, non expiré, non utilisé), la signature, et que `<id du Pi>` est le sien ; il enregistre `{empreinte, clé publique, nom, compte, date d'appairage, dernière utilisation}` dans ses fichiers (droits 600, gardés après les redémarrages et les mises à jour), puis ouvre une session pour le compte (section 4.5). Erreur (code expiré, déjà utilisé, signature fausse) : page de la console en langage courant (« Ce code a expiré : affichez de nouveau le code QR dans Mon Pi »), sans session.
@@ -65,7 +65,7 @@ Même façon d'envoyer :
 | Champ | Contenu |
 |-------|---------|
 | `cle` | empreinte de la clé (RFC 7638) |
-| `message` | `connexion|<id du Pi>|<heure en secondes Unix>|<numéro à usage unique, 16 octets en base64url>` |
+| `message` | `connexion\|<id du Pi>\|<heure en secondes Unix>\|<numéro à usage unique, 16 octets en base64url>` |
 | `signature` | signature de `message` |
 
 Le Pi vérifie : empreinte connue et non retirée, compte actif, signature, `<id du Pi>` le sien, heure à **5 minutes** près, numéro jamais vu (gardé le temps de la fenêtre). Puis il ouvre une session (section 4.5) et met à jour la date de dernière utilisation. Refus : écran de connexion habituel de la console, avec une phrase (« Ce téléphone n'est plus reconnu par le Pi : connectez-vous, puis rescannez le code QR de Mon Pi pour l'appairer de nouveau »).
@@ -78,8 +78,20 @@ Limiter les essais comme pour la connexion par mot de passe.
 - Le cookie de session est `SameSite=Strict` : posé en réponse à une demande venue d'un autre site (`app.pi-appliance.com`), il ne serait pas envoyé à une redirection immédiate. Répondre donc par une petite page de la console qui passe ensuite à la console par une navigation du même site (lien ou redirection en JavaScript), pour que la session soit vue tout de suite.
 - Les demandes `POST` venues de `app.pi-appliance.com` sont attendues sur ces deux adresses seulement (contrôle d'origine : `Origin: https://app.pi-appliance.com`, ou l'adresse provisoire `https://gmoulard.github.io` tant que le domaine n'est pas en place).
 
-### 4.6 « Mon compte → Appareils »
+### 4.6 Rupture depuis l'application : `POST /pi-appliance/appareil/retirer`
+
+Même façon d'envoyer que la connexion :
+
+| Champ | Contenu |
+|-------|---------|
+| `cle` | empreinte de la clé (RFC 7638) |
+| `message` | `retirer\|<id du Pi>\|<heure en secondes Unix>\|<numéro à usage unique>` |
+| `signature` | signature de `message` |
+
+Mêmes vérifications que la connexion ; puis le Pi retire l'appareil (sa clé ne vaut plus rien) et affiche une page de la console : « Ce téléphone n'est plus appairé à ce Pi », **sans ouvrir de session**. Clé inconnue ou déjà retirée : même page (le résultat voulu est atteint).
+
+### 4.7 « Mon compte → Appareils »
 
 - Liste des appareils appairés du compte : nom, date d'appairage, dernière utilisation ; bouton « Retirer » (la clé ne vaut plus rien) et « Renommer ».
-- Sans limite de durée (C2) : un appareil reste appairé jusqu'à ce qu'il soit retiré. Changer de mot de passe ne retire pas les appareils ; la remise à zéro du Pi les retire tous.
+- Sans limite de durée (C2) : un appareil reste appairé jusqu'à ce qu'il soit retiré, ici ou depuis l'application (4.6). Changer de mot de passe ne retire pas les appareils ; la remise à zéro du Pi les retire tous.
 
