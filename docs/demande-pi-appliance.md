@@ -1,6 +1,6 @@
 # Demande pour pi-appliance
 
-Changements à faire dans la console de [pi-appliance](https://github.com/gmoulard/pi-appliance) pour l'application mobile (TODO-5.16 de pi-appliance ; [spécification de l'application](specification.md), sections 4 et 6). À reprendre dans une session de pi-appliance : cette session ne peut pas y écrire. Rédigé le 2026-11-21 (questions 12, 16, 22, 31 et 32 de [questions.md](questions.md)).
+Changements à faire dans la console de [pi-appliance](https://github.com/gmoulard/pi-appliance) pour l'application mobile (TODO-5.16 de pi-appliance ; [spécification de l'application](specification.md), sections 4 et 6). **Réalisée** le 2026-11-21 par une session de pi-appliance, sur sa branche `claude/application-mobile` (pas encore dans une version, pas encore essayée sur un vrai Pi). Différences avec ce texte : appairage, connexion et retrait ne répondent qu'à la maison (fermés sur internet par Traefik) ; le lien met ses paramètres dans l'ordre `id, l, n, s, w`, puis `c`. Rédigé le 2026-11-21 (questions 12, 16, 22, 31 et 32 de [questions.md](questions.md)).
 
 ## 1. Code QR et lien dans « Mon Pi »
 

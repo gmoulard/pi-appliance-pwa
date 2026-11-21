@@ -34,7 +34,8 @@ const PAGES = ["guide-utilisateur", "faq", "installation", "marketplace", "essai
 
 // Fichiers de l'application, copiés tels quels.
 const APPLICATION = [
-  "index.html", "app.css", "app.js", "textes.js", "cle.js", "mespi.js", "recherche.js", "sw.js",
+  "index.html", "app.css", "app.js", "textes.js", "cle.js", "lecteur.js", "mespi.js",
+  "vendor/jsqr/jsQR.js", "vendor/jsqr/LICENSE", "recherche.js", "sw.js",
   "manifest.webmanifest",
   "icones/symbole.svg", "icones/favicon.svg", "icones/icone.svg",
   "icones/icone-192.png", "icones/icone-512.png", "icones/apple-touch-icon.png",

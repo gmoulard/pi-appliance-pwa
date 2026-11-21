@@ -64,6 +64,25 @@ function verifier(condition, message) {
   const adresse = `http://localhost:${srv.address().port}/`;
   const navigateur = await chromium.launch();
   const contexte = await navigateur.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+  // Fausse caméra : une image (localStorage « qr-essai ») dessinée en continu.
+  await contexte.addInitScript(() => {
+    if (!navigator.mediaDevices) return;
+    navigator.mediaDevices.getUserMedia = async () => {
+      const c = document.createElement("canvas");
+      c.width = 640; c.height = 480;
+      const ctx = c.getContext("2d");
+      const img = new Image();
+      img.src = localStorage.getItem("qr-essai") || "";
+      try { await img.decode(); } catch (e) { /* pas d'image : écran blanc */ }
+      const dessiner = () => {
+        ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, c.width, c.height);
+        if (img.naturalWidth) ctx.drawImage(img, 120, 40, 400, 400);
+      };
+      dessiner();
+      setInterval(dessiner, 100);
+      return c.captureStream(10);
+    };
+  });
   const page = await contexte.newPage();
   const erreurs = [];
   page.on("pageerror", (e) => erreurs.push(e.message));
@@ -208,6 +227,26 @@ function verifier(condition, message) {
       await page.goto(`${adresse}#chercher`);
       await page.screenshot({ path: path.join(captures, "chercher.png") });
     }
+
+    // Lecteur de code QR : la caméra est remplacée par une image qui montre
+    // un code QR d'essai (outils/essai-qr-*.png).
+    const imageQR = (f) => `data:image/png;base64,${fs.readFileSync(path.join(__dirname, f)).toString("base64")}`;
+    await page.goto(adresse);
+    await page.evaluate((src) => { localStorage.setItem("qr-essai", src); }, imageQR("essai-qr-autre.png"));
+    await page.goto(`${adresse}#scanner`);
+    await page.waitForFunction(() => !document.getElementById("scanner-etat").hidden, null, { timeout: 15000 });
+    verifier((await page.textContent("#scanner-etat")).includes("ne vient pas"), "code QR étranger : le lecteur le dit et continue");
+    await page.evaluate((src) => { localStorage.setItem("qr-essai", src); }, imageQR("essai-qr-pi.png"));
+    await page.goto(adresse);
+    await page.goto(`${adresse}#scanner`);
+    await page.waitForSelector("#vue-lien:not([hidden])", { timeout: 15000 });
+    verifier((await page.textContent("#lien-details h2")) === "bureau", "code QR de la console lu par la caméra : « Ajouter ce Pi ? »");
+    await page.click("#lien-ajouter");
+    const services = await page.evaluate(() => JSON.parse(localStorage.getItem("mesPi")).find((p) => p.nom === "bureau").services);
+    verifier(JSON.stringify(services) === JSON.stringify([{ nom: "Blog", adresse: "https://blog-bureau.local" }, { nom: "Wiki", adresse: "https://wiki-bureau.local" }]),
+      `services du lien (s=<nom>,<adresse>) : ${services.map((x) => x.nom).join(", ")}`);
+    const cameraArretee = await page.evaluate(() => !document.getElementById("scanner-video").srcObject || document.getElementById("scanner-video").srcObject.getTracks().every((p) => p.readyState === "ended"));
+    verifier(cameraArretee, "caméra arrêtée après la lecture");
 
     // Mise à jour en silence : nouvelle empreinte, nouveau contenu.
     const avant = await page.evaluate(() => caches.keys());

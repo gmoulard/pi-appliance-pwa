@@ -23,10 +23,10 @@ Avancement de l'application mobile pi-appliance ([spécification](specification.
 ## 3. Mes Pi (4)
 
 - [x] Liste gardée sur le téléphone, par ordre alphabétique, suppression ; ajout à la main (nom ou adresse IP) ; ouverture par un seul bouton dans le navigateur (2026-11-21, `mespi.js`).
-- [ ] Ajout par code QR, lu par l'application (jsQR) ou par l'appareil photo sur Android ; lien `#add?...` ; identifiant stable. Fait le 2026-11-21 : lien `#add?n=…&l=…&w=…&id=…` et mise à jour d'une fiche par son identifiant. Restent : lecteur jsQR, services `s`, format à aligner sur ce que réalise pi-appliance.
+- [x] Ajout par code QR, lu par l'application (`lecteur.js`, jsQR dans `vendor/jsqr/`) ou par l'appareil photo sur Android ; lien `#add?...` avec services `s` ; identifiant stable (2026-11-21, essayé dans Chromium avec une fausse caméra). À essayer sur l'Android avec le code de la console.
 - [x] Recherche à la maison parmi les noms connus, avec ses limites dites à l'écran (2026-11-21). À essayer à la maison avec un vrai Pi.
 - [ ] État toujours affiché, et services relus dans `api/hello`. Fait le 2026-11-21 : état deviné sans `api/hello`, vérification à la maison après un geste (autorisation de Chrome), lecture de `api/hello` selon le format de la demande. Restent : format définitif de pi-appliance, essai avec un vrai Pi.
-- [ ] Côté pi-appliance : [demande](demande-pi-appliance.md) reprise dans une session de pi-appliance (code QR et lien dans « Mon Pi », `api/hello`, liens vers l'application ; TODO-5.16 de pi-appliance). Confiée le 2026-11-21 à une session de pi-appliance (« pi-appliance : prise en compte de l'application mobile (PWA) »).
+- [x] Côté pi-appliance : [demande](demande-pi-appliance.md) réalisée par une session de pi-appliance sur sa branche `claude/application-mobile` (2026-11-21) : code QR et lien dans « Mon Pi », `api/hello`, appairage, connexion, retrait, « Mon compte → Appareils ». Reste à la verser dans pi-appliance et à sortir une version, puis à essayer sur un vrai Pi.
 
 - [ ] Appairage (4.4) : clé du téléphone (WebCrypto, non exportable, IndexedDB), appairage au lien `#add?...&c=…`, connexion signée à « Ouvrir ». Côté application fait le 2026-11-21 (`cle.js`, essayé dans Chromium avec un faux Pi, signatures vérifiées par Node). Côté pi-appliance : demande, section 4, confiée à sa session. Reste l'essai avec un vrai Pi.
 

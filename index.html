@@ -29,6 +29,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 <script src="textes.js" defer></script>
 <script src="app.js" defer></script>
 <script src="cle.js" defer></script>
+<script src="lecteur.js" defer></script>
 <script src="mespi.js" defer></script>
 </head>
 <body>
@@ -50,6 +51,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 <h1 data-t="accueil.titre">Bienvenue</h1>
 <p data-t="accueil.intro">Votre Raspberry Pi pi-appliance, dans la poche.</p>
 
+<a class="carte choix" href="#scanner">
+<strong data-t="accueil.scanner">Scanner le code de mon Pi</strong>
+<span data-t="accueil.scanner.detail">Dans la console, « Mon Pi » montre un code QR : visez-le avec le téléphone.</span>
+</a>
+
 <a class="carte choix" href="#ajouter">
 <strong data-t="accueil.ajouter">Ajouter mon Pi</strong>
 <span data-t="accueil.ajouter.detail">Pour l'ouvrir d'un seul geste, à la maison ou sur internet.</span>
@@ -69,7 +75,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 </div>
 <ul id="liste-pi" class="liste-pi"></ul>
 <p class="actions">
-<a class="bouton" href="#ajouter" data-t="mespi.ajouter">Ajouter un Pi</a>
+<a class="bouton" href="#scanner" data-t="mespi.scanner">Scanner un code QR</a>
+<a class="bouton secondaire" href="#ajouter" data-t="mespi.ajouter">Ajouter un Pi</a>
 <a class="bouton secondaire" href="#chercher" data-t="mespi.chercher">Chercher à la maison</a>
 </p>
 <p><a href="doc/index.html" data-t="accueil.doc">Lire la documentation</a></p>
@@ -77,6 +84,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 <section id="vue-ajouter" hidden>
 <h1 data-t="ajouter.titre">Ajouter un Pi</h1>
+<p><a class="bouton" href="#scanner" data-t="ajouter.scanner">Scanner le code QR de la console</a></p>
+<p data-t="ajouter.ou">Ou écrivez son nom :</p>
 <form id="form-ajouter" class="formulaire" novalidate>
 <label for="ajouter-maison" data-t="ajouter.maison">Nom du Pi ou son adresse à la maison</label>
 <input id="ajouter-maison" name="maison" type="text" required autocomplete="off" autocapitalize="none" spellcheck="false" inputmode="url" placeholder="pi-appliance-1a2b">
@@ -105,6 +114,17 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 </p>
 <p id="chercher-etat" role="status" aria-live="polite"></p>
 <ul id="chercher-resultats" class="liste-pi"></ul>
+</section>
+
+<section id="vue-scanner" hidden>
+<h1 data-t="scanner.titre">Scanner le code QR</h1>
+<p data-t="scanner.explication">Dans la console du Pi, ouvrez « Mon Pi » : la carte « Application mobile » montre un code QR. Visez-le avec le téléphone.</p>
+<div class="camera"><video id="scanner-video" autoplay muted playsinline></video></div>
+<p id="scanner-etat" class="note" role="status" aria-live="polite" hidden></p>
+<p class="actions">
+<a class="bouton secondaire" href="#ajouter" data-t="scanner.main">Écrire son nom à la place</a>
+<button type="button" class="bouton secondaire" data-retour data-t="annuler">Annuler</button>
+</p>
 </section>
 
 <section id="vue-lien" hidden>

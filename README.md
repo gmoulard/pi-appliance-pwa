@@ -17,12 +17,13 @@ HTML, CSS et JavaScript sans framework ni étape de construction pour l'applicat
 |--------|------|
 | `index.html`, `app.css`, `app.js`, `textes.js` | Accueil, styles (charte de pi-appliance), code commun, textes de l'interface |
 | `cle.js` | Clé du téléphone : appairage à un Pi et connexion sans mot de passe |
+| `lecteur.js`, `vendor/jsqr/` | Lecteur de code QR (jsQR 1.4.0, licence Apache 2.0) |
 | `mespi.js` | « Mes Pi » : liste des Pi, ajout, recherche à la maison, état, ouverture |
 | `recherche.js` | Recherche dans la documentation, sans réseau |
 | `sw.js` | *Service worker* : site gardé sur le téléphone, mise à jour en silence |
 | `manifest.webmanifest`, `icones/` | Application installable et ses icônes |
 | `outils/site.mjs` | Construction du site : documentation de pi-appliance convertie, index de recherche, `version.json` |
-| `outils/essai.cjs` | Essais dans Chromium sans tête |
+| `outils/essai.cjs`, `outils/essai-qr-*.png` | Essais dans Chromium sans tête (fausse caméra, faux Pi) |
 | `outils/icones.cjs` | Icônes PNG dessinées à partir de `icones/icone.svg` |
 | `.github/workflows/site.yml` | Construction, essais et publication sur GitHub Pages |
 

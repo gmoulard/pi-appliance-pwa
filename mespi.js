@@ -104,9 +104,9 @@
     return { pi };
   }
 
-  // Lien #add?n=…&l=…&w=…&id=… donné par la console (spécification 4.1,
-  // docs/demande-pi-appliance.md). Les services (s) seront lus quand leur
-  // format sera fixé dans pi-appliance.
+  // Lien #add?id=…&l=…&n=…&s=…&w=…[&c=…] donné par la console (spécification
+  // 4.1, docs/demande-pi-appliance.md) : un paramètre s par service, valeur
+  // « <nom>,<adresse> », coupée à la première virgule.
   function lireLien(hash) {
     const m = String(hash || "").match(/^#add\?(.*)$/);
     if (!m) return null;
@@ -117,6 +117,14 @@
     if (/^[a-z0-9-]{1,63}$/.test(n)) r.pi.nom = n;
     const id = String(p.get("id") || "").trim().toLowerCase();
     if (/^[0-9a-f]{8,64}$/.test(id)) r.pi.id = id;
+    r.pi.services = p.getAll("s").map((v) => {
+      const i = v.indexOf(",");
+      if (i <= 0) return null;
+      const nom = v.slice(0, i).trim();
+      let adresse = v.slice(i + 1).trim();
+      if (!/^https?:\/\//i.test(adresse)) adresse = `https://${adresse}`;
+      return /^https:\/\/[^\s"<>]+$/i.test(adresse) ? { nom, adresse } : null;
+    }).filter(Boolean);
     // Code d'appairage (spécification 4.4) : jamais gardé, seulement envoyé au Pi.
     const code = String(p.get("c") || "").trim();
     if (r.pi.id && /^[A-Za-z0-9_-]{16,64}$/.test(code)) r.code = code;
@@ -191,21 +199,26 @@
   }
 
   // « Ouvrir » : console déjà connectée si le téléphone est appairé (4.4).
+  // La connexion par la clé ne répond qu'à la maison (pi-appliance ferme
+  // appareil/* sur internet) : un Pi appairé s'ouvre par son adresse de la
+  // maison, sauf si elle a été vérifiée sans réponse alors qu'internet répond
+  // (on est loin de chez soi) : la console demande alors le mot de passe.
   function ouvrir(pi, event) {
     if (!appairable(pi)) return;
+    const e = etats.get(pi.maison) || {};
+    const loin = e.maison && !e.maison.repond && e.internet && e.internet.repond;
+    if (loin) return;
     event.preventDefault();
-    const adresse = adresseAOuvrir(pi).replace(/\/$/, "");
-    window.cleTelephone.connecter(adresse, pi.id).then((fait) => {
-      if (!fait) window.open(`${adresse}/`, "_blank", "noopener");
-    }).catch(() => window.open(`${adresse}/`, "_blank", "noopener"));
+    window.cleTelephone.connecter(pi.maison, pi.id).then((fait) => {
+      if (!fait) window.open(`${pi.maison}/`, "_blank", "noopener");
+    }).catch(() => window.open(`${pi.maison}/`, "_blank", "noopener"));
   }
 
   // Rompre l'appairage (spécification 4.4) : le Pi est prévenu par un message
   // signé ; sur le téléphone, la fiche n'est plus marquée appairée, même si le
   // Pi ne répond pas (il faudra alors retirer l'appareil dans sa console).
   function desappairer(pi) {
-    const adresse = adresseAOuvrir(pi).replace(/\/$/, "");
-    window.cleTelephone.retirer(adresse, pi.id).catch(() => {});
+    window.cleTelephone.retirer(pi.maison, pi.id).catch(() => {}); // à la maison seulement
     enregistrer({ ...pi, appaire: false });
     afficherListe();
   }
@@ -294,7 +307,18 @@
 
   // ---- Écrans ----
 
-  const VUES = ["vue-accueil", "vue-mespi", "vue-ajouter", "vue-chercher", "vue-lien"];
+  const VUES = ["vue-accueil", "vue-mespi", "vue-ajouter", "vue-chercher", "vue-scanner", "vue-lien"];
+
+  function scanner() {
+    const etat = document.getElementById("scanner-etat");
+    etat.hidden = true;
+    if (!window.lecteurQR) return;
+    window.lecteurQR.demarrer(document.getElementById("scanner-video"), {
+      trouve: (hash) => { location.hash = hash; },
+      autre: () => { etat.textContent = t("scanner.autre"); etat.hidden = false; },
+      erreur: (cle) => { etat.textContent = t(cle); etat.hidden = false; },
+    });
+  }
 
   function montrer(vue) {
     for (const v of VUES) {
@@ -308,6 +332,8 @@
 
   function route() {
     const hash = location.hash;
+    if (hash !== "#scanner" && window.lecteurQR) window.lecteurQR.arreter();
+    if (hash === "#scanner") { montrer("vue-scanner"); scanner(); return; }
     if (hash.startsWith("#add?")) {
       const r = lireLien(hash);
       const zone = document.getElementById("lien-details");
