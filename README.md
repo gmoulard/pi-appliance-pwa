@@ -9,7 +9,7 @@ Aucun compte, aucun traceur : ce qui est saisi reste sur le téléphone.
 
 pi-appliance a trois parties, qui portent toutes ce nom : **l'image** à flasher sur la carte SD, **le socle** toujours installé sur le Pi (sa **console** web, ses outils et la commande **`pia`**), et **cette application mobile**.
 
-Projet en cours : la documentation hors ligne est construite, « Mes Pi » en partie (le code QR attend pi-appliance). Voir la [spécification](docs/specification.md) et le [TODO](docs/TODO.md). Publication prévue à l'adresse `https://app.pi-appliance.com` (GitHub Pages).
+Projet en cours : la documentation hors ligne est construite, « Mes Pi » en partie (le code QR attend pi-appliance). Voir la [spécification](docs/specification.md) et le [TODO](docs/TODO.md). Publication prévue à l'adresse `https://app.pi-appliance.com` (GitHub Pages) ; en attendant, adresse provisoire `https://gmoulard.github.io/pi-appliance-pwa/`.
 
 ## Pour contribuer
 
