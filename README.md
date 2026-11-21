@@ -24,7 +24,7 @@ HTML, CSS et JavaScript sans framework ni étape de construction pour l'applicat
 | `manifest.webmanifest`, `icones/` | Application installable et ses icônes |
 | `outils/site.mjs` | Construction du site : documentation de pi-appliance convertie, index de recherche, `version.json` |
 | `outils/essai.cjs`, `outils/essai-qr-*.png` | Essais dans Chromium sans tête (fausse caméra, faux Pi) |
-| `outils/mettre-a-jour-pi.sh` | À lancer sur le Pi en SSH : installe la dernière version de pi-appliance (`curl -fsSLO https://raw.githubusercontent.com/gmoulard/pi-appliance-pwa/main/outils/mettre-a-jour-pi.sh && sudo sh mettre-a-jour-pi.sh [version]` ; sans version, la dernière) |
+| `outils/mettre-a-jour-pi.sh` | À lancer sur le Pi en SSH : installe la dernière version de pi-appliance (`curl -fsSLO https://raw.githubusercontent.com/gmoulard/pi-appliance-pwa/main/outils/mettre-a-jour-pi.sh && sudo sh mettre-a-jour-pi.sh [version]` ; sans version, la dernière ; `-l` : liste des versions) |
 | `outils/icones.cjs` | Icônes PNG dessinées à partir de `icones/icone.svg` |
 | `.github/workflows/site.yml` | Construction, essais et publication sur GitHub Pages |
 

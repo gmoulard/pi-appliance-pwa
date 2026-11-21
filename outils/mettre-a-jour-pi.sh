@@ -21,11 +21,13 @@
 # l'ancienne version si la nouvelle ne démarre pas dans les 2 minutes.
 #
 #   sudo sh mettre-a-jour-pi.sh [version] [--forcer]
+#   sh mettre-a-jour-pi.sh -l
 #
 #   version    version à installer, par exemple v0.1.6 (ou 0.1.6) ; sans elle,
 #              la dernière version stable publiée. Une version plus ancienne
 #              que celle installée est acceptée quand elle est donnée ici.
 #   --forcer   réinstaller même si cette version est déjà installée
+#   -l         liste des versions disponibles, sans rien installer
 #
 # Pour l'avoir sur le Pi :
 #   curl -fsSLO https://raw.githubusercontent.com/gmoulard/pi-appliance-pwa/main/outils/mettre-a-jour-pi.sh
@@ -47,10 +49,12 @@ echec() { printf 'Erreur : %s\n' "$*" >&2; exit 1; }
 
 version_voulue=""
 forcer=0
+liste=0
 while [ $# -gt 0 ]; do
 	case "$1" in
 	--version) [ $# -ge 2 ] || echec "--version demande un numéro, par exemple v0.1.6."; version_voulue=$2; shift 2 ;;
 	--forcer | --force) forcer=1; shift ;;
+	-l | --liste | --list) liste=1; shift ;;
 	-h | --aide | --help) sed -n '/^# Met à jour/,/^$/p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
 	-*) echec "option inconnue : $1 (voir --aide)." ;;
 	*)
@@ -60,6 +64,31 @@ while [ $# -gt 0 ]; do
 		;;
 	esac
 done
+
+# Liste des versions publiées (-l) : rien n'est installé, pas besoin de root.
+if [ "$liste" = 1 ]; then
+	for outil in curl jq; do
+		command -v "$outil" >/dev/null 2>&1 || echec "il manque l'outil « $outil » sur ce Pi."
+	done
+	installee=$("$CONSOLE" -version 2>/dev/null || true)
+	versions=$(curl -fsSL --retry 3 --max-time 60 -H "Accept: application/vnd.github+json" -H "User-Agent: pi-appliance" "$API/releases?per_page=30") ||
+		echec "GitHub ne répond pas. Vérifiez la connexion du Pi à internet."
+	dernier=$(printf '%s' "$versions" | jq -r '[.[] | select(.draft | not) | select(.prerelease | not)][0].tag_name // ""')
+	dire "Versions de pi-appliance publiées (installée : ${installee:-inconnue}) :"
+	printf '%s' "$versions" | jq -r '.[] | select(.draft | not) |
+		[.tag_name, (.published_at // "" | .[0:10]), (if .prerelease then "préversion" else "" end),
+		 (.tag_name as $t | if any(.assets[]; .name == ("pi-appliance-" + $t + "-arm64.tar.gz")) then "" else "pas d'"'"'archive pour le Pi" end)] | join("|")' |
+	while IFS='|' read -r etiquette date pre archive; do
+		marques=""
+		[ "$etiquette" = "$installee" ] && marques="$marques, installée"
+		[ "$etiquette" = "$dernier" ] && marques="$marques, dernière"
+		[ -n "$pre" ] && marques="$marques, $pre"
+		[ -n "$archive" ] && marques="$marques, $archive"
+		printf '  %-12s %s%s\n' "$etiquette" "$date" "${marques:+ ($(printf '%s' "$marques" | sed 's/^, //'))}"
+	done
+	dire "Installer une version : sudo sh $0 <version> (sans version : la dernière)."
+	exit 0
+fi
 
 if [ "$(id -u)" != 0 ]; then
 	command -v sudo >/dev/null 2>&1 || echec "lancez ce script en root (sudo)."
