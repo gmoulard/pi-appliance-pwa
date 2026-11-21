@@ -10,7 +10,7 @@ J'ai compris : la console montre, à côté du code QR, le même lien `https://a
 2. Non : un bouton dans l'application pour envoyer un de ses Pi à quelqu'un d'autre (famille)
 3. Les deux
 
-**Réponse :** 
+**Réponse :** 1
 
 ### 32. Ce que `api/hello` montre sans connexion (réponses 16 et 22)
 
@@ -20,14 +20,14 @@ Pour que les services soient mis à jour par le Pi, `api/hello` rend aussi la li
 2. Les services seulement à la maison ; sur internet, le nom et la version seulement
 3. Pas de services dans `api/hello` : ils ne viennent que du code QR
 
-**Réponse :** 
+**Réponse :** 1
 
 ### 33. Quelle adresse ouvre le bouton unique (réponse 18)
 
 1. L'adresse sur internet si elle répond (vrai certificat, pas d'alerte), sinon celle de la maison **(proposé)**
 2. L'adresse de la maison si elle répond, sinon celle d'internet
 
-**Réponse :** 
+**Réponse :** 1
 
 ### 34. Fond de l'icône ailleurs qu'Android (réponse 2)
 
@@ -36,14 +36,14 @@ L'iPhone n'accepte pas d'icône transparente : il lui faut aussi un fond.
 1. Framboise partout, comme Android **(proposé)**
 2. Rose pâle (`#FFF5F7`) sur iPhone et dans le navigateur
 
-**Réponse :** 
+**Réponse :** 1
 
 ### 35. Langue (réponse « 11 » à la question 26)
 
 1. Tu voulais dire 1 : la langue du téléphone, avec un choix dans les réglages **(proposé)**
 2. Tu voulais dire 2 : la langue du téléphone seulement
 
-**Réponse :** 
+**Réponse :** 1
 
 ### 36. Navigateur sur ton Android 16 (One UI 8.5, Samsung)
 
@@ -51,11 +51,11 @@ L'iPhone n'accepte pas d'icône transparente : il lui faut aussi un fond.
 2. Samsung Internet
 3. Les deux
 
-**Réponse :** 
+**Réponse :** 1
 
 ### 37. iPhone, sans téléphone pour l'essayer
 
 1. L'application vise quand même l'iPhone ; ce qui n'a pas été essayé dessus est dit dans le TODO **(proposé)**
 2. Android seulement dans la première version
 
-**Réponse :** 
+**Réponse :** 1
