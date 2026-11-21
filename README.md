@@ -16,6 +16,7 @@ HTML, CSS et JavaScript sans framework ni étape de construction pour l'applicat
 | Chemin | Rôle |
 |--------|------|
 | `index.html`, `app.css`, `app.js`, `textes.js` | Accueil, styles (charte de pi-appliance), code commun, textes de l'interface |
+| `cle.js` | Clé du téléphone : appairage à un Pi et connexion sans mot de passe |
 | `mespi.js` | « Mes Pi » : liste des Pi, ajout, recherche à la maison, état, ouverture |
 | `recherche.js` | Recherche dans la documentation, sans réseau |
 | `sw.js` | *Service worker* : site gardé sur le téléphone, mise à jour en silence |

@@ -66,6 +66,8 @@ Une liste « Mes Pi », vide au départ, gardée sur le téléphone, **par ordre
 
 ### 4.4 Appairage : ouvrir la console sans mot de passe
 
+**Réalisé côté application** (2026-11-21, `cle.js`, essayé dans Chromium avec un faux Pi) ; attend pi-appliance.
+
 Choix de l'utilisateur du 2026-11-21 (A1, B1, C2) : un téléphone appairé à un Pi ouvre la console déjà connecté, sans retaper l'identifiant ni le mot de passe.
 
 - **Clé du téléphone** : à son premier appairage, l'application crée une paire de clés ECDSA P-256 avec le navigateur (WebCrypto), la clé secrète **non exportable**, gardée dans IndexedDB : le navigateur s'en sert pour signer, mais personne ne peut la lire, pas même l'application. Une seule clé par téléphone, pour tous ses Pi. Elle est désignée par son empreinte (RFC 7638, SHA-256 en base64url).

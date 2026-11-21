@@ -261,3 +261,4 @@ dialog h2 { margin-top: 0; }
 .limites li + li { margin-top: 0.4rem; }
 #reseau-local p { margin-top: 0; }
 #reseau-local { margin-bottom: 16px; }
+.badge { display: inline-block; margin-inline-start: 0.5em; padding: 0 0.5em; border-radius: 999px; background: #E2F4EA; color: #1E8A52; font-size: 0.75rem; font-weight: 700; vertical-align: middle; }

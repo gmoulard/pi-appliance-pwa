@@ -117,6 +117,9 @@
     if (/^[a-z0-9-]{1,63}$/.test(n)) r.pi.nom = n;
     const id = String(p.get("id") || "").trim().toLowerCase();
     if (/^[0-9a-f]{8,64}$/.test(id)) r.pi.id = id;
+    // Code d'appairage (spécification 4.4) : jamais gardé, seulement envoyé au Pi.
+    const code = String(p.get("c") || "").trim();
+    if (r.pi.id && /^[A-Za-z0-9_-]{16,64}$/.test(code)) r.code = code;
     return r;
   }
 
@@ -183,6 +186,20 @@
     return `${pi.maison}/`;
   }
 
+  function appairable(pi) {
+    return !!(pi.appaire && pi.id && window.cleTelephone && window.cleTelephone.disponible);
+  }
+
+  // « Ouvrir » : console déjà connectée si le téléphone est appairé (4.4).
+  function ouvrir(pi, event) {
+    if (!appairable(pi)) return;
+    event.preventDefault();
+    const adresse = adresseAOuvrir(pi).replace(/\/$/, "");
+    window.cleTelephone.connecter(adresse, pi.id).then((fait) => {
+      if (!fait) window.open(`${adresse}/`, "_blank", "noopener");
+    }).catch(() => window.open(`${adresse}/`, "_blank", "noopener"));
+  }
+
   function texteEtat(pi) {
     const e = etats.get(pi.maison);
     if (!e || e.enCours) return { texte: t("etat.verification"), classe: "attente" };
@@ -199,14 +216,14 @@
       const etat = texteEtat(pi);
       const services = (pi.services || []).filter((s) => s && s.nom && /^https:\/\//.test(s.adresse || ""));
       return el("li", { class: "carte fiche-pi" },
-        el("h2", { texte: pi.nom }),
+        el("h2", { texte: pi.nom }, appairable(pi) ? el("span", { class: "badge", texte: t("pi.appaire") }) : null),
         el("p", { class: `etat ${etat.classe}`, role: "status", texte: etat.texte }),
         el("p", { class: "adresses" },
           el("span", { texte: pi.maison }),
           pi.internet ? el("br") : null,
           pi.internet ? el("span", { texte: pi.internet }) : null),
         el("div", { class: "actions" },
-          el("a", { class: "bouton", href: adresseAOuvrir(pi), target: "_blank", rel: "noopener", texte: t("pi.ouvrir") }),
+          el("a", { class: "bouton", href: adresseAOuvrir(pi), target: "_blank", rel: "noopener", onclick: (event) => ouvrir(pi, event), texte: t("pi.ouvrir") }),
           el("button", {
             type: "button", class: "bouton secondaire",
             onclick: () => {
@@ -281,11 +298,14 @@
         zone.replaceChildren(el("p", { class: "note", texte: t("lien.invalide") }));
         bouton.hidden = true;
       } else {
-        lienEnAttente = r.pi;
+        const appairage = !!(r.code && window.cleTelephone && window.cleTelephone.disponible);
+        lienEnAttente = { pi: r.pi, code: appairage ? r.code : null };
         zone.replaceChildren(
           el("h2", { texte: r.pi.nom }),
           el("p", { class: "adresses" }, el("span", { texte: r.pi.maison }),
-            r.pi.internet ? el("br") : null, r.pi.internet ? el("span", { texte: r.pi.internet }) : null));
+            r.pi.internet ? el("br") : null, r.pi.internet ? el("span", { texte: r.pi.internet }) : null),
+          appairage ? el("p", { texte: t("lien.appairage") }) : null);
+        bouton.textContent = t(appairage ? "lien.appairer" : "lien.ajouter");
         bouton.hidden = false;
       }
       montrer("vue-lien");
@@ -371,9 +391,21 @@
     if (!document.getElementById("vue-mespi")) return;
     formulaireAjout();
     recherche();
-    document.getElementById("lien-ajouter").addEventListener("click", () => {
-      if (lienEnAttente) enregistrer(lienEnAttente);
+    document.getElementById("lien-ajouter").addEventListener("click", async () => {
+      const lien = lienEnAttente;
       lienEnAttente = null;
+      if (lien && lien.code) {
+        // Appairage par l'adresse de la maison : on scanne le code QR devant la console.
+        enregistrer({ ...lien.pi, appaire: true });
+        try {
+          await window.cleTelephone.appairer(lien.pi.maison, lien.pi.id, lien.code);
+        } catch (e) {
+          enregistrer({ ...lien.pi, appaire: false });
+          window.alert(t("lien.appairage.erreur"));
+        }
+      } else if (lien) {
+        enregistrer(lien.pi);
+      }
       retourListe();
     });
     document.getElementById("reseau-local-verifier").addEventListener("click", () => {

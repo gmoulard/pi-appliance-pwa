@@ -36,6 +36,7 @@ Choix de l'utilisateur du 2026-11-21 (spécification de l'application, 4.4) : A1
 - Paire de clés **ECDSA P-256 / SHA-256** créée par l'application (WebCrypto), clé secrète non exportable, une par téléphone.
 - Clé publique transmise en JWK : `{"kty":"EC","crv":"P-256","x":"…","y":"…"}` (`x`, `y` en base64url).
 - Empreinte de la clé : **RFC 7638** (SHA-256 du JSON `{"crv":"P-256","kty":"EC","x":"…","y":"…"}`, membres dans cet ordre, sans espaces), en base64url sans `=`.
+- Messages signés : champs séparés par `|`, sans retour à la ligne (un navigateur change `\n` en `\r\n` dans un formulaire envoyé).
 - Signature : format WebCrypto, `r‖s` (64 octets) en base64url sans `=` ; en Go : `r` = 32 premiers octets, `s` = 32 suivants, `ecdsa.Verify(pub, sha256(message), r, s)`.
 
 ### 4.2 Code d'appairage
@@ -52,7 +53,7 @@ Formulaire (`application/x-www-form-urlencoded`), envoyé par une navigation dan
 | `code` | le code d'appairage `c` |
 | `cle` | la clé publique, JWK en JSON |
 | `appareil` | nom de l'appareil, 64 caractères au plus (« Téléphone Android », modifiable ensuite dans la console) |
-| `message` | `appairer\n<id du Pi>\n<code>` |
+| `message` | `appairer|<id du Pi>|<code>` |
 | `signature` | signature de `message` (preuve que le téléphone a la clé secrète) |
 
 Le Pi vérifie le code (existant, non expiré, non utilisé), la signature, et que `<id du Pi>` est le sien ; il enregistre `{empreinte, clé publique, nom, compte, date d'appairage, dernière utilisation}` dans ses fichiers (droits 600, gardés après les redémarrages et les mises à jour), puis ouvre une session pour le compte (section 4.5). Erreur (code expiré, déjà utilisé, signature fausse) : page de la console en langage courant (« Ce code a expiré : affichez de nouveau le code QR dans Mon Pi »), sans session.
@@ -64,7 +65,7 @@ Même façon d'envoyer :
 | Champ | Contenu |
 |-------|---------|
 | `cle` | empreinte de la clé (RFC 7638) |
-| `message` | `connexion\n<id du Pi>\n<heure en secondes Unix>\n<numéro à usage unique, 16 octets en base64url>` |
+| `message` | `connexion|<id du Pi>|<heure en secondes Unix>|<numéro à usage unique, 16 octets en base64url>` |
 | `signature` | signature de `message` |
 
 Le Pi vérifie : empreinte connue et non retirée, compte actif, signature, `<id du Pi>` le sien, heure à **5 minutes** près, numéro jamais vu (gardé le temps de la fenêtre). Puis il ouvre une session (section 4.5) et met à jour la date de dernière utilisation. Refus : écran de connexion habituel de la console, avec une phrase (« Ce téléphone n'est plus reconnu par le Pi : connectez-vous, puis rescannez le code QR de Mon Pi pour l'appairer de nouveau »).

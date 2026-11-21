@@ -121,7 +121,7 @@ function verifier(condition, message) {
       await page.click("#form-ajouter button[type=submit]");
       await page.waitForSelector("#vue-mespi:not([hidden])");
     }
-    let noms = await page.$$eval("#liste-pi h2", (h) => h.map((e) => e.textContent));
+    let noms = await page.$$eval("#liste-pi h2", (h) => h.map((e) => e.firstChild.textContent));
     verifier(noms.join(",") === "192.168.1.196,controltower", `liste par ordre alphabétique : ${noms.join(", ")}`);
     const lien = await page.getAttribute("#liste-pi li:nth-child(2) a.bouton", "href");
     verifier(lien === "https://controltower.local/pi-appliance/", `internet ne répond pas : le bouton ouvre la maison (${lien})`);
@@ -131,15 +131,70 @@ function verifier(condition, message) {
     await page.goto(`${adresse}#add?n=cuisine&l=https%3A%2F%2Fcuisine.local%2Fpi-appliance&id=0123456789abcdef`);
     await page.click("#lien-ajouter");
     await page.waitForSelector("#vue-mespi:not([hidden])");
-    noms = await page.$$eval("#liste-pi h2", (h) => h.map((e) => e.textContent));
+    noms = await page.$$eval("#liste-pi h2", (h) => h.map((e) => e.firstChild.textContent));
     verifier(noms.join(",") === "192.168.1.196,controltower,cuisine", `lien #add, puis Pi renommé reconnu par son identifiant : ${noms.join(", ")}`);
+    // Appairage et connexion sans mot de passe (spécification 4.4) : un faux Pi
+    // reçoit les formulaires ; la signature est vérifiée ici avec Node.
+    const recus = [];
+    await contexte.route("https://grenier.local/**", async (route) => {
+      const r = route.request();
+      if (r.method() === "POST") recus.push({ url: r.url(), champs: Object.fromEntries(new URLSearchParams(r.postData() || "")) });
+      await route.fulfill({ status: 200, contentType: "text/html", body: "<p>faux Pi</p>" });
+    });
+    const code = "AbCdEfGhIjKlMnOpQrStUv";
+    await page.goto(`${adresse}#add?n=grenier&l=https%3A%2F%2Fgrenier.local%2Fpi-appliance&id=fedcba9876543210&c=${code}`);
+    await page.waitForSelector("#vue-lien:not([hidden])");
+    verifier((await page.textContent("#lien-ajouter")) === "Ajouter et appairer", "lien avec code d'appairage : « Ajouter et appairer »");
+    await page.click("#lien-ajouter");
+    const attendreRecu = async (fin) => { for (let i = 0; i < 50 && !recus.some((x) => x.url.endsWith(fin)); i++) await new Promise((r) => setTimeout(r, 100)); return recus.find((x) => x.url.endsWith(fin)); };
+    const appairage = await attendreRecu("/pi-appliance/appareil/appairer");
+    const { webcrypto } = require("node:crypto");
+    const verifierSignature = async (jwk, message, signature) => {
+      const cle = await webcrypto.subtle.importKey("jwk", jwk, { name: "ECDSA", namedCurve: "P-256" }, false, ["verify"]);
+      return webcrypto.subtle.verify({ name: "ECDSA", hash: "SHA-256" }, cle, Buffer.from(signature, "base64url"), new TextEncoder().encode(message));
+    };
+    let jwk = null;
+    if (appairage) {
+      const c = appairage.champs;
+      jwk = JSON.parse(c.cle);
+      verifier(c.code === code && c.message === `appairer|fedcba9876543210|${code}` && c.appareil.length > 0 && !jwk.d,
+        "appairage envoyé au Pi : code, message, nom d'appareil, clé publique seule");
+      verifier(await verifierSignature(jwk, c.message, c.signature), "signature de l'appairage valable (vérifiée par Node)");
+    } else {
+      verifier(false, "appairage envoyé au Pi");
+    }
+    const nonExportable = await page.evaluate(async () => {
+      const c = await window.cleTelephone.lireCle();
+      try { await crypto.subtle.exportKey("jwk", c.privee); return false; } catch (e) { return true; }
+    });
+    verifier(nonExportable, "clé secrète du téléphone non exportable");
+    await page.goto(adresse);
+    const fiche = page.locator("#liste-pi li", { hasText: "grenier" });
+    verifier((await fiche.locator(".badge").count()) === 1, "Pi marqué « appairé » dans la liste");
+    await fiche.locator("a.bouton").click();
+    const connexion = await attendreRecu("/pi-appliance/appareil/connexion");
+    if (connexion && jwk) {
+      const c = connexion.champs;
+      const parties = c.message.split("|");
+      const canon = JSON.stringify({ crv: jwk.crv, kty: jwk.kty, x: jwk.x, y: jwk.y });
+      const attendue = require("node:crypto").createHash("sha256").update(canon).digest("base64url");
+      verifier(parties[0] === "connexion" && parties[1] === "fedcba9876543210" && Math.abs(Number(parties[2]) - Date.now() / 1000) < 60 && /^[A-Za-z0-9_-]{22}$/.test(parties[3]),
+        `message de connexion : ${parties.slice(0, 3).join(" / ")} / numéro`);
+      verifier(c.cle === attendue, "empreinte de la clé conforme à la RFC 7638");
+      verifier(await verifierSignature(jwk, c.message, c.signature), "signature de la connexion valable (vérifiée par Node)");
+    } else {
+      verifier(false, "connexion signée envoyée au Pi");
+    }
+    for (const autre of contexte.pages()) if (autre !== page) await autre.close();
+
     await contexte.setOffline(true);
     await page.reload();
-    verifier((await page.locator("#liste-pi li").count()) === 3, "liste gardée et affichée sans réseau");
+    verifier((await page.locator("#liste-pi li").count()) === 4, "liste gardée et affichée sans réseau");
     await contexte.setOffline(false);
     await page.click("#liste-pi li:nth-child(1) button");
-    noms = await page.$$eval("#liste-pi h2", (h) => h.map((e) => e.textContent));
-    verifier(noms.join(",") === "controltower,cuisine", "suppression d'un Pi");
+    await page.waitForTimeout(300);
+    noms = await page.$$eval("#liste-pi h2", (h) => h.map((e) => e.firstChild.textContent));
+    verifier(noms.join(",") === "controltower,cuisine,grenier", `suppression d'un Pi : ${noms.join(", ")}`);
     if (captures) {
       await page.waitForFunction(() => !document.body.textContent.includes("Vérification…"), null, { timeout: 15000 });
       await page.screenshot({ path: path.join(captures, "mespi.png") });
