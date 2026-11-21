@@ -1,263 +1,61 @@
 # Questions pour finir la spécification
 
-Questions posées le 2026-11-21 pour compléter la [spécification](specification.md). Chaque question a des choix numérotés ; celui que je propose est marqué **(proposé)**. Écrire après **Réponse :** le numéro choisi, ou un autre choix en quelques mots. Une fois tranchée, la réponse passe dans la spécification et la question est retirée d'ici.
+Les 30 premières questions ont été tranchées le 2026-11-21 et sont reprises dans la [spécification](specification.md). Restent ces précisions, nées des réponses. Chaque question a des choix numérotés ; celui que je propose est marqué **(proposé)**. Écrire après **Réponse :** le numéro choisi, ou un autre choix en quelques mots.
 
-Les questions marquées ⚠️ changent la conception : elles viennent de limites des navigateurs repérées en préparant la liste.
+### 31. « Lien de partage » (réponse à la question 12)
 
-## A. Nom, icône, publication
+J'ai compris : la console montre, à côté du code QR, le même lien `https://app.pi-appliance.com/#add?...` prêt à envoyer par message.
 
-### 1. Nom sous l'icône du téléphone
+1. Oui, c'est ça **(proposé)**
+2. Non : un bouton dans l'application pour envoyer un de ses Pi à quelqu'un d'autre (famille)
+3. Les deux
 
-1. « pi-appliance » **(proposé)**
-2. « Mes Pi »
-3. Autre (l'écrire)
+**Réponse :** 
 
-**Réponse :** 1
+### 32. Ce que `api/hello` montre sans connexion (réponses 16 et 22)
 
-### 2. Icône
+Pour que les services soient mis à jour par le Pi, `api/hello` rend aussi la liste des services. Sans connexion, n'importe qui qui connaît l'adresse du Pi sur internet peut la lire.
 
-Le symbole « La maison » de la charte. Android demande aussi une icône sur fond plein, qu'il découpe en rond ou en carré.
+1. D'accord : les adresses des services sur internet sont déjà joignables par tous **(proposé)**
+2. Les services seulement à la maison ; sur internet, le nom et la version seulement
+3. Pas de services dans `api/hello` : ils ne viennent que du code QR
 
-1. Le symbole sur fond rose pâle (`#FFF5F7`), même dessin partout **(proposé)**
-2. Le symbole sur fond blanc
-3. Le symbole sur fond framboise (`#C71F5D`), pour Android seulement
+**Réponse :** 
 
-**Réponse :** 3
+### 33. Quelle adresse ouvre le bouton unique (réponse 18)
 
-### 3. Branche publiée par GitHub Pages
+1. L'adresse sur internet si elle répond (vrai certificat, pas d'alerte), sinon celle de la maison **(proposé)**
+2. L'adresse de la maison si elle répond, sinon celle d'internet
 
-1. `master`, comme pi-appliance **(proposé)**
-2. `main`
+**Réponse :** 
 
-**Réponse :** 2
+### 34. Fond de l'icône ailleurs qu'Android (réponse 2)
 
-### 4. Lien vers l'application (« Application mobile »)
+L'iPhone n'accepte pas d'icône transparente : il lui faut aussi un fond.
 
-1. Sur www.pi-appliance.com et dans la console, à faire dans pi-appliance **(proposé)**
-2. Sur www.pi-appliance.com seulement
-3. Nulle part pour l'instant
+1. Framboise partout, comme Android **(proposé)**
+2. Rose pâle (`#FFF5F7`) sur iPhone et dans le navigateur
 
-**Réponse :** 1
+**Réponse :** 
 
-## B. Documentation hors ligne
+### 35. Langue (réponse « 11 » à la question 26)
 
-### 5. Pages reprises
+1. Tu voulais dire 1 : la langue du téléphone, avec un choix dans les réglages **(proposé)**
+2. Tu voulais dire 2 : la langue du téléphone seulement
 
-Toujours reprises : guide utilisateur, installation et flashage, marketplace, premier démarrage (image), future FAQ. Toujours dehors : les pages pour le projet (spécification, TODO, environnement, prototype, manGit, charte).
+**Réponse :** 
 
-1. Ajouter aussi `essais-plusieurs-pi.md` (plusieurs Pi à la maison) **(proposé)**
-2. Ne pas l'ajouter
+### 36. Navigateur sur ton Android 16 (One UI 8.5, Samsung)
 
-**Réponse :** 1
+1. Chrome **(proposé)**
+2. Samsung Internet
+3. Les deux
 
-### 6. Lien vers une page non reprise (par exemple vers la spécification)
+**Réponse :** 
 
-1. Lien vers la page sur www.pi-appliance.com, marqué « en ligne » **(proposé)**
-2. Lien retiré, texte gardé
+### 37. iPhone, sans téléphone pour l'essayer
 
-**Réponse :** 1
+1. L'application vise quand même l'iPhone ; ce qui n'a pas été essayé dessus est dit dans le TODO **(proposé)**
+2. Android seulement dans la première version
 
-### 7. Version de la documentation
-
-1. La dernière étiquette `vX.Y.Z` (aujourd'hui `v0.1.4`), même avant la version stable (TODO-5.9) **(proposé)**
-2. Seulement à partir de la première version stable
-
-**Réponse :** 1
-
-### 8. Un Pi resté sur une version plus ancienne
-
-1. Une seule documentation, celle de la dernière version **(proposé)**
-2. Garder aussi les documentations des versions précédentes
-
-**Réponse :** 1
-
-### 9. Nouvelle documentation reçue
-
-1. Prise en silence ; version et date en bas de page **(proposé)**
-2. Bandeau « Documentation mise à jour »
-
-**Réponse :** 1 plus ref du commit
-
-### 10. Rythme de republication
-
-1. Une fois par jour et à la demande **(proposé)**
-2. En plus, dès qu'une version de pi-appliance sort (le workflow de pi-appliance prévient ce dépôt, avec un jeton à créer)
-
-**Réponse :** 1
-
-## C. Mes Pi : ajout
-
-### 11. ⚠️ Code QR et iPhone
-
-Sur iPhone, l'application posée sur l'écran d'accueil ne partage pas ses données avec Safari. Scanner le code avec l'appareil photo ouvre Safari, et le Pi ajouté là n'apparaît pas dans l'application installée.
-
-1. L'application lit le code QR elle-même (bouton « Scanner le code », caméra du téléphone), avec une petite bibliothèque libre gardée dans le dépôt, par exemple jsQR (licence Apache 2.0) ; l'appareil photo reste possible sur Android **(proposé)**
-2. Appareil photo seulement ; sur iPhone, dire de recopier l'adresse à la main
-
-**Réponse :** 1 
-
-### 12. Contenu du code QR
-
-Toujours : nom du Pi, adresse à la maison, adresse sur internet ; jamais de mot de passe ni de clé. La console ne montre le code qu'à l'administrateur connecté, dans « Mon Pi » : un voisin du Wi-Fi ne le voit pas.
-
-1. Avec aussi la liste des services et leurs adresses **(proposé)**
-2. Sans les services
-
-**Réponse :** 1 + lien de partage 
-
-### 13. Un Pi qui change de nom
-
-Par exemple `pi-appliance-1a2b` devenu `controltower` : rescanner le code créerait un deuxième Pi.
-
-1. Le code porte un identifiant stable et non secret (l'empreinte de la clé du Pi) : la fiche est mise à jour **(proposé)**
-2. Pas d'identifiant : la personne supprime l'ancienne fiche elle-même
-
-**Réponse :** 1
-
-### 14. Saisie à la main
-
-1. Nom du Pi ou adresse IP (`192.168.1.196`) **(proposé)**
-2. Nom du Pi seulement
-
-**Réponse :** 1
-
-### 15. ⚠️ Recherche à la maison : ses limites réelles
-
-Une page de `app.pi-appliance.com` voit très mal le réseau de la maison :
-- le certificat du Pi à la maison est fait par le Pi lui-même, pas par une autorité reconnue. Le navigateur refuse alors la demande, et l'application ne peut pas distinguer « le Pi est là » de « le Pi n'existe pas », tant que la personne n'a pas accepté l'alerte du certificat dans ce navigateur. Sur iPhone, il faut l'avoir fait dans l'application installée elle-même ;
-- Chrome demande en plus la permission d'accéder « aux appareils de votre réseau local ».
-
-1. Garder la recherche, avec ces limites expliquées
-2. La remplacer par un bouton « Essayer » sur chaque Pi, qui ouvre simplement l'adresse ; la vraie recherche reviendra si un moyen fiable apparaît **(proposé)**
-3. La retirer : seulement le code QR et la saisie
-
-**Réponse :** 1
-
-## D. Mes Pi : état et ouverture
-
-### 16. ⚠️ État d'un Pi sur internet
-
-L'adresse sur internet a un vrai certificat, donc l'état peut s'y lire de façon fiable, si la console répond à une petite demande sans connexion (par exemple `api/hello`), autorisée pour `app.pi-appliance.com`.
-
-1. L'ajouter dans pi-appliance, réponse « je suis là » seulement **(proposé)**
-2. L'ajouter, réponse avec aussi le nom et la version du Pi
-3. Ne pas l'ajouter : pas d'état sur internet
-
-**Réponse :** 2
-
-### 17. État à la maison
-
-Avec les limites de la question 15 :
-
-1. Affiché seulement quand il est sûr, rien sinon (jamais de « ne répond pas » douteux) **(proposé)**
-2. Jamais affiché
-
-**Réponse :** affiche toujour même les états instable
-
-### 18. Ouverture d'un Pi
-
-1. Deux boutons, « À la maison » et « Depuis internet », celui qui répond mis en avant **(proposé)**
-2. Un seul bouton : l'application choisit l'adresse elle-même
-
-**Réponse :** 2
-
-### 19. Où s'ouvre la console
-
-1. Dans le navigateur habituel, qui garde la connexion et l'alerte du certificat déjà acceptée **(proposé)**
-2. Dans la fenêtre de l'application
-
-**Réponse :** 1
-
-## E. Mes Pi : la liste
-
-### 20. Surnom d'un Pi (« Le Pi du salon »)
-
-1. Surnom facultatif en plus du nom réseau **(proposé)**
-2. Nom réseau seulement
-
-**Réponse :** 2
-
-### 21. Ordre de la liste
-
-Dans tous les cas : renommer et supprimer un Pi.
-
-1. Ordre alphabétique du surnom **(proposé)**
-2. Ordre d'ajout
-3. Ordre choisi en faisant glisser
-
-**Réponse :** 1
-
-### 22. Services d'un Pi
-
-1. Seulement ceux du code QR ; rescanner met à jour **(proposé)**
-2. Aussi ajoutés à la main dans la fiche
-
-**Réponse :** mise à jours dynamiquement par le pi
-
-### 23. Changer de téléphone
-
-1. Pas dans la première version **(proposé)**
-2. Passer la liste par un code QR de toute la liste
-3. Passer la liste par un fichier
-
-**Réponse :** 1
-
-## F. Écrans et langues
-
-### 24. Premier écran
-
-1. « Mes Pi » s'il y a au moins un Pi ; sinon un accueil avec « Ajouter mon Pi » et « Lire la documentation » **(proposé)**
-2. Toujours « Mes Pi »
-3. Toujours la documentation
-
-**Réponse :** 1
-
-### 25. Aide à l'installation sur l'écran d'accueil
-
-Bouton sur Android, « Partager » puis « Sur l'écran d'accueil » sur iPhone.
-
-1. Expliquée une fois, sans insister **(proposé)**
-2. Toujours visible dans un menu, jamais proposée d'elle-même
-3. Aucune aide
-
-**Réponse :** 2
-
-### 26. Langue
-
-1. Celle du téléphone, avec un choix dans les réglages **(proposé)**
-2. Celle du téléphone seulement
-
-**Réponse :** 11
-
-### 27. Traductions
-
-1. Faites par Claude, en reprenant les mots de la console de pi-appliance, puis relues par qui le peut **(proposé)**
-2. Français seulement dans la première version
-
-**Réponse :** 2
-
-## G. Travail avec pi-appliance
-
-### 28. Changements dans la console (code QR dans « Mon Pi », `api/hello`, lien vers l'application)
-
-Cette session ne peut pas écrire dans pi-appliance.
-
-1. Je rédige la demande, à reprendre dans une session de pi-appliance (TODO-5.16) **(proposé)**
-2. Tu donnes à cette session l'accès à pi-appliance
-
-**Réponse :** 1
-
-## H. Ordre et essais
-
-### 29. Par quoi commencer
-
-1. La documentation hors ligne (section 2 du TODO), utile tout de suite, sans rien attendre de la console **(proposé)**
-2. « Mes Pi » (section 3 du TODO)
-
-**Réponse :** 1
-
-### 30. Téléphones pour les essais
-
-Modèle d'Android et version, modèle d'iPhone et version d'iOS : ils fixent les navigateurs à viser. Pas de choix ici, l'écrire.
-
-**Réponse :** Android 16, one ui 8.5
+**Réponse :** 

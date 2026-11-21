@@ -1,6 +1,6 @@
 # Spécification de l'application mobile pi-appliance
 
-> **Statut : cible.** Rien n'est encore construit. Ce document décrit l'application visée ; l'avancement est dans [TODO.md](TODO.md). Une section passe de « cible » à « réalisé » quand le code existe.
+> **Statut : cible.** Rien n'est encore construit. Ce document décrit l'application visée ; l'avancement est dans [TODO.md](TODO.md). Une section passe de « cible » à « réalisé » quand le code existe. Choix de l'utilisateur du 2026-11-21 repris ici ; ce qui reste à trancher est dans [questions.md](questions.md).
 
 ## 1. Objet
 
@@ -13,42 +13,67 @@ Projet séparé de pi-appliance (dépôt `gmoulard/pi-appliance-pwa`), décidé 
 
 ### 1.1 Public visé
 
-Le même que pi-appliance : le grand public. Les écrans parlent en langage courant, sans jargon, dans les 12 langues de la console (français, anglais, allemand, espagnol, italien, portugais, néerlandais, turc, arabe et persan de droite à gauche, chinois, japonais). Charte graphique : celle de pi-appliance (framboise, ludique, pensée d'abord pour le téléphone, polices du système).
+Le même que pi-appliance : le grand public. Les écrans parlent en langage courant, sans jargon. **Première version en français seulement** ; les 11 autres langues de la console (anglais, allemand, espagnol, italien, portugais, néerlandais, turc, arabe et persan de droite à gauche, chinois, japonais) viendront ensuite, et le code est prêt pour elles dès le départ (textes à part, sens de lecture). Charte graphique : celle de pi-appliance (framboise, ludique, pensée d'abord pour le téléphone, polices du système, pas de thème sombre).
 
 ## 2. Publication et technique
 
-- Adresse : **`https://app.pi-appliance.com`**, publiée par GitHub Pages depuis ce dépôt. Le nom `app` est à ajouter dans la zone DNS `pi-appliance.com` chez AWS Route 53 (voir `docs/environnement.md` de pi-appliance), enregistrement `CNAME` vers `gmoulard.github.io`.
-- **HTML, CSS et JavaScript sans framework** ni étape de construction obligatoire, comme la console : un manifeste d'application web (`manifest.webmanifest`, icônes framboise), un *service worker* pour le hors ligne, pas de module ES exotique. Fonctionne sur les navigateurs récents d'Android et d'iPhone (Safari : « Sur l'écran d'accueil »).
+- Adresse : **`https://app.pi-appliance.com`**, publiée par GitHub Pages depuis la branche **`main`** de ce dépôt. Le nom `app` est à ajouter dans la zone DNS `pi-appliance.com` chez AWS Route 53 (voir `docs/environnement.md` de pi-appliance), enregistrement `CNAME` vers `gmoulard.github.io`.
+- **HTML, CSS et JavaScript sans framework** ni étape de construction obligatoire, comme la console : un manifeste d'application web (`manifest.webmanifest`), un *service worker* pour le hors ligne, pas de module ES exotique. Seule bibliothèque extérieure : un lecteur de code QR (jsQR, licence Apache 2.0), gardé dans le dépôt. Fonctionne sur les navigateurs récents d'Android et d'iPhone (Safari : « Sur l'écran d'accueil »).
+- Nom sous l'icône : **« pi-appliance »**. Icône : le symbole « La maison » de la charte ; l'icône d'Android, découpée en rond ou en carré, a un fond framboise (`#C71F5D`).
 - Licence AGPL-3.0, comme pi-appliance, avec le même en-tête dans chaque fichier de code.
 - Aucun compte, aucun serveur à soi : tout ce que la personne saisit reste **sur son téléphone** (stockage local du navigateur). Pas de statistiques, pas de traceur.
+- Liens vers l'application : sur www.pi-appliance.com et dans la console (« Application mobile »), à ajouter dans pi-appliance (section 6).
 
 ## 3. Documentation hors ligne
 
-- Contenu : les pages pour l'utilisateur de pi-appliance — guide utilisateur, premier démarrage (avec `premier-demarrage.svg`), installation et flashage, marketplace, et la future FAQ (TODO-5.9 de pi-appliance). La spécification et le TODO, faits pour le projet, n'y sont pas.
-- Source : le dossier `docs/` de pi-appliance, **à l'étiquette de la dernière version publiée** (`vX.Y.Z`), jamais `master` : la documentation doit décrire la version que les Pi installent. Un workflow de ce dépôt la récupère, convertit le Markdown en pages HTML, et republie le site ; il tourne chaque jour et à la demande.
-- Hors ligne : à l'installation, le *service worker* garde toutes les pages et leurs images. À chaque ouverture avec réseau, il cherche une nouvelle version et la prend en arrière-plan ; l'écran dit de quelle version de pi-appliance date la documentation et quand elle a été mise à jour.
+- Contenu : les pages pour l'utilisateur de pi-appliance — guide utilisateur, premier démarrage (avec `premier-demarrage.svg`), installation et flashage, marketplace, plusieurs Pi à la maison (`essais-plusieurs-pi.md`), et la future FAQ (TODO-5.9 de pi-appliance). Les pages faites pour le projet (spécification, TODO, environnement, prototype, manGit, charte) n'y sont pas ; un lien vers l'une d'elles mène à la page sur www.pi-appliance.com, marqué « en ligne ».
+- Source : le dossier `docs/` de pi-appliance, **à la dernière étiquette publiée** (`vX.Y.Z`, aujourd'hui `v0.1.4`), même avant la première version stable, jamais `master` : la documentation doit décrire la version que les Pi installent. Une seule documentation, celle de la dernière version, même pour un Pi resté sur une version plus ancienne. Un workflow de ce dépôt la récupère, convertit le Markdown en pages HTML, et republie le site ; il tourne chaque jour et à la demande.
+- Hors ligne : à l'installation, le *service worker* garde toutes les pages et leurs images. À chaque ouverture avec réseau, il cherche une nouvelle version et la prend **en silence** ; le bas de chaque page dit de quelle version de pi-appliance date la documentation, avec la référence du commit (les 7 premiers caractères, lien vers GitHub), et quand elle a été mise à jour.
 - Recherche dans la documentation, sans réseau (index construit avec le site).
-- Langue : la documentation de pi-appliance n'existe qu'en français pour l'instant ; l'interface de l'application, elle, est traduite. Une page traduite plus tard dans pi-appliance sera prise telle quelle.
+- Langue : la documentation de pi-appliance n'existe qu'en français pour l'instant. Une page traduite plus tard dans pi-appliance sera prise telle quelle.
 
 ## 4. Mes Pi
 
-Une liste « Mes Pi », vide au départ, gardée sur le téléphone. Pour chaque Pi : son nom, son adresse à la maison (`https://<nom>.local/pi-appliance`), son adresse sur internet s'il en a une (`<nom>.pi-appliance.com`, DuckDNS, domaine personnel), et ses services s'ils sont connus.
+Une liste « Mes Pi », vide au départ, gardée sur le téléphone, **par ordre alphabétique du nom**. Pour chaque Pi : son nom sur le réseau (pas de surnom), son adresse à la maison (`https://<nom>.local/pi-appliance`), son adresse sur internet s'il en a une (`<nom>.pi-appliance.com`, DuckDNS, domaine personnel), un identifiant stable et ses services. Un Pi peut être supprimé ; son nom suit celui du Pi (code QR ou `api/hello`), il ne se change pas dans la liste.
 
-Trois façons d'ajouter un Pi :
+### 4.1 Ajouter un Pi
 
-1. **Code QR de la console** (le plus simple) : la console de pi-appliance affiche, dans « Mon Pi », un code QR qui contient une adresse `https://app.pi-appliance.com/#add?...` avec le nom du Pi, son adresse `.local` et son adresse sur internet. Le scanner avec l'appareil photo ouvre l'application, qui propose d'ajouter le Pi. Rien de secret dans le code : ni mot de passe ni clé. Demande une évolution de la console, à faire dans pi-appliance.
-2. **Saisie à la main** : nom ou adresse du Pi ; l'application complète `.local` et `/pi-appliance`.
-3. **Recherche à la maison** : un navigateur ne peut pas lister les appareils du réseau (pas de mDNS depuis une page web). L'application essaie donc des noms connus — ceux de la liste, `pi-appliance.local`, et les noms `pi-appliance-XXXX.local` déjà vus — et dit lesquels répondent. Elle le dit clairement : la recherche ne trouve pas un Pi dont on ne connaît pas le nom ; pour un nouveau Pi, utiliser le code QR ou la liste des appareils de la box.
+1. **Code QR de la console** (le plus simple) : la console de pi-appliance affiche, dans « Mon Pi » et seulement à l'administrateur connecté, un code QR qui contient une adresse `https://app.pi-appliance.com/#add?...`, et le même lien prêt à partager (message, courriel). Il porte le nom du Pi, son adresse `.local`, son adresse sur internet, ses services et leurs adresses, et un **identifiant stable** non secret (l'empreinte de la clé du Pi) : un Pi qui change de nom (`pi-appliance-1a2b` devenu `controltower`) met à jour sa fiche au lieu d'en créer une deuxième. Jamais de mot de passe ni de clé.
+   - **L'application lit le code elle-même** (bouton « Scanner le code », caméra du téléphone). Sur iPhone, l'application de l'écran d'accueil ne partage pas ses données avec Safari : un code scanné avec l'appareil photo ouvrirait Safari, et le Pi ajouté là n'apparaîtrait pas dans l'application. Sur Android, l'appareil photo marche aussi.
+2. **Saisie à la main** : nom du Pi ou adresse IP (`192.168.1.196`) ; l'application complète `.local` et `/pi-appliance`.
+3. **Recherche à la maison** : un navigateur ne peut pas lister les appareils du réseau (pas de mDNS depuis une page web). L'application essaie donc des noms connus — ceux de la liste, `pi-appliance.local`, `pi-appliance-2.local`… — et dit lesquels répondent. **Ses limites sont dites clairement à l'écran** :
+   - elle ne trouve pas un Pi dont on ne connaît pas le nom ; pour un nouveau Pi, utiliser le code QR ou la liste des appareils de la box ;
+   - à la maison, le certificat du Pi est fait par le Pi lui-même : tant que l'alerte du certificat n'a pas été acceptée dans ce navigateur (sur iPhone, dans l'application installée elle-même), la demande est refusée et l'application ne peut pas distinguer un Pi absent d'un Pi présent ;
+   - Chrome demande la permission d'accéder « aux appareils de votre réseau local » : l'écran explique pourquoi avant que Chrome la demande.
 
-Ouvrir un Pi : un bouton par adresse. L'application choisit l'adresse de la maison quand le Pi y répond, sinon celle d'internet, et l'ouvre dans le navigateur. Elle ne parle pas à la console elle-même : la console a son propre écran de connexion, et à la maison son certificat est local (alerte du navigateur la première fois), ce qu'une page de `app.pi-appliance.com` ne peut pas contourner. Les services du Pi sont des liens `https://<service>-<nom>.local` (TODO-2.61 de pi-appliance) ou leur adresse sur internet.
+### 4.2 Ouvrir un Pi
 
-État d'un Pi (« répond à la maison », « répond sur internet », « ne répond pas ») : seulement ce qu'une page web peut voir, une demande qui aboutit ou non, sans lire la réponse. Les navigateurs limitent les demandes d'une page publique vers le réseau de la maison (*Private Network Access*) : si l'état ne peut pas être lu, l'application affiche seulement les boutons.
+**Un seul bouton** par Pi : l'application choisit l'adresse elle-même, d'après l'état (4.3), et l'ouvre **dans le navigateur habituel**, qui garde la connexion et l'alerte du certificat déjà acceptée. Elle ne parle pas à la console elle-même : la console a son propre écran de connexion. Les services du Pi sont des liens `https://<service>-<nom>.local` (TODO-2.61 de pi-appliance) ou leur adresse sur internet.
 
-## 5. Questions ouvertes
+### 4.3 État et services
 
-La liste complète, avec une proposition pour chacune, est dans [questions.md](questions.md) (2026-11-21).
+- **Demande `api/hello`** de la console (à ajouter dans pi-appliance, section 6) : sans connexion, autorisée pour `app.pi-appliance.com` (CORS, et l'autorisation de réseau privé de Chrome), elle rend le nom du Pi, sa version, son identifiant stable et ses services. Sur internet, le Pi a un vrai certificat : l'état et les services s'y lisent de façon fiable. À la maison, seulement si l'alerte du certificat a été acceptée (4.1).
+- **État affiché toujours**, même incertain : « répond à la maison », « répond sur internet », « ne répond pas », avec une mention quand il est incertain (par exemple « ne répond pas — ou alerte du certificat pas encore acceptée »).
+- **Services mis à jour par le Pi** : à chaque ouverture de l'application, la liste des services de chaque Pi qui répond est relue dans `api/hello` ; le code QR donne la première liste.
 
-- Contenu exact du code QR, et si la console peut aussi donner la liste des services installés sans connexion (sans rien révéler à un voisin du Wi-Fi).
+## 5. Écrans
+
+- **Premier écran** : « Mes Pi » s'il y a au moins un Pi ; sinon un accueil avec « Ajouter mon Pi » et « Lire la documentation ».
+- **Installation sur l'écran d'accueil** : une aide toujours présente dans le menu (bouton sur Android, « Partager » puis « Sur l'écran d'accueil » sur iPhone), jamais proposée d'elle-même.
+- **Langue** : celle du téléphone, avec un choix dans les réglages, quand il y aura plus d'une langue (1.1).
+
+## 6. À faire dans pi-appliance
+
+Cette application attend de la console de pi-appliance (demande à reprendre dans une session de pi-appliance, TODO-5.16 ; texte dans [demande-pi-appliance.md](demande-pi-appliance.md)) :
+
+- le code QR et le lien de partage dans « Mon Pi » (4.1) ;
+- la demande `api/hello` (4.3) ;
+- un lien « Application mobile » sur www.pi-appliance.com et dans la console.
+
+## 7. Questions ouvertes
+
+Voir [questions.md](questions.md). Restent aussi :
+
 - FAQ : à écrire dans pi-appliance (TODO-5.9) avant d'être reprise ici.
 - Traduction de la documentation elle-même (TODO-5.11 de pi-appliance).
 - Application dans les magasins (Play Store par une *Trusted Web Activity*) : pas pour l'instant.
