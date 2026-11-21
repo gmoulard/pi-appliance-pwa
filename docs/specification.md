@@ -46,6 +46,8 @@ Ouvrir un Pi : un bouton par adresse. L'application choisit l'adresse de la mais
 
 ## 5. Questions ouvertes
 
+La liste complète, avec une proposition pour chacune, est dans [questions.md](questions.md) (2026-11-21).
+
 - Contenu exact du code QR, et si la console peut aussi donner la liste des services installés sans connexion (sans rien révéler à un voisin du Wi-Fi).
 - FAQ : à écrire dans pi-appliance (TODO-5.9) avant d'être reprise ici.
 - Traduction de la documentation elle-même (TODO-5.11 de pi-appliance).
