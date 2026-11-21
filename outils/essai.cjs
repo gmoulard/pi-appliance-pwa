@@ -126,11 +126,14 @@ function verifier(condition, message) {
       window.mesPi.normaliser("192.168.1.196", "").pi,
       window.mesPi.normaliser("pas un nom !", "").erreur,
       window.mesPi.normaliser("controltower", "controltower.local").erreur,
+      window.mesPi.normaliser("", "https://Veranda.pi-appliance.com/pi-appliance/").decouvrir,
+      window.mesPi.normaliser("", "").erreur,
     ]);
     verifier(cas[0].maison === "https://controltower.local/pi-appliance" && cas[0].nom === "controltower", "nom seul complété en .local/pi-appliance");
     verifier(cas[1].maison === "https://salon.local/pi-appliance" && cas[1].internet === "https://salon.pi-appliance.com/pi-appliance", "adresse complète et adresse sur internet");
     verifier(cas[2].maison === "https://192.168.1.196/pi-appliance" && cas[2].nom === "192.168.1.196", "adresse IP acceptée");
-    verifier(cas[3] && cas[4], "saisies invalides refusées");
+    verifier(cas[3] && cas[4] && cas[6], "saisies invalides refusées");
+    verifier(cas[5] === "https://veranda.pi-appliance.com/pi-appliance", "adresse sur internet seule : le Pi sera découvert");
     verifier(await page.isVisible("#vue-accueil"), "liste vide : l'accueil s'affiche");
     page.on("dialog", (d) => d.accept());
     for (const [maison, internet] of [["controltower", "controltower.pi-appliance.com"], ["192.168.1.196", ""]]) {
@@ -152,6 +155,29 @@ function verifier(condition, message) {
     await page.waitForSelector("#vue-mespi:not([hidden])");
     noms = await page.$$eval("#liste-pi h2", (h) => h.map((e) => e.firstChild.textContent));
     verifier(noms.join(",") === "192.168.1.196,controltower,cuisine", `lien #add, puis Pi renommé reconnu par son identifiant : ${noms.join(", ")}`);
+    // Ajout par la seule adresse sur internet : un faux Pi répond à api/hello
+    // (nom, identifiant, services) ; un autre ne répond pas.
+    await contexte.route("https://veranda.pi-appliance.com/**", (route) => route.fulfill({
+      status: 200, contentType: "application/json", headers: { "Access-Control-Allow-Origin": "*" },
+      body: JSON.stringify({ name: "veranda", version: "v0.1.9", id: "00112233445566aa", services: [{ name: "Photos", address: "photos-veranda.pi-appliance.com" }] }),
+    }));
+    await contexte.route("https://absent.pi-appliance.com/**", (route) => route.abort());
+    await page.goto(`${adresse}#ajouter`);
+    await page.fill("#ajouter-maison", "");
+    await page.fill("#ajouter-internet", "absent.pi-appliance.com");
+    await page.click("#form-ajouter button[type=submit]");
+    await page.waitForFunction(() => document.getElementById("ajouter-message").textContent.includes("ne répond pas"), null, { timeout: 15000 });
+    verifier(await page.isVisible("#vue-ajouter"), "adresse sur internet seule, Pi absent : message, rien n'est ajouté");
+    await page.fill("#ajouter-internet", "veranda.pi-appliance.com");
+    await page.click("#form-ajouter button[type=submit]");
+    await page.waitForSelector("#vue-mespi:not([hidden])");
+    const veranda = await page.evaluate(() => JSON.parse(localStorage.getItem("mesPi")).find((p) => p.nom === "veranda"));
+    verifier(!!veranda && veranda.maison === "https://veranda.local/pi-appliance" && veranda.internet === "https://veranda.pi-appliance.com/pi-appliance"
+      && veranda.id === "00112233445566aa" && veranda.services.length === 1 && veranda.services[0].adresse === "https://photos-veranda.pi-appliance.com",
+      "adresse sur internet seule : nom, adresse à la maison, identifiant et services découverts");
+    await page.evaluate(() => localStorage.setItem("mesPi", JSON.stringify(JSON.parse(localStorage.getItem("mesPi")).filter((p) => p.nom !== "veranda"))));
+    await contexte.unroute("https://veranda.pi-appliance.com/**");
+    await contexte.unroute("https://absent.pi-appliance.com/**");
     // Appairage et connexion sans mot de passe (spécification 4.4) : un faux Pi
     // reçoit les formulaires ; la signature est vérifiée ici avec Node.
     const recus = [];

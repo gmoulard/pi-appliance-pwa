@@ -85,13 +85,14 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 <section id="vue-ajouter" hidden>
 <h1 data-t="ajouter.titre">Ajouter un Pi</h1>
 <p><a class="bouton" href="#scanner" data-t="ajouter.scanner">Scanner le code QR de la console</a></p>
-<p data-t="ajouter.ou">Ou écrivez son nom :</p>
+<p data-t="ajouter.ou">Ou écrivez son nom, ou seulement son adresse sur internet :</p>
 <form id="form-ajouter" class="formulaire" novalidate>
 <label for="ajouter-maison" data-t="ajouter.maison">Nom du Pi ou son adresse à la maison</label>
-<input id="ajouter-maison" name="maison" type="text" required autocomplete="off" autocapitalize="none" spellcheck="false" inputmode="url" placeholder="pi-appliance-1a2b">
+<input id="ajouter-maison" name="maison" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" inputmode="url" placeholder="pi-appliance-1a2b">
 <p class="aide" data-t="ajouter.maison.aide">Le nom choisi dans la console (par exemple salon), ou son adresse IP (par exemple 192.168.1.196), donnée par la liste des appareils de votre box.</p>
 <label for="ajouter-internet" data-t="ajouter.internet">Adresse sur internet (si vous en avez une)</label>
 <input id="ajouter-internet" name="internet" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" inputmode="url" placeholder="salon.pi-appliance.com">
+<p class="aide" data-t="ajouter.internet.aide">Écrite seule, l'application demande au Pi son nom et ses services.</p>
 <p class="note erreur" id="ajouter-message" role="alert" hidden></p>
 <p class="actions">
 <button type="submit" class="bouton" data-t="ajouter.valider">Ajouter</button>

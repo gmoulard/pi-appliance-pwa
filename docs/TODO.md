@@ -23,6 +23,7 @@ Avancement de l'application mobile pi-appliance ([spécification](specification.
 ## 3. Mes Pi (4)
 
 - [x] Liste gardée sur le téléphone, par ordre alphabétique, suppression ; ajout à la main (nom ou adresse IP) ; ouverture par un seul bouton dans le navigateur (2026-11-21, `mespi.js`).
+- [x] Ajout par la seule adresse sur internet : nom, adresse `.local`, identifiant et services lus dans `api/hello` (2026-11-21, demande de l'utilisateur ; essayé dans Chromium avec un faux Pi). À essayer sur l'Android avec un vrai Pi, depuis `https://app.pi-appliance.com` (le Pi n'autorise que cette adresse).
 - [x] Ajout par code QR, lu par l'application (`lecteur.js`, jsQR dans `vendor/jsqr/`) ou par l'appareil photo sur Android ; lien `#add?...` avec services `s` ; identifiant stable (2026-11-21, essayé dans Chromium avec une fausse caméra). À essayer sur l'Android avec le code de la console.
 - [x] Recherche à la maison parmi les noms connus, avec ses limites dites à l'écran (2026-11-21). À essayer à la maison avec un vrai Pi.
 - [ ] État toujours affiché, et services relus dans `api/hello`. Fait le 2026-11-21 : état deviné sans `api/hello`, vérification à la maison après un geste (autorisation de Chrome), lecture de `api/hello` selon le format de la demande. Restent : format définitif de pi-appliance, essai avec un vrai Pi.

@@ -86,22 +86,33 @@
     return { hote: h, port: url.port };
   }
 
+  // Adresse sur internet saisie : « salon.pi-appliance.com », avec ou sans
+  // https:// et /pi-appliance ; jamais un nom .local ni un nom sans point.
+  function adresseInternet(saisie) {
+    const w = hote(saisie);
+    if (!w || w.hote.endsWith(".local") || !w.hote.includes(".")) return null;
+    return `https://${w.hote}${w.port ? `:${w.port}` : ""}${CHEMIN}`;
+  }
+
   // Saisie à la main (spécification 4.1) : un nom seul est complété en
   // « <nom>.local » ; l'adresse de la console finit toujours par /pi-appliance.
+  // Sans nom, l'adresse sur internet seule suffit : le Pi sera découvert par
+  // api/hello (résultat { decouvrir: <adresse sur internet> }).
   function normaliser(maisonSaisie, internetSaisie) {
+    const avecInternet = !!String(internetSaisie || "").trim();
+    const internet = avecInternet ? adresseInternet(internetSaisie) : "";
+    if (!String(maisonSaisie || "").trim()) {
+      if (!avecInternet) return { erreur: "ajouter.erreur.vide" };
+      return internet ? { decouvrir: internet } : { erreur: "ajouter.erreur.internet" };
+    }
     const m = hote(maisonSaisie);
     if (!m) return { erreur: "ajouter.erreur.maison" };
     let h = m.hote;
     if (!IPV4.test(h) && !h.includes(".")) h = `${h}.local`;
     const port = m.port ? `:${m.port}` : "";
     const nom = IPV4.test(h) ? h : h.replace(/\.local$/, "").split(".")[0];
-    const pi = { nom, maison: `https://${h}${port}${CHEMIN}`, internet: "", services: [] };
-    if (String(internetSaisie || "").trim()) {
-      const w = hote(internetSaisie);
-      if (!w || w.hote.endsWith(".local") || !w.hote.includes(".")) return { erreur: "ajouter.erreur.internet" };
-      pi.internet = `https://${w.hote}${w.port ? `:${w.port}` : ""}${CHEMIN}`;
-    }
-    return { pi };
+    if (avecInternet && !internet) return { erreur: "ajouter.erreur.internet" };
+    return { pi: { nom, maison: `https://${h}${port}${CHEMIN}`, internet, services: [] } };
   }
 
   // Lien #add?id=…&l=…&n=…&s=…&w=…[&c=…] donné par la console (spécification
@@ -290,11 +301,12 @@
     }));
   }
 
-  // Services relus dans api/hello (spécification 4.3) ; format défini dans
-  // docs/demande-pi-appliance.md, à confirmer quand pi-appliance l'aura réalisé.
-  function majDepuisHello(pi, infos) {
-    if (!infos || typeof infos !== "object") return;
+  // Services et identifiant lus dans api/hello (spécification 4.3) ; format
+  // défini dans docs/demande-pi-appliance.md et réalisé par pi-appliance
+  // (internal/console/mobile.go) : {"name", "version", "id", "services"}.
+  function lireHello(infos) {
     const maj = {};
+    if (!infos || typeof infos !== "object") return maj;
     if (Array.isArray(infos.services)) {
       maj.services = infos.services
         .filter((s) => s && typeof s.name === "string" && typeof s.address === "string")
@@ -302,7 +314,24 @@
         .filter((s) => /^https:\/\//.test(s.adresse));
     }
     if (typeof infos.id === "string" && /^[0-9a-f]{8,64}$/.test(infos.id)) maj.id = infos.id;
+    return maj;
+  }
+
+  function majDepuisHello(pi, infos) {
+    const maj = lireHello(infos);
     if (Object.keys(maj).length) enregistrer({ ...pi, ...maj });
+  }
+
+  // Ajout par la seule adresse sur internet : le Pi y donne son nom (celui du
+  // réseau, d'où son adresse <nom>.local), son identifiant et ses services.
+  async function decouvrir(internet) {
+    const s = await sonder(internet);
+    if (!s.repond) return { erreur: "ajouter.erreur.injoignable" };
+    const nom = s.infos && typeof s.infos.name === "string" ? s.infos.name.trim().toLowerCase() : "";
+    if (!/^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$/.test(nom)) return { erreur: "ajouter.erreur.sansnom" };
+    const pi = { nom, maison: `https://${nom}.local${CHEMIN}`, internet, services: [], ...lireHello(s.infos) };
+    etats.set(pi.maison, { internet: s, maison: null });
+    return { pi };
   }
 
   // ---- Écrans ----
@@ -375,19 +404,24 @@
   function formulaireAjout() {
     const form = document.getElementById("form-ajouter");
     const message = document.getElementById("ajouter-message");
-    form.addEventListener("submit", (event) => {
+    const bouton = form.querySelector("button[type=submit]");
+    const dire = (cle, erreur) => {
+      message.textContent = t(cle);
+      message.classList.toggle("erreur", erreur);
+      message.setAttribute("role", erreur ? "alert" : "status");
+      message.hidden = false;
+    };
+    form.addEventListener("submit", async (event) => {
       event.preventDefault();
-      const r = normaliser(form.maison.value, form.internet.value);
-      if (r.erreur) {
-        message.textContent = t(r.erreur);
-        message.hidden = false;
-        return;
+      if (bouton.disabled) return;
+      let r = normaliser(form.maison.value, form.internet.value);
+      if (r.decouvrir) {
+        bouton.disabled = true;
+        dire("ajouter.recherche", false);
+        try { r = await decouvrir(r.decouvrir); } finally { bouton.disabled = false; }
       }
-      if (enregistrer(r.pi) === "erreur") {
-        message.textContent = t("stockage.erreur");
-        message.hidden = false;
-        return;
-      }
+      if (r.erreur) return dire(r.erreur, true);
+      if (enregistrer(r.pi) === "erreur") return dire("stockage.erreur", true);
       message.hidden = true;
       form.reset();
       retourListe();
@@ -464,7 +498,7 @@
   }
 
   // Pour les essais (outils/essai.cjs).
-  window.mesPi = { normaliser, lireLien, adresseAOuvrir, etats };
+  window.mesPi = { normaliser, decouvrir, lireLien, adresseAOuvrir, etats };
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", demarrer);
   else demarrer();
