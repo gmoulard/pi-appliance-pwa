@@ -105,7 +105,7 @@ pre {
   cursor: pointer;
 }
 .bouton:active { transform: translateY(4px); box-shadow: none; }
-.bouton.secondaire { background: var(--or); color: var(--framboise-foncee); box-shadow: none; }
+.bouton.secondaire { background: var(--rose-clair); color: var(--framboise-foncee); box-shadow: none; }
 .bouton.secondaire:active { transform: none; }
 .bouton.petit { min-height: 44px; padding: 0 16px; font-size: 0.95rem; }
 
@@ -202,7 +202,7 @@ input[type="search"] {
   margin-inline-start: 0.35em;
   padding: 0 0.45em;
   border-radius: 999px;
-  background: var(--or);
+  background: var(--rose-clair);
   color: var(--framboise-foncee);
   font-size: 0.75em;
   font-weight: 700;
@@ -258,7 +258,7 @@ dialog h2 { margin-top: 0; }
   font: inherit;
 }
 .aide { font-size: 0.9rem; margin: 6px 0 0; }
-.note.erreur { background: var(--or); color: var(--framboise-foncee); font-weight: 700; }
+.note.erreur { color: var(--framboise-foncee); font-weight: 700; }
 .limites li + li { margin-top: 0.4rem; }
 #reseau-local p { margin-top: 0; }
 #reseau-local { margin-bottom: 16px; }
