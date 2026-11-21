@@ -23,7 +23,6 @@
   --ombre-framboise: #7E0F39;
   --rose-clair: #FCE4EC;
   --or: #FFD700;
-  --or-fonce: #B8860B;
   --aubergine: #33141F;
   --rose-pale: #FFF5F7;
   --rose-ligne: #F0D3DC;
@@ -85,7 +84,7 @@ pre {
   z-index: 2;
 }
 .marque { display: flex; align-items: center; gap: 8px; text-decoration: none; color: var(--aubergine); min-height: 44px; }
-.wordmark { font-size: 1.25rem; font-weight: 600; color: var(--or-fonce); }
+.wordmark { font-size: 1.25rem; font-weight: 600; }
 .wordmark b { color: var(--framboise); font-weight: 800; }
 
 /* Boutons */
