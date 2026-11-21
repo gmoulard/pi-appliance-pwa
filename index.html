@@ -28,6 +28,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 <link rel="stylesheet" href="app.css">
 <script src="textes.js" defer></script>
 <script src="app.js" defer></script>
+<script src="mespi.js" defer></script>
 </head>
 <body>
 <header class="entete">
@@ -35,6 +36,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 <details class="menu">
 <summary class="bouton secondaire petit" data-t="menu">Menu</summary>
 <nav>
+<a href="./" data-t="menu.mespi">Mes Pi</a>
+<a href="#ajouter" data-t="menu.ajouter">Ajouter un Pi</a>
 <a href="doc/index.html" data-t="menu.doc">Documentation</a>
 <button type="button" id="menu-installer" data-t="menu.installer">Installer l'application</button>
 </nav>
@@ -42,19 +45,75 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 </header>
 
 <main class="accueil">
+<section id="vue-accueil">
 <h1 data-t="accueil.titre">Bienvenue</h1>
 <p data-t="accueil.intro">Votre Raspberry Pi pi-appliance, dans la poche.</p>
+
+<a class="carte choix" href="#ajouter">
+<strong data-t="accueil.ajouter">Ajouter mon Pi</strong>
+<span data-t="accueil.ajouter.detail">Pour l'ouvrir d'un seul geste, à la maison ou sur internet.</span>
+</a>
 
 <a class="carte choix" href="doc/index.html">
 <strong data-t="accueil.doc">Lire la documentation</strong>
 <span data-t="accueil.doc.detail">Premier démarrage, Wi-Fi, mot de passe oublié… lisible même sans réseau.</span>
 </a>
+</section>
 
-<button type="button" class="carte choix" id="accueil-ajouter">
-<strong data-t="accueil.ajouter">Ajouter mon Pi</strong>
-<span data-t="accueil.ajouter.detail">La liste de vos Pi arrive dans une prochaine version.</span>
-</button>
-<p class="note" id="accueil-bientot" hidden data-t="accueil.bientot">En attendant, ouvrez la console de votre Pi dans le navigateur : https://pi-appliance.local/pi-appliance (ou le nom que vous lui avez donné, suivi de .local).</p>
+<section id="vue-mespi" hidden>
+<h1 data-t="mespi.titre">Mes Pi</h1>
+<div class="note" id="reseau-local" hidden>
+<p data-t="reseau.explication">Pour voir si vos Pi répondent à la maison, l'application doit pouvoir parler aux appareils de votre réseau. Chrome va vous demander l'autorisation : acceptez-la.</p>
+<button type="button" class="bouton secondaire" id="reseau-local-verifier" data-t="reseau.verifier">Vérifier à la maison</button>
+</div>
+<ul id="liste-pi" class="liste-pi"></ul>
+<p class="actions">
+<a class="bouton" href="#ajouter" data-t="mespi.ajouter">Ajouter un Pi</a>
+<a class="bouton secondaire" href="#chercher" data-t="mespi.chercher">Chercher à la maison</a>
+</p>
+<p><a href="doc/index.html" data-t="accueil.doc">Lire la documentation</a></p>
+</section>
+
+<section id="vue-ajouter" hidden>
+<h1 data-t="ajouter.titre">Ajouter un Pi</h1>
+<form id="form-ajouter" class="formulaire" novalidate>
+<label for="ajouter-maison" data-t="ajouter.maison">Nom du Pi ou son adresse à la maison</label>
+<input id="ajouter-maison" name="maison" type="text" required autocomplete="off" autocapitalize="none" spellcheck="false" inputmode="url" placeholder="pi-appliance-1a2b">
+<p class="aide" data-t="ajouter.maison.aide">Le nom choisi dans la console (par exemple controltower), ou son adresse IP (par exemple 192.168.1.196), donnée par la liste des appareils de votre box.</p>
+<label for="ajouter-internet" data-t="ajouter.internet">Adresse sur internet (si vous en avez une)</label>
+<input id="ajouter-internet" name="internet" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" inputmode="url" placeholder="controltower.pi-appliance.com">
+<p class="note erreur" id="ajouter-message" role="alert" hidden></p>
+<p class="actions">
+<button type="submit" class="bouton" data-t="ajouter.valider">Ajouter</button>
+<button type="button" class="bouton secondaire" data-retour data-t="annuler">Annuler</button>
+</p>
+</form>
+</section>
+
+<section id="vue-chercher" hidden>
+<h1 data-t="chercher.titre">Chercher à la maison</h1>
+<p data-t="chercher.explication">L'application essaie les noms qu'elle connaît : ceux de votre liste et pi-appliance.local. Un téléphone ne peut pas lister les appareils du réseau : un Pi dont elle ne connaît pas le nom ne sera pas trouvé.</p>
+<ul class="limites">
+<li data-t="chercher.limite.nouveau">Pour un nouveau Pi, utilisez le code QR de sa console, ou cherchez-le dans la liste des appareils de votre box.</li>
+<li data-t="chercher.limite.certificat">Un Pi n'est trouvé que si vous avez déjà accepté l'alerte du certificat de sa console dans ce navigateur. Sinon, il semble absent même s'il est là.</li>
+<li data-t="chercher.limite.chrome">Chrome va vous demander d'autoriser l'accès aux appareils de votre réseau : acceptez-le, sinon rien ne pourra être trouvé.</li>
+</ul>
+<p class="actions">
+<button type="button" class="bouton" id="chercher-lancer" data-t="chercher.lancer">Lancer la recherche</button>
+<button type="button" class="bouton secondaire" data-retour data-t="retour">Retour</button>
+</p>
+<p id="chercher-etat" role="status" aria-live="polite"></p>
+<ul id="chercher-resultats" class="liste-pi"></ul>
+</section>
+
+<section id="vue-lien" hidden>
+<h1 data-t="lien.titre">Ajouter ce Pi ?</h1>
+<div id="lien-details" class="carte fiche-pi"></div>
+<p class="actions">
+<button type="button" class="bouton" id="lien-ajouter" data-t="lien.ajouter">Ajouter à mes Pi</button>
+<button type="button" class="bouton secondaire" data-retour data-t="annuler">Annuler</button>
+</p>
+</section>
 </main>
 
 <dialog id="installer" aria-labelledby="installer-titre">

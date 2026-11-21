@@ -96,8 +96,56 @@ function verifier(condition, message) {
     await page.goto(`${adresse}doc/marketplace.html`);
     verifier((await page.locator(".carte-app").count()) > 0, "catalogue de la marketplace lisible sans réseau");
     await page.goto(`${adresse}page-inconnue.html`);
-    verifier((await page.locator("#accueil-ajouter").count()) === 1, "page inconnue sans réseau : l'accueil s'affiche");
+    verifier((await page.locator("#vue-accueil").count()) === 1, "page inconnue sans réseau : l'accueil s'affiche");
     await contexte.setOffline(false);
+
+    // Mes Pi (spécification 4) : saisie à la main, ordre, lien #add, suppression.
+    await page.goto(adresse);
+    const cas = await page.evaluate(() => [
+      window.mesPi.normaliser("controltower", "").pi,
+      window.mesPi.normaliser("https://Salon.local/pi-appliance/", "salon.pi-appliance.com").pi,
+      window.mesPi.normaliser("192.168.1.196", "").pi,
+      window.mesPi.normaliser("pas un nom !", "").erreur,
+      window.mesPi.normaliser("controltower", "controltower.local").erreur,
+    ]);
+    verifier(cas[0].maison === "https://controltower.local/pi-appliance" && cas[0].nom === "controltower", "nom seul complété en .local/pi-appliance");
+    verifier(cas[1].maison === "https://salon.local/pi-appliance" && cas[1].internet === "https://salon.pi-appliance.com/pi-appliance", "adresse complète et adresse sur internet");
+    verifier(cas[2].maison === "https://192.168.1.196/pi-appliance" && cas[2].nom === "192.168.1.196", "adresse IP acceptée");
+    verifier(cas[3] && cas[4], "saisies invalides refusées");
+    verifier(await page.isVisible("#vue-accueil"), "liste vide : l'accueil s'affiche");
+    page.on("dialog", (d) => d.accept());
+    for (const [maison, internet] of [["controltower", "controltower.pi-appliance.com"], ["192.168.1.196", ""]]) {
+      await page.goto(`${adresse}#ajouter`);
+      await page.fill("#ajouter-maison", maison);
+      await page.fill("#ajouter-internet", internet);
+      await page.click("#form-ajouter button[type=submit]");
+      await page.waitForSelector("#vue-mespi:not([hidden])");
+    }
+    let noms = await page.$$eval("#liste-pi h2", (h) => h.map((e) => e.textContent));
+    verifier(noms.join(",") === "192.168.1.196,controltower", `liste par ordre alphabétique : ${noms.join(", ")}`);
+    const lien = await page.getAttribute("#liste-pi li:nth-child(2) a.bouton", "href");
+    verifier(lien === "https://controltower.local/pi-appliance/", `internet ne répond pas : le bouton ouvre la maison (${lien})`);
+    await page.goto(`${adresse}#add?n=salon&l=https%3A%2F%2Fsalon.local%2Fpi-appliance&id=0123456789abcdef`);
+    await page.waitForSelector("#vue-lien:not([hidden])");
+    await page.click("#lien-ajouter");
+    await page.goto(`${adresse}#add?n=cuisine&l=https%3A%2F%2Fcuisine.local%2Fpi-appliance&id=0123456789abcdef`);
+    await page.click("#lien-ajouter");
+    await page.waitForSelector("#vue-mespi:not([hidden])");
+    noms = await page.$$eval("#liste-pi h2", (h) => h.map((e) => e.textContent));
+    verifier(noms.join(",") === "192.168.1.196,controltower,cuisine", `lien #add, puis Pi renommé reconnu par son identifiant : ${noms.join(", ")}`);
+    await contexte.setOffline(true);
+    await page.reload();
+    verifier((await page.locator("#liste-pi li").count()) === 3, "liste gardée et affichée sans réseau");
+    await contexte.setOffline(false);
+    await page.click("#liste-pi li:nth-child(1) button");
+    noms = await page.$$eval("#liste-pi h2", (h) => h.map((e) => e.textContent));
+    verifier(noms.join(",") === "controltower,cuisine", "suppression d'un Pi");
+    if (captures) {
+      await page.waitForFunction(() => !document.body.textContent.includes("Vérification…"), null, { timeout: 15000 });
+      await page.screenshot({ path: path.join(captures, "mespi.png") });
+      await page.goto(`${adresse}#chercher`);
+      await page.screenshot({ path: path.join(captures, "chercher.png") });
+    }
 
     // Mise à jour en silence : nouvelle empreinte, nouveau contenu.
     const avant = await page.evaluate(() => caches.keys());

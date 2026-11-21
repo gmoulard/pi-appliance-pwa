@@ -7,7 +7,7 @@ Application web installable (PWA) qui accompagne [pi-appliance](https://github.c
 
 Aucun compte, aucun traceur : ce qui est saisi reste sur le téléphone.
 
-Projet en cours : la documentation hors ligne est construite, « Mes Pi » est à venir. Voir la [spécification](docs/specification.md) et le [TODO](docs/TODO.md). Publication prévue à l'adresse `https://app.pi-appliance.com` (GitHub Pages).
+Projet en cours : la documentation hors ligne est construite, « Mes Pi » en partie (le code QR attend pi-appliance). Voir la [spécification](docs/specification.md) et le [TODO](docs/TODO.md). Publication prévue à l'adresse `https://app.pi-appliance.com` (GitHub Pages).
 
 ## Pour contribuer
 
@@ -16,6 +16,7 @@ HTML, CSS et JavaScript sans framework ni étape de construction pour l'applicat
 | Chemin | Rôle |
 |--------|------|
 | `index.html`, `app.css`, `app.js`, `textes.js` | Accueil, styles (charte de pi-appliance), code commun, textes de l'interface |
+| `mespi.js` | « Mes Pi » : liste des Pi, ajout, recherche à la maison, état, ouverture |
 | `recherche.js` | Recherche dans la documentation, sans réseau |
 | `sw.js` | *Service worker* : site gardé sur le téléphone, mise à jour en silence |
 | `manifest.webmanifest`, `icones/` | Application installable et ses icônes |

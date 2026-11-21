@@ -125,12 +125,6 @@
     appliquerLangue();
     lireVersion();
     installation();
-    const ajouter = document.getElementById("accueil-ajouter");
-    if (ajouter) {
-      ajouter.addEventListener("click", () => {
-        document.getElementById("accueil-bientot").hidden = false;
-      });
-    }
   }
 
   serviceWorker();

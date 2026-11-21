@@ -233,3 +233,31 @@ dialog h2 { margin-top: 0; }
   color: var(--aubergine);
 }
 .pied:empty { display: none; }
+
+/* Mes Pi */
+.liste-pi { list-style: none; padding: 0; margin: 0 0 16px; display: grid; gap: 14px; }
+.fiche-pi h2 { margin: 0 0 4px; font-size: 1.25rem; }
+.fiche-pi .adresses { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 0.85rem; margin: 6px 0 12px; }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0; }
+.etat { margin: 0; font-weight: 700; display: flex; gap: 8px; align-items: baseline; }
+.etat::before { content: ""; flex: none; width: 10px; height: 10px; border-radius: 50%; background: currentColor; transform: translateY(-1px); }
+.etat.marche { color: #1E8A52; }
+.etat.attente { color: #8A6200; }
+.etat.arret { color: var(--framboise); }
+.services { margin: 8px 0 0; padding-inline-start: 1.2em; }
+.formulaire label { display: block; font-weight: 700; margin: 16px 0 6px; }
+.formulaire input[type="text"] {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 14px;
+  border: 2px solid var(--aubergine);
+  border-radius: 14px;
+  background: var(--blanc);
+  color: var(--aubergine);
+  font: inherit;
+}
+.aide { font-size: 0.9rem; margin: 6px 0 0; }
+.note.erreur { color: var(--framboise-foncee); font-weight: 700; }
+.limites li + li { margin-top: 0.4rem; }
+#reseau-local p { margin-top: 0; }
+#reseau-local { margin-bottom: 16px; }

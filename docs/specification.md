@@ -1,6 +1,6 @@
 # Spécification de l'application mobile pi-appliance
 
-> **Statut : en partie réalisé.** La documentation hors ligne (section 3) est construite (2026-11-21) ; « Mes Pi » (section 4) est encore une cible. Ce document décrit l'application visée ; l'avancement est dans [TODO.md](TODO.md). Une section passe de « cible » à « réalisé » quand le code existe. Choix de l'utilisateur du 2026-11-21 repris ici (questions et réponses : [questions.md](questions.md)).
+> **Statut : en partie réalisé.** La documentation hors ligne (section 3) et la première partie de « Mes Pi » (section 4 : liste, ajout à la main, lien `#add`, recherche à la maison, état deviné, ouverture) sont construites (2026-11-21) ; le lecteur de code QR et `api/hello` attendent pi-appliance. Ce document décrit l'application visée ; l'avancement est dans [TODO.md](TODO.md). Une section passe de « cible » à « réalisé » quand le code existe. Choix de l'utilisateur du 2026-11-21 repris ici (questions et réponses : [questions.md](questions.md)).
 
 ## 1. Objet
 
@@ -38,6 +38,8 @@ Le même que pi-appliance : le grand public. Les écrans parlent en langage cour
 
 ## 4. Mes Pi
 
+**En partie réalisé** (2026-11-21, `mespi.js`, essayé dans Chromium) : liste gardée dans le stockage local du navigateur, ordre alphabétique, suppression ; ajout à la main ; lien `#add?n=…&l=…&w=…&id=…` (format de la demande à pi-appliance, services `s` pas encore lus) ; recherche à la maison ; état deviné et bouton unique. Restent le lecteur de code QR (jsQR) et la lecture de `api/hello` réalisée dans pi-appliance, à aligner sur son format définitif.
+
 Une liste « Mes Pi », vide au départ, gardée sur le téléphone, **par ordre alphabétique du nom**. Pour chaque Pi : son nom sur le réseau (pas de surnom), son adresse à la maison (`https://<nom>.local/pi-appliance`), son adresse sur internet s'il en a une (`<nom>.pi-appliance.com`, DuckDNS, domaine personnel), un identifiant stable et ses services. Un Pi peut être supprimé ; son nom suit celui du Pi (code QR ou `api/hello`), il ne se change pas dans la liste.
 
 ### 4.1 Ajouter un Pi
@@ -57,6 +59,8 @@ Une liste « Mes Pi », vide au départ, gardée sur le téléphone, **par ordre
 ### 4.3 État et services
 
 - **Demande `api/hello`** de la console (à ajouter dans pi-appliance, section 6) : sans connexion, autorisée pour `app.pi-appliance.com` (CORS, et l'autorisation de réseau privé de Chrome), elle rend le nom du Pi, sa version, son identifiant stable et ses services. N'importe qui qui connaît l'adresse du Pi sur internet peut la lire : choix accepté, les adresses des services sur internet étant déjà joignables par tous ; rien d'autre n'y figure. Sur internet, le Pi a un vrai certificat : l'état et les services s'y lisent de façon fiable. À la maison, seulement si l'alerte du certificat a été acceptée (4.1).
+- **Sans `api/hello`** (Pi pas encore à jour) : l'application fait une simple demande dont elle ne peut pas lire la réponse ; elle aboutit si le Pi est joignable et son certificat accepté. Délai : 5 secondes.
+- **Accès au réseau de la maison** : Chrome demande une autorisation pour qu'une page d'internet parle aux appareils de la maison. Pour qu'elle n'arrive pas sans explication, l'état à la maison n'est vérifié qu'après un geste de la personne (« Vérifier à la maison » sur « Mes Pi », ou « Lancer la recherche »), précédé d'une phrase qui dit pourquoi ; ensuite à chaque ouverture. Avant, l'écran dit « à la maison : pas encore vérifié ».
 - **État affiché toujours**, même incertain : « répond à la maison », « répond sur internet », « ne répond pas », avec une mention quand il est incertain (par exemple « ne répond pas — ou alerte du certificat pas encore acceptée »).
 - **Services mis à jour par le Pi** : à chaque ouverture de l'application, la liste des services de chaque Pi qui répond est relue dans `api/hello` ; le code QR donne la première liste.
 
