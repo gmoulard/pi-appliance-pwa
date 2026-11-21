@@ -16,7 +16,7 @@ Avancement de l'application mobile pi-appliance ([spécification](specification.
 - [x] Workflow « Site » qui récupère `docs/` de pi-appliance à la dernière étiquette, convertit le Markdown en HTML (`outils/site.mjs` : pages reprises, liens « en ligne », catalogue de la marketplace écrit dans la page) et publie le site, chaque jour, à chaque changement de `main` et à la demande (2026-11-21). Premier passage réussi le 2026-11-21 (construction, essais, publication).
 - [x] *Service worker* : pages et images gardées pour le hors ligne, mise à jour en silence, version, commit et date en bas de page (2026-11-21).
 - [x] Recherche sans réseau (2026-11-21).
-- [x] Manifeste, icônes (maison blanche sur fond framboise), aide à l'installation dans le menu (5) (2026-11-21).
+- [x] Manifeste, icônes (maison or sur fond framboise, 2026-11-21 ; blanche auparavant), aide à l'installation dans le menu (5) (2026-11-21).
 - [x] Essais dans Chromium sans tête : `node outils/essai.cjs <site>` (site gardé, lecture et recherche sans réseau, mise à jour en silence), aussi lancés par le workflow (2026-11-21).
 - [ ] À essayer sur l'Android : installation, lecture en mode avion, mise à jour après une nouvelle version de pi-appliance.
 
