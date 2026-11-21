@@ -12,7 +12,7 @@ Les questions marquées ⚠️ changent la conception : elles viennent de limite
 2. « Mes Pi »
 3. Autre (l'écrire)
 
-**Réponse :** 
+**Réponse :** 1
 
 ### 2. Icône
 
@@ -22,14 +22,14 @@ Le symbole « La maison » de la charte. Android demande aussi une icône sur fo
 2. Le symbole sur fond blanc
 3. Le symbole sur fond framboise (`#C71F5D`), pour Android seulement
 
-**Réponse :** 
+**Réponse :** 3
 
 ### 3. Branche publiée par GitHub Pages
 
 1. `master`, comme pi-appliance **(proposé)**
 2. `main`
 
-**Réponse :** 
+**Réponse :** 2
 
 ### 4. Lien vers l'application (« Application mobile »)
 
@@ -37,7 +37,7 @@ Le symbole « La maison » de la charte. Android demande aussi une icône sur fo
 2. Sur www.pi-appliance.com seulement
 3. Nulle part pour l'instant
 
-**Réponse :** 
+**Réponse :** 1
 
 ## B. Documentation hors ligne
 
@@ -48,42 +48,42 @@ Toujours reprises : guide utilisateur, installation et flashage, marketplace, pr
 1. Ajouter aussi `essais-plusieurs-pi.md` (plusieurs Pi à la maison) **(proposé)**
 2. Ne pas l'ajouter
 
-**Réponse :** 
+**Réponse :** 1
 
 ### 6. Lien vers une page non reprise (par exemple vers la spécification)
 
 1. Lien vers la page sur www.pi-appliance.com, marqué « en ligne » **(proposé)**
 2. Lien retiré, texte gardé
 
-**Réponse :** 
+**Réponse :** 1
 
 ### 7. Version de la documentation
 
 1. La dernière étiquette `vX.Y.Z` (aujourd'hui `v0.1.4`), même avant la version stable (TODO-5.9) **(proposé)**
 2. Seulement à partir de la première version stable
 
-**Réponse :** 
+**Réponse :** 1
 
 ### 8. Un Pi resté sur une version plus ancienne
 
 1. Une seule documentation, celle de la dernière version **(proposé)**
 2. Garder aussi les documentations des versions précédentes
 
-**Réponse :** 
+**Réponse :** 1
 
 ### 9. Nouvelle documentation reçue
 
 1. Prise en silence ; version et date en bas de page **(proposé)**
 2. Bandeau « Documentation mise à jour »
 
-**Réponse :** 
+**Réponse :** 1 plus ref du commit
 
 ### 10. Rythme de republication
 
 1. Une fois par jour et à la demande **(proposé)**
 2. En plus, dès qu'une version de pi-appliance sort (le workflow de pi-appliance prévient ce dépôt, avec un jeton à créer)
 
-**Réponse :** 
+**Réponse :** 1
 
 ## C. Mes Pi : ajout
 
@@ -94,7 +94,7 @@ Sur iPhone, l'application posée sur l'écran d'accueil ne partage pas ses donn�
 1. L'application lit le code QR elle-même (bouton « Scanner le code », caméra du téléphone), avec une petite bibliothèque libre gardée dans le dépôt, par exemple jsQR (licence Apache 2.0) ; l'appareil photo reste possible sur Android **(proposé)**
 2. Appareil photo seulement ; sur iPhone, dire de recopier l'adresse à la main
 
-**Réponse :** 
+**Réponse :** 1 
 
 ### 12. Contenu du code QR
 
@@ -103,7 +103,7 @@ Toujours : nom du Pi, adresse à la maison, adresse sur internet ; jamais de mot
 1. Avec aussi la liste des services et leurs adresses **(proposé)**
 2. Sans les services
 
-**Réponse :** 
+**Réponse :** 1 + lien de partage 
 
 ### 13. Un Pi qui change de nom
 
@@ -112,14 +112,14 @@ Par exemple `pi-appliance-1a2b` devenu `controltower` : rescanner le code créer
 1. Le code porte un identifiant stable et non secret (l'empreinte de la clé du Pi) : la fiche est mise à jour **(proposé)**
 2. Pas d'identifiant : la personne supprime l'ancienne fiche elle-même
 
-**Réponse :** 
+**Réponse :** 1
 
 ### 14. Saisie à la main
 
 1. Nom du Pi ou adresse IP (`192.168.1.196`) **(proposé)**
 2. Nom du Pi seulement
 
-**Réponse :** 
+**Réponse :** 1
 
 ### 15. ⚠️ Recherche à la maison : ses limites réelles
 
@@ -131,7 +131,7 @@ Une page de `app.pi-appliance.com` voit très mal le réseau de la maison :
 2. La remplacer par un bouton « Essayer » sur chaque Pi, qui ouvre simplement l'adresse ; la vraie recherche reviendra si un moyen fiable apparaît **(proposé)**
 3. La retirer : seulement le code QR et la saisie
 
-**Réponse :** 
+**Réponse :** 1
 
 ## D. Mes Pi : état et ouverture
 
@@ -143,7 +143,7 @@ L'adresse sur internet a un vrai certificat, donc l'état peut s'y lire de faço
 2. L'ajouter, réponse avec aussi le nom et la version du Pi
 3. Ne pas l'ajouter : pas d'état sur internet
 
-**Réponse :** 
+**Réponse :** 2
 
 ### 17. État à la maison
 
@@ -152,21 +152,21 @@ Avec les limites de la question 15 :
 1. Affiché seulement quand il est sûr, rien sinon (jamais de « ne répond pas » douteux) **(proposé)**
 2. Jamais affiché
 
-**Réponse :** 
+**Réponse :** affiche toujour même les états instable
 
 ### 18. Ouverture d'un Pi
 
 1. Deux boutons, « À la maison » et « Depuis internet », celui qui répond mis en avant **(proposé)**
 2. Un seul bouton : l'application choisit l'adresse elle-même
 
-**Réponse :** 
+**Réponse :** 2
 
 ### 19. Où s'ouvre la console
 
 1. Dans le navigateur habituel, qui garde la connexion et l'alerte du certificat déjà acceptée **(proposé)**
 2. Dans la fenêtre de l'application
 
-**Réponse :** 
+**Réponse :** 1
 
 ## E. Mes Pi : la liste
 
@@ -175,7 +175,7 @@ Avec les limites de la question 15 :
 1. Surnom facultatif en plus du nom réseau **(proposé)**
 2. Nom réseau seulement
 
-**Réponse :** 
+**Réponse :** 2
 
 ### 21. Ordre de la liste
 
@@ -185,14 +185,14 @@ Dans tous les cas : renommer et supprimer un Pi.
 2. Ordre d'ajout
 3. Ordre choisi en faisant glisser
 
-**Réponse :** 
+**Réponse :** 1
 
 ### 22. Services d'un Pi
 
 1. Seulement ceux du code QR ; rescanner met à jour **(proposé)**
 2. Aussi ajoutés à la main dans la fiche
 
-**Réponse :** 
+**Réponse :** mise à jours dynamiquement par le pi
 
 ### 23. Changer de téléphone
 
@@ -200,7 +200,7 @@ Dans tous les cas : renommer et supprimer un Pi.
 2. Passer la liste par un code QR de toute la liste
 3. Passer la liste par un fichier
 
-**Réponse :** 
+**Réponse :** 1
 
 ## F. Écrans et langues
 
@@ -210,7 +210,7 @@ Dans tous les cas : renommer et supprimer un Pi.
 2. Toujours « Mes Pi »
 3. Toujours la documentation
 
-**Réponse :** 
+**Réponse :** 1
 
 ### 25. Aide à l'installation sur l'écran d'accueil
 
@@ -220,21 +220,21 @@ Bouton sur Android, « Partager » puis « Sur l'écran d'accueil » sur iPhone.
 2. Toujours visible dans un menu, jamais proposée d'elle-même
 3. Aucune aide
 
-**Réponse :** 
+**Réponse :** 2
 
 ### 26. Langue
 
 1. Celle du téléphone, avec un choix dans les réglages **(proposé)**
 2. Celle du téléphone seulement
 
-**Réponse :** 
+**Réponse :** 11
 
 ### 27. Traductions
 
 1. Faites par Claude, en reprenant les mots de la console de pi-appliance, puis relues par qui le peut **(proposé)**
 2. Français seulement dans la première version
 
-**Réponse :** 
+**Réponse :** 2
 
 ## G. Travail avec pi-appliance
 
@@ -245,7 +245,7 @@ Cette session ne peut pas écrire dans pi-appliance.
 1. Je rédige la demande, à reprendre dans une session de pi-appliance (TODO-5.16) **(proposé)**
 2. Tu donnes à cette session l'accès à pi-appliance
 
-**Réponse :** 
+**Réponse :** 1
 
 ## H. Ordre et essais
 
@@ -254,10 +254,10 @@ Cette session ne peut pas écrire dans pi-appliance.
 1. La documentation hors ligne (section 2 du TODO), utile tout de suite, sans rien attendre de la console **(proposé)**
 2. « Mes Pi » (section 3 du TODO)
 
-**Réponse :** 
+**Réponse :** 1
 
 ### 30. Téléphones pour les essais
 
 Modèle d'Android et version, modèle d'iPhone et version d'iOS : ils fixent les navigateurs à viser. Pas de choix ici, l'écrire.
 
-**Réponse :** 
+**Réponse :** Android 16, one ui 8.5
