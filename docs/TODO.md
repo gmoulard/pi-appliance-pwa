@@ -6,7 +6,7 @@ Avancement de l'application mobile pi-appliance ([spécification](specification.
 
 - [x] Dépôt `gmoulard/pi-appliance-pwa` créé (2026-11-21) ; spécification écrite.
 - [x] Licence AGPL-3.0 (`LICENSE`), `README.md`, `CLAUDE.md` avec les paramètres des skills partagés (2026-11-21).
-- [x] Questions de spécification posées et tranchées (2026-11-21) ; restent les précisions de [questions.md](questions.md).
+- [x] Questions de spécification posées et tranchées, précisions 31 à 37 comprises (2026-11-21).
 - [ ] Sous-module `.claude/skills/` (https://github.com/gmoulard/claude_skills, au même commit que pi-appliance) : à ajouter par l'utilisateur, l'agent n'y a pas été autorisé.
 - [ ] Branche `main`, publiée par GitHub Pages (2).
 - [ ] Nom `app.pi-appliance.com` dans Route 53 (`CNAME` vers `gmoulard.github.io`), GitHub Pages avec HTTPS (2).
@@ -30,4 +30,4 @@ Avancement de l'application mobile pi-appliance ([spécification](specification.
 
 - [ ] Interface en français, textes à part et sens de lecture prêts pour les autres langues ; charte graphique de pi-appliance.
 - [ ] Traduction dans les 11 autres langues, arabe et persan de droite à gauche (après la première version).
-- [ ] Essais sur Android 16 (One UI 8.5), sans réseau et à la maison. iPhone : pas de téléphone pour l'essayer (question 37).
+- [ ] Essais sur Android 16 (One UI 8.5), sans réseau et à la maison. Chrome. iPhone (Safari) visé mais pas essayé : pas de téléphone (question 37) ; noter ici ce qui n'y a pas été vérifié.

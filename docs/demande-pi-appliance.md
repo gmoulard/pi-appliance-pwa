@@ -1,6 +1,6 @@
 # Demande pour pi-appliance
 
-Changements à faire dans la console de [pi-appliance](https://github.com/gmoulard/pi-appliance) pour l'application mobile (TODO-5.16 de pi-appliance ; [spécification de l'application](specification.md), sections 4 et 6). À reprendre dans une session de pi-appliance : cette session ne peut pas y écrire. Rédigé le 2026-11-21 ; à compléter selon les réponses aux questions 31 et 32 de [questions.md](questions.md).
+Changements à faire dans la console de [pi-appliance](https://github.com/gmoulard/pi-appliance) pour l'application mobile (TODO-5.16 de pi-appliance ; [spécification de l'application](specification.md), sections 4 et 6). À reprendre dans une session de pi-appliance : cette session ne peut pas y écrire. Rédigé le 2026-11-21 (questions 12, 16, 22, 31 et 32 de [questions.md](questions.md)).
 
 ## 1. Code QR et lien dans « Mon Pi »
 

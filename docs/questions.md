@@ -1,6 +1,6 @@
 # Questions pour finir la spécification
 
-Les 30 premières questions ont été tranchées le 2026-11-21 et sont reprises dans la [spécification](specification.md). Restent ces précisions, nées des réponses. Chaque question a des choix numérotés ; celui que je propose est marqué **(proposé)**. Écrire après **Réponse :** le numéro choisi, ou un autre choix en quelques mots.
+Les 30 premières questions ont été tranchées le 2026-11-21 et sont reprises dans la [spécification](specification.md). Les précisions 31 à 37, nées des réponses, ont été tranchées aussi, le même jour : toutes les questions sont reprises dans la spécification. Chaque question a des choix numérotés ; celui que je propose est marqué **(proposé)**. Écrire après **Réponse :** le numéro choisi, ou un autre choix en quelques mots.
 
 ### 31. « Lien de partage » (réponse à la question 12)
 

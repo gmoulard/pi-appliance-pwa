@@ -1,6 +1,6 @@
 # Spécification de l'application mobile pi-appliance
 
-> **Statut : cible.** Rien n'est encore construit. Ce document décrit l'application visée ; l'avancement est dans [TODO.md](TODO.md). Une section passe de « cible » à « réalisé » quand le code existe. Choix de l'utilisateur du 2026-11-21 repris ici ; ce qui reste à trancher est dans [questions.md](questions.md).
+> **Statut : cible.** Rien n'est encore construit. Ce document décrit l'application visée ; l'avancement est dans [TODO.md](TODO.md). Une section passe de « cible » à « réalisé » quand le code existe. Choix de l'utilisateur du 2026-11-21 repris ici (questions et réponses : [questions.md](questions.md)).
 
 ## 1. Objet
 
@@ -18,8 +18,8 @@ Le même que pi-appliance : le grand public. Les écrans parlent en langage cour
 ## 2. Publication et technique
 
 - Adresse : **`https://app.pi-appliance.com`**, publiée par GitHub Pages depuis la branche **`main`** de ce dépôt. Le nom `app` est à ajouter dans la zone DNS `pi-appliance.com` chez AWS Route 53 (voir `docs/environnement.md` de pi-appliance), enregistrement `CNAME` vers `gmoulard.github.io`.
-- **HTML, CSS et JavaScript sans framework** ni étape de construction obligatoire, comme la console : un manifeste d'application web (`manifest.webmanifest`), un *service worker* pour le hors ligne, pas de module ES exotique. Seule bibliothèque extérieure : un lecteur de code QR (jsQR, licence Apache 2.0), gardé dans le dépôt. Fonctionne sur les navigateurs récents d'Android et d'iPhone (Safari : « Sur l'écran d'accueil »).
-- Nom sous l'icône : **« pi-appliance »**. Icône : le symbole « La maison » de la charte ; l'icône d'Android, découpée en rond ou en carré, a un fond framboise (`#C71F5D`).
+- **HTML, CSS et JavaScript sans framework** ni étape de construction obligatoire, comme la console : un manifeste d'application web (`manifest.webmanifest`), un *service worker* pour le hors ligne, pas de module ES exotique. Seule bibliothèque extérieure : un lecteur de code QR (jsQR, licence Apache 2.0), gardé dans le dépôt. Navigateurs visés : Chrome sur Android, où se font les essais (Android 16, One UI 8.5), et Safari sur iPhone (« Sur l'écran d'accueil »), sans téléphone pour l'essayer : ce qui n'y a pas été essayé est dit dans le TODO.
+- Nom sous l'icône : **« pi-appliance »**. Icône : le symbole « La maison » de la charte ; sur fond framboise (`#C71F5D`) partout : Android la découpe en rond ou en carré, l'iPhone n'accepte pas d'icône transparente.
 - Licence AGPL-3.0, comme pi-appliance, avec le même en-tête dans chaque fichier de code.
 - Aucun compte, aucun serveur à soi : tout ce que la personne saisit reste **sur son téléphone** (stockage local du navigateur). Pas de statistiques, pas de traceur.
 - Liens vers l'application : sur www.pi-appliance.com et dans la console (« Application mobile »), à ajouter dans pi-appliance (section 6).
@@ -48,11 +48,11 @@ Une liste « Mes Pi », vide au départ, gardée sur le téléphone, **par ordre
 
 ### 4.2 Ouvrir un Pi
 
-**Un seul bouton** par Pi : l'application choisit l'adresse elle-même, d'après l'état (4.3), et l'ouvre **dans le navigateur habituel**, qui garde la connexion et l'alerte du certificat déjà acceptée. Elle ne parle pas à la console elle-même : la console a son propre écran de connexion. Les services du Pi sont des liens `https://<service>-<nom>.local` (TODO-2.61 de pi-appliance) ou leur adresse sur internet.
+**Un seul bouton** par Pi : l'application choisit l'adresse elle-même, d'après l'état (4.3) — l'adresse sur internet si elle répond (vrai certificat, pas d'alerte), sinon celle de la maison — et l'ouvre **dans le navigateur habituel**, qui garde la connexion et l'alerte du certificat déjà acceptée. Elle ne parle pas à la console elle-même : la console a son propre écran de connexion. Les services du Pi sont des liens `https://<service>-<nom>.local` (TODO-2.61 de pi-appliance) ou leur adresse sur internet.
 
 ### 4.3 État et services
 
-- **Demande `api/hello`** de la console (à ajouter dans pi-appliance, section 6) : sans connexion, autorisée pour `app.pi-appliance.com` (CORS, et l'autorisation de réseau privé de Chrome), elle rend le nom du Pi, sa version, son identifiant stable et ses services. Sur internet, le Pi a un vrai certificat : l'état et les services s'y lisent de façon fiable. À la maison, seulement si l'alerte du certificat a été acceptée (4.1).
+- **Demande `api/hello`** de la console (à ajouter dans pi-appliance, section 6) : sans connexion, autorisée pour `app.pi-appliance.com` (CORS, et l'autorisation de réseau privé de Chrome), elle rend le nom du Pi, sa version, son identifiant stable et ses services. N'importe qui qui connaît l'adresse du Pi sur internet peut la lire : choix accepté, les adresses des services sur internet étant déjà joignables par tous ; rien d'autre n'y figure. Sur internet, le Pi a un vrai certificat : l'état et les services s'y lisent de façon fiable. À la maison, seulement si l'alerte du certificat a été acceptée (4.1).
 - **État affiché toujours**, même incertain : « répond à la maison », « répond sur internet », « ne répond pas », avec une mention quand il est incertain (par exemple « ne répond pas — ou alerte du certificat pas encore acceptée »).
 - **Services mis à jour par le Pi** : à chaque ouverture de l'application, la liste des services de chaque Pi qui répond est relue dans `api/hello` ; le code QR donne la première liste.
 
@@ -72,7 +72,7 @@ Cette application attend de la console de pi-appliance (demande à reprendre dan
 
 ## 7. Questions ouvertes
 
-Voir [questions.md](questions.md). Restent aussi :
+Toutes les questions de [questions.md](questions.md) sont tranchées (2026-11-21). Restent :
 
 - FAQ : à écrire dans pi-appliance (TODO-5.9) avant d'être reprise ici.
 - Traduction de la documentation elle-même (TODO-5.11 de pi-appliance).
