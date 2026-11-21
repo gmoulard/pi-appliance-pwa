@@ -1,6 +1,6 @@
 # Spécification de l'application mobile pi-appliance
 
-> **Statut : cible.** Rien n'est encore construit. Ce document décrit l'application visée ; l'avancement est dans [TODO.md](TODO.md). Une section passe de « cible » à « réalisé » quand le code existe. Choix de l'utilisateur du 2026-11-21 repris ici (questions et réponses : [questions.md](questions.md)).
+> **Statut : en partie réalisé.** La documentation hors ligne (section 3) est construite (2026-11-21) ; « Mes Pi » (section 4) est encore une cible. Ce document décrit l'application visée ; l'avancement est dans [TODO.md](TODO.md). Une section passe de « cible » à « réalisé » quand le code existe. Choix de l'utilisateur du 2026-11-21 repris ici (questions et réponses : [questions.md](questions.md)).
 
 ## 1. Objet
 
@@ -19,17 +19,21 @@ Le même que pi-appliance : le grand public. Les écrans parlent en langage cour
 
 - Adresse : **`https://app.pi-appliance.com`**, publiée par GitHub Pages depuis la branche **`main`** de ce dépôt. Le nom `app` est à ajouter dans la zone DNS `pi-appliance.com` chez AWS Route 53 (voir `docs/environnement.md` de pi-appliance), enregistrement `CNAME` vers `gmoulard.github.io`.
 - **HTML, CSS et JavaScript sans framework** ni étape de construction obligatoire, comme la console : un manifeste d'application web (`manifest.webmanifest`), un *service worker* pour le hors ligne, pas de module ES exotique. Seule bibliothèque extérieure : un lecteur de code QR (jsQR, licence Apache 2.0), gardé dans le dépôt. Navigateurs visés : Chrome sur Android, où se font les essais (Android 16, One UI 8.5), et Safari sur iPhone (« Sur l'écran d'accueil »), sans téléphone pour l'essayer : ce qui n'y a pas été essayé est dit dans le TODO.
-- Nom sous l'icône : **« pi-appliance »**. Icône : le symbole « La maison » de la charte ; sur fond framboise (`#C71F5D`) partout : Android la découpe en rond ou en carré, l'iPhone n'accepte pas d'icône transparente.
+- Nom sous l'icône : **« pi-appliance »**. Icône : la maison « La maison » de la charte sur fond framboise (`#C71F5D`) partout : Android la découpe en rond ou en carré, l'iPhone n'accepte pas d'icône transparente. Sur ce fond, le toit framboise du symbole disparaîtrait : la maison y est donc blanche, avec le π framboise (le dessin de l'ancienne `icone-app.svg` de la charte, en carré plein, `icones/icone.svg`). Le symbole lui-même reste dans l'en-tête et l'onglet du navigateur.
 - Licence AGPL-3.0, comme pi-appliance, avec le même en-tête dans chaque fichier de code.
 - Aucun compte, aucun serveur à soi : tout ce que la personne saisit reste **sur son téléphone** (stockage local du navigateur). Pas de statistiques, pas de traceur.
 - Liens vers l'application : sur www.pi-appliance.com et dans la console (« Application mobile »), à ajouter dans pi-appliance (section 6).
 
 ## 3. Documentation hors ligne
 
+**Réalisé** (2026-11-21), essayé dans Chromium (`outils/essai.cjs`) ; à essayer sur un vrai téléphone une fois le site publié.
+
 - Contenu : les pages pour l'utilisateur de pi-appliance — guide utilisateur, premier démarrage (avec `premier-demarrage.svg`), installation et flashage, marketplace, plusieurs Pi à la maison (`essais-plusieurs-pi.md`), et la future FAQ (TODO-5.9 de pi-appliance). Les pages faites pour le projet (spécification, TODO, environnement, prototype, manGit, charte) n'y sont pas ; un lien vers l'une d'elles mène à la page sur www.pi-appliance.com, marqué « en ligne ».
 - Source : le dossier `docs/` de pi-appliance, **à la dernière étiquette publiée** (`vX.Y.Z`, aujourd'hui `v0.1.4`), même avant la première version stable, jamais `master` : la documentation doit décrire la version que les Pi installent. Une seule documentation, celle de la dernière version, même pour un Pi resté sur une version plus ancienne. Un workflow de ce dépôt la récupère, convertit le Markdown en pages HTML, et republie le site ; il tourne chaque jour et à la demande.
 - Hors ligne : à l'installation, le *service worker* garde toutes les pages et leurs images. À chaque ouverture avec réseau, il cherche une nouvelle version et la prend **en silence** ; le bas de chaque page dit de quelle version de pi-appliance date la documentation, avec la référence du commit (les 7 premiers caractères, lien vers GitHub), et quand elle a été mise à jour.
-- Recherche dans la documentation, sans réseau (index construit avec le site).
+- Recherche dans la documentation, sans réseau (index construit avec le site) : chaque mot cherché doit se trouver dans la section, sans tenir compte des accents ni des majuscules.
+- Catalogue de la marketplace : sur www.pi-appliance.com il est chargé par un script ; ici il est écrit dans la page à la construction, pour être lisible sans réseau.
+- **Réalisation** : `outils/site.mjs` (Node, bibliothèque marked) copie l'application, convertit les pages (identifiants de titres comme kramdown, pour que les liens `#ancre` marchent ; liens vers une page non reprise et liens vers internet marqués « en ligne »), écrit l'index de recherche `doc/recherche.json` et `version.json` : la liste des fichiers à garder et une empreinte de leur contenu. Le *service worker* (`sw.js`) sert tout depuis le téléphone ; à chaque ouverture avec réseau, il relit `version.json` et, si l'empreinte a changé, télécharge la nouvelle version dans un cache neuf avant de retirer l'ancien ; une mise à jour interrompue est abandonnée et l'ancienne version reste. Workflow « Site » (`.github/workflows/site.yml`) : chaque jour, à chaque changement de `main` et à la demande ; il essaie le site dans Chromium avant de le publier. Un site inchangé garde la même empreinte : les téléphones ne retéléchargent rien.
 - Langue : la documentation de pi-appliance n'existe qu'en français pour l'instant. Une page traduite plus tard dans pi-appliance sera prise telle quelle.
 
 ## 4. Mes Pi

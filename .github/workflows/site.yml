@@ -1,0 +1,92 @@
+# This file is part of pi-appliance-pwa <https://github.com/gmoulard/pi-appliance-pwa>.
+# Copyright (c) 2026 Guillaume Moulard.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, version 3.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+# Construit et publie app.pi-appliance.com (spécification 2 et 3) : récupère
+# docs/ de pi-appliance à sa dernière étiquette vX.Y.Z, la convertit avec
+# outils/site.mjs, essaie le site dans Chromium (outils/essai.cjs), puis le
+# publie par GitHub Pages. Chaque jour, à chaque changement de main, et à la
+# demande. Un site inchangé garde la même empreinte : les téléphones ne
+# retéléchargent rien.
+
+name: Site
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "17 4 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  construire:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Dernière version de pi-appliance
+        id: pi
+        run: |
+          set -euo pipefail
+          depot=https://github.com/gmoulard/pi-appliance.git
+          etiquette=$(git -c versionsort.suffix=- ls-remote --tags --refs --sort=-v:refname "$depot" 'v*' \
+            | sed 's#.*refs/tags/##' | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)
+          test -n "$etiquette"
+          git clone --quiet --depth 1 --branch "$etiquette" "$depot" pi-appliance
+          echo "etiquette=$etiquette" >> "$GITHUB_OUTPUT"
+          echo "commit=$(git -C pi-appliance rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "date=$(git -C pi-appliance log -1 --format=%cs)" >> "$GITHUB_OUTPUT"
+          echo "Documentation de pi-appliance $etiquette"
+
+      - name: Construction
+        run: |
+          npm ci --prefix outils
+          node outils/site.mjs --docs pi-appliance/docs \
+            --version "${{ steps.pi.outputs.etiquette }}" \
+            --commit "${{ steps.pi.outputs.commit }}" \
+            --date "${{ steps.pi.outputs.date }}" \
+            --out _site
+
+      - name: Essais dans Chromium
+        run: |
+          npm install --no-save --prefix outils playwright@1.63.0
+          npx --prefix outils playwright install --with-deps chromium
+          node outils/essai.cjs _site
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  publier:
+    needs: construire
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.publication.outputs.page_url }}
+    steps:
+      - id: publication
+        uses: actions/deploy-pages@v4

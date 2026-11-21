@@ -1,0 +1,235 @@
+ /* This file is part of pi-appliance-pwa <https://github.com/gmoulard/pi-appliance-pwa>.
+ * Copyright (c) 2026 Guillaume Moulard.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published
+ * by the Free Software Foundation, version 3.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+/* Charte graphique de pi-appliance (docs/charte-graphique.md) : framboise,
+   ludique, d'abord pour le téléphone, polices du système, pas de thème sombre. */
+
+:root {
+  --framboise: #C71F5D;
+  --framboise-foncee: #A8174E;
+  --ombre-framboise: #7E0F39;
+  --rose-clair: #FCE4EC;
+  --aubergine: #33141F;
+  --rose-pale: #FFF5F7;
+  --rose-ligne: #F0D3DC;
+  --blanc: #FFFFFF;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--rose-pale);
+  color: var(--aubergine);
+  font: 17px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  overflow-wrap: anywhere;
+}
+
+h1, h2, h3, h4, .wordmark {
+  font-family: ui-rounded, system-ui, sans-serif;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+h1 { font-size: 1.75rem; margin: 0.5rem 0 1rem; }
+h2 { font-size: 1.3rem; margin: 2rem 0 0.75rem; }
+h3 { font-size: 1.1rem; margin: 1.5rem 0 0.5rem; }
+
+a { color: var(--framboise-foncee); }
+
+code, pre, kbd { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 0.9em; }
+pre {
+  background: var(--blanc);
+  border-radius: 14px;
+  box-shadow: 0 3px 0 var(--rose-ligne);
+  padding: 12px 14px;
+  overflow-x: auto;
+  overflow-wrap: normal;
+}
+:not(pre) > code { background: var(--rose-clair); border-radius: 6px; padding: 0.05em 0.3em; }
+
+:focus-visible { outline: 3px solid var(--framboise); outline-offset: 2px; }
+
+/* En-tête */
+.entete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: max(10px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) 10px max(16px, env(safe-area-inset-left));
+  background: var(--blanc);
+  box-shadow: 0 3px 0 var(--rose-ligne);
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+.marque { display: flex; align-items: center; gap: 8px; text-decoration: none; color: var(--aubergine); min-height: 44px; }
+.wordmark { font-size: 1.25rem; font-weight: 600; }
+.wordmark b { color: var(--framboise); font-weight: 800; }
+
+/* Boutons */
+.bouton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 22px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--framboise);
+  color: var(--blanc);
+  font: inherit;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 4px 0 var(--ombre-framboise);
+  cursor: pointer;
+}
+.bouton:active { transform: translateY(4px); box-shadow: none; }
+.bouton.secondaire { background: var(--rose-clair); color: var(--framboise-foncee); box-shadow: none; }
+.bouton.secondaire:active { transform: none; }
+.bouton.petit { min-height: 44px; padding: 0 16px; font-size: 0.95rem; }
+
+/* Menu */
+.menu { position: relative; }
+.menu summary { list-style: none; }
+.menu summary::-webkit-details-marker { display: none; }
+.menu nav {
+  position: absolute;
+  inset-inline-end: 0;
+  top: calc(100% + 8px);
+  min-width: 240px;
+  background: var(--blanc);
+  border-radius: 14px;
+  box-shadow: 0 4px 0 var(--rose-ligne), 0 8px 24px rgba(51, 20, 31, 0.12);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+}
+.menu nav a, .menu nav button {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  color: var(--aubergine);
+  font: inherit;
+  text-align: start;
+  text-decoration: none;
+  cursor: pointer;
+}
+.menu nav a:hover, .menu nav button:hover { background: var(--rose-clair); }
+
+/* Contenu */
+main {
+  flex: 1;
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 16px max(16px, env(safe-area-inset-right)) 32px max(16px, env(safe-area-inset-left));
+}
+
+.carte, .carte-lien {
+  display: block;
+  width: 100%;
+  background: var(--blanc);
+  border: 0;
+  border-radius: 20px;
+  box-shadow: 0 4px 0 var(--rose-ligne);
+  padding: 16px 18px;
+  color: var(--aubergine);
+  font: inherit;
+  text-align: start;
+  text-decoration: none;
+}
+.choix { margin: 0 0 16px; cursor: pointer; }
+.choix strong { display: block; font-family: ui-rounded, system-ui, sans-serif; font-size: 1.2rem; color: var(--framboise-foncee); }
+.choix span { display: block; margin-top: 4px; }
+.note { background: var(--rose-clair); border-radius: 14px; padding: 12px 14px; }
+
+.sommaire, .resultats { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+.carte-lien { font-weight: 700; color: var(--framboise-foncee); }
+.resultats .extrait { display: block; margin-top: 4px; font-weight: 400; color: var(--aubergine); font-size: 0.95rem; }
+
+.recherche label { display: block; font-weight: 700; margin-bottom: 6px; }
+input[type="search"] {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 14px;
+  border: 2px solid var(--aubergine);
+  border-radius: 14px;
+  background: var(--blanc);
+  color: var(--aubergine);
+  font: inherit;
+}
+
+/* Pages de documentation */
+.doc img { max-width: 100%; height: auto; background: var(--blanc); border-radius: 14px; }
+.doc blockquote {
+  margin: 1rem 0;
+  padding: 12px 16px;
+  background: var(--rose-clair);
+  border-radius: 14px;
+}
+.doc blockquote > :first-child { margin-top: 0; }
+.doc blockquote > :last-child { margin-bottom: 0; }
+.doc table { display: block; overflow-x: auto; border-collapse: collapse; max-width: 100%; overflow-wrap: normal; }
+.doc th, .doc td { border-bottom: 2px solid var(--rose-ligne); padding: 6px 10px; text-align: start; vertical-align: top; }
+.doc li + li { margin-top: 0.3rem; }
+.en-ligne {
+  display: inline-block;
+  margin-inline-start: 0.35em;
+  padding: 0 0.45em;
+  border-radius: 999px;
+  background: var(--rose-clair);
+  color: var(--framboise-foncee);
+  font-size: 0.75em;
+  font-weight: 700;
+  text-decoration: none;
+  vertical-align: 0.1em;
+}
+.catalogue { list-style: none; padding: 0; display: grid; gap: 10px; }
+.carte-app { background: var(--blanc); border-radius: 14px; box-shadow: 0 3px 0 var(--rose-ligne); padding: 12px 14px; }
+.carte-app + .carte-app { margin-top: 0; }
+.categorie { color: var(--framboise-foncee); font-size: 0.9em; }
+
+/* Fenêtre d'installation */
+dialog {
+  width: min(520px, calc(100vw - 32px));
+  border: 0;
+  border-radius: 28px;
+  padding: 20px 22px;
+  color: var(--aubergine);
+  background: var(--blanc);
+}
+dialog::backdrop { background: rgba(51, 20, 31, 0.45); }
+dialog h2 { margin-top: 0; }
+
+/* Pied de page */
+.pied {
+  padding: 16px max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--aubergine);
+}
+.pied:empty { display: none; }

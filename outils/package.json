@@ -1,0 +1,10 @@
+{
+  "name": "pi-appliance-pwa-outils",
+  "private": true,
+  "description": "Construction du site : documentation de pi-appliance convertie pour l'application mobile.",
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "dependencies": {
+    "marked": "16.4.2"
+  }
+}

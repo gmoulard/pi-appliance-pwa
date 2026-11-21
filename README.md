@@ -7,11 +7,34 @@ Application web installable (PWA) qui accompagne [pi-appliance](https://github.c
 
 Aucun compte, aucun traceur : ce qui est saisi reste sur le téléphone.
 
-Projet en cours de conception : voir la [spécification](docs/specification.md) et le [TODO](docs/TODO.md). Publication prévue à l'adresse `https://app.pi-appliance.com` (GitHub Pages).
+Projet en cours : la documentation hors ligne est construite, « Mes Pi » est à venir. Voir la [spécification](docs/specification.md) et le [TODO](docs/TODO.md). Publication prévue à l'adresse `https://app.pi-appliance.com` (GitHub Pages).
 
 ## Pour contribuer
 
-HTML, CSS et JavaScript sans framework ni étape de construction. Après un clone, récupérer les skills partagés :
+HTML, CSS et JavaScript sans framework ni étape de construction pour l'application ; seule la documentation est convertie, par le workflow « Site ».
+
+| Chemin | Rôle |
+|--------|------|
+| `index.html`, `app.css`, `app.js`, `textes.js` | Accueil, styles (charte de pi-appliance), code commun, textes de l'interface |
+| `recherche.js` | Recherche dans la documentation, sans réseau |
+| `sw.js` | *Service worker* : site gardé sur le téléphone, mise à jour en silence |
+| `manifest.webmanifest`, `icones/` | Application installable et ses icônes |
+| `outils/site.mjs` | Construction du site : documentation de pi-appliance convertie, index de recherche, `version.json` |
+| `outils/essai.cjs` | Essais dans Chromium sans tête |
+| `outils/icones.cjs` | Icônes PNG dessinées à partir de `icones/icone.svg` |
+| `.github/workflows/site.yml` | Construction, essais et publication sur GitHub Pages |
+
+Construire et essayer le site (Node 22 ; Playwright pour les essais) :
+
+```
+git clone --depth 1 --branch v0.1.4 https://github.com/gmoulard/pi-appliance.git ../pi-appliance
+npm ci --prefix outils
+node outils/site.mjs --docs ../pi-appliance/docs --version v0.1.4 \
+  --commit $(git -C ../pi-appliance rev-parse HEAD) --date $(git -C ../pi-appliance log -1 --format=%cs) --out _site
+node outils/essai.cjs _site
+```
+
+Après un clone, récupérer les skills partagés :
 
 ```
 git submodule update --init

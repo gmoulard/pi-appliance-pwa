@@ -1,0 +1,19 @@
+{
+  "name": "pi-appliance",
+  "short_name": "pi-appliance",
+  "description": "La documentation de pi-appliance dans la poche, même sans réseau, et un lien vers vos Raspberry Pi.",
+  "lang": "fr",
+  "dir": "ltr",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#FFF5F7",
+  "theme_color": "#C71F5D",
+  "icons": [
+    { "src": "icones/icone-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icones/icone-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icones/icone-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "icones/icone.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
