@@ -83,6 +83,7 @@ Choix de l'utilisateur du 2026-11-21 (A1, B1, C2) : un téléphone appairé à u
 ## 5. Écrans
 
 - **Premier écran** : « Mes Pi » s'il y a au moins un Pi ; sinon un accueil avec « Ajouter mon Pi » et « Lire la documentation ».
+- **« Mes Pi »** : la liste seule, sans boutons dessous (demande de l'utilisateur du 2026-11-22). Les autres écrans passent par le menu : « Ajouter un Pi » (scanner le code QR, chercher à la maison, ou écrire son nom) et « Documentation ».
 - **Installation sur l'écran d'accueil** : une aide toujours présente dans le menu, jamais proposée d'elle-même : bouton « Installer » avec Chrome sur Android ; menu ⋮ puis « Ajouter à l'écran d'accueil » avec Firefox sur Android, qui n'a pas ce bouton ; « Partager » puis « Sur l'écran d'accueil » sur iPhone. Installation essayée sur l'Android de l'utilisateur le 2026-11-21 : réussie avec Chrome ; avec Firefox, le bouton n'existe pas.
 - **Langue** : celle du téléphone, avec un choix dans les réglages, quand il y aura plus d'une langue (1.1).
 

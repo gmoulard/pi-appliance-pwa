@@ -27,7 +27,7 @@ Avancement de l'application mobile pi-appliance ([spécification](docs/specifica
 
 ## 3. Mes Pi (4)
 
-- [x] **TODO-3.1**: Liste gardée sur le téléphone, par ordre alphabétique, suppression ; ajout à la main (nom ou adresse IP) ; ouverture par un seul bouton dans le navigateur (2026-11-21, `mespi.js`).
+- [x] **TODO-3.1**: Liste gardée sur le téléphone, par ordre alphabétique, suppression ; ajout à la main (nom ou adresse IP) ; ouverture par un seul bouton dans le navigateur (2026-11-21, `mespi.js`). Le 2026-11-22, à la demande de l'utilisateur : plus de boutons sous la liste ; scanner et chercher à la maison passent dans « Ajouter un Pi », la documentation dans le menu.
 - [~] **TODO-3.2**: Ajout par la seule adresse sur internet : nom, adresse `.local`, identifiant et services lus dans `api/hello` (2026-11-21, demande de l'utilisateur ; essayé dans Chromium avec un faux Pi). À essayer sur l'Android avec un vrai Pi, depuis `https://app.pi-appliance.com` (le Pi n'autorise que cette adresse). Dépend de : TODO-1.6.
   - Critères d'acceptation : essai réussi sur l'Android de l'utilisateur (Android 16, Chrome) : Pi ajouté par sa seule adresse sur internet depuis `https://app.pi-appliance.com`, nom, adresse `.local` et services lus.
 - [~] **TODO-3.3**: Ajout par code QR, lu par l'application (`lecteur.js`, jsQR dans `vendor/jsqr/`) ou par l'appareil photo sur Android ; lien `#add?...` avec services `s` ; identifiant stable (2026-11-21, essayé dans Chromium avec une fausse caméra). À essayer sur l'Android avec le code de la console. Dépend de : aucune.
