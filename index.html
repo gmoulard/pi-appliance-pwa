@@ -74,17 +74,14 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 <button type="button" class="bouton secondaire" id="reseau-local-verifier" data-t="reseau.verifier">Vérifier à la maison</button>
 </div>
 <ul id="liste-pi" class="liste-pi"></ul>
-<p class="actions">
-<a class="bouton" href="#scanner" data-t="mespi.scanner">Scanner un code QR</a>
-<a class="bouton secondaire" href="#ajouter" data-t="mespi.ajouter">Ajouter un Pi</a>
-<a class="bouton secondaire" href="#chercher" data-t="mespi.chercher">Chercher à la maison</a>
-</p>
-<p><a href="doc/index.html" data-t="accueil.doc">Lire la documentation</a></p>
 </section>
 
 <section id="vue-ajouter" hidden>
 <h1 data-t="ajouter.titre">Ajouter un Pi</h1>
-<p><a class="bouton" href="#scanner" data-t="ajouter.scanner">Scanner le code QR de la console</a></p>
+<p class="actions">
+<a class="bouton" href="#scanner" data-t="ajouter.scanner">Scanner le code QR de la console</a>
+<a class="bouton secondaire" href="#chercher" data-t="ajouter.chercher">Chercher à la maison</a>
+</p>
 <p data-t="ajouter.ou">Ou écrivez son nom, ou seulement son adresse sur internet :</p>
 <form id="form-ajouter" class="formulaire" novalidate>
 <label for="ajouter-maison" data-t="ajouter.maison">Nom du Pi ou son adresse à la maison</label>
