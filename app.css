@@ -234,6 +234,9 @@ dialog h2 { margin-top: 0; }
   color: var(--aubergine);
 }
 .pied:empty { display: none; }
+.pied > span { display: block; }
+.pied > span:empty { display: none; }
+.pied a { color: inherit; }
 
 /* Mes Pi */
 .liste-pi { list-style: none; padding: 0; margin: 0 0 16px; display: grid; gap: 14px; }

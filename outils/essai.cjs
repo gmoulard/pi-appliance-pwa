@@ -101,11 +101,23 @@ function verifier(condition, message) {
     await page.reload();
     await page.waitForFunction(() => document.getElementById("version-doc").textContent.includes("Documentation de pi-appliance"));
     verifier(true, `version affichée : ${await page.textContent("#version-doc")}`);
+    // Pied de page (TODO-5.21 de pi-appliance) : commits liés, licence, code source.
+    const pied = await page.evaluate(() => ({
+      doc: document.querySelector("#version-doc a")?.href || "",
+      app: document.getElementById("version-app").textContent,
+      appLien: document.querySelector("#version-app a")?.href || "",
+      liens: [...document.querySelectorAll(".pied a")].map((a) => a.href),
+    }));
+    verifier(/github\.com\/gmoulard\/pi-appliance\/commit\/[0-9a-f]{7,40}$/.test(pied.doc), `commit de la documentation lié : ${pied.doc}`);
+    verifier(!version.app_commit || (pied.app.startsWith("Application, commit") && pied.appLien.endsWith(`/pi-appliance-pwa/commit/${version.app_commit}`)), `commit de l'application : ${pied.app}`);
+    verifier(pied.liens.includes("https://github.com/gmoulard/pi-appliance-pwa/blob/main/LICENSE") && pied.liens.includes("https://github.com/gmoulard/pi-appliance-pwa"), "licence et code source dans le pied de page");
     if (captures) await page.screenshot({ path: path.join(captures, "accueil.png") });
 
     await contexte.setOffline(true);
     await page.goto(`${adresse}doc/guide-utilisateur.html#fichier-reset`);
     verifier((await page.textContent("h1")).length > 0, "page du guide lue sans réseau");
+    const piedDoc = await page.textContent("footer.pied");
+    verifier(/Documentation de pi-appliance/.test(piedDoc) && /licence AGPL-3\.0/.test(piedDoc) && /Code source/.test(piedDoc), `pied de page d'une page de documentation : ${piedDoc.replace(/\s+/g, " ").trim()}`);
     await page.goto(`${adresse}doc/index.html`);
     await page.fill("#recherche-texte", "mot de passe oublie");
     await page.waitForFunction(() => document.querySelectorAll("#recherche-resultats li").length > 0, null, { timeout: 5000 });

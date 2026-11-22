@@ -18,8 +18,13 @@
 // version.json, la liste des fichiers gardés pour le hors ligne.
 //
 // node outils/site.mjs --docs <docs de pi-appliance> --version v0.1.4 \
-//   --commit <sha> --date AAAA-MM-JJ --out _site
+//   --commit <sha> --date AAAA-MM-JJ --out _site \
+//   [--app-commit <sha de ce dépôt> --app-date AAAA-MM-JJ]
+//
+// Sans --app-commit, le commit de l'application et sa date sont lus dans le
+// dépôt git de l'application (git log), et omis si git ne répond pas.
 
+import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
@@ -56,8 +61,24 @@ function options() {
   if (!/^v\d+\.\d+\.\d+$/.test(o.version)) throw new Error(`Version invalide : ${o.version}`);
   if (!/^[0-9a-f]{7,40}$/.test(o.commit)) throw new Error(`Commit invalide : ${o.commit}`);
   if (!/^\d{4}-\d{2}-\d{2}$/.test(o.date)) throw new Error(`Date invalide : ${o.date}`);
+  if (!o["app-commit"]) {
+    try {
+      const [sha, jour] = execFileSync("git", ["-C", RACINE, "log", "-1", "--format=%H %cs"], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim().split(" ");
+      o["app-commit"] = sha;
+      o["app-date"] = o["app-date"] || jour;
+    } catch (e) {
+      // Pas de git : le pied de page ne donne pas le commit de l'application.
+    }
+  }
+  if (o["app-commit"] && !/^[0-9a-f]{7,40}$/.test(o["app-commit"])) throw new Error(`Commit de l'application invalide : ${o["app-commit"]}`);
+  if (o["app-date"] && !/^\d{4}-\d{2}-\d{2}$/.test(o["app-date"])) throw new Error(`Date de l'application invalide : ${o["app-date"]}`);
   return o;
 }
+
+// Dépôts et licence (pied de page de chaque page, TODO-5.21 de pi-appliance).
+const DEPOT_PI = "https://github.com/gmoulard/pi-appliance";
+const DEPOT_APP = "https://github.com/gmoulard/pi-appliance-pwa";
+const LICENCE_APP = `${DEPOT_APP}/blob/main/LICENSE`;
 
 function echapper(texte) {
   return String(texte).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -244,9 +265,15 @@ function main() {
     fs.copyFileSync(source, path.join(sortie, f));
   }
 
+  const lien = (href, contenu) => `<a href="${echapper(href)}" rel="noopener">${contenu}<span class="en-ligne">en ligne</span></a>`;
   const commitCourt = o.commit.slice(0, 7);
-  const pied = `Documentation de pi-appliance <strong>${echapper(o.version)}</strong> du ${dateFrancaise(o.date)}, `
-    + `commit <a href="https://github.com/gmoulard/pi-appliance/tree/${echapper(o.commit)}" rel="noopener"><code>${commitCourt}</code><span class="en-ligne">en ligne</span></a>.`;
+  let pied = `<span>Documentation de pi-appliance <strong>${echapper(o.version)}</strong> du ${dateFrancaise(o.date)}, `
+    + `commit ${lien(`${DEPOT_PI}/commit/${o.commit}`, `<code>${commitCourt}</code>`)}.</span> `;
+  if (o["app-commit"]) {
+    pied += `<span>Application, commit ${lien(`${DEPOT_APP}/commit/${o["app-commit"]}`, `<code>${o["app-commit"].slice(0, 7)}</code>`)}`
+      + `${o["app-date"] ? ` du ${dateFrancaise(o["app-date"])}` : ""}.</span> `;
+  }
+  pied += `<span>${lien(LICENCE_APP, "Logiciel libre, licence AGPL-3.0")} · ${lien(DEPOT_APP, "Code source")}</span>`;
   const gabarit = gabaritPage(pied);
 
   const presentes = PAGES.filter((p) => fs.existsSync(path.join(docs, `${p}.md`)));
@@ -298,6 +325,8 @@ ${sommaire.join("\n")}
     version: o.version,
     commit: o.commit,
     date: o.date,
+    app_commit: o["app-commit"] || "",
+    app_date: o["app-date"] || "",
     fichiers: ["./", ...fichiers],
   };
   fs.writeFileSync(path.join(sortie, "version.json"), `${JSON.stringify(version, null, 2)}\n`);

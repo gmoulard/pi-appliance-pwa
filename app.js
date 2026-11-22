@@ -62,10 +62,26 @@
     }
   }
 
+  // Texte traduit dont {commit} devient un lien vers la page du commit sur GitHub.
+  function avecCommit(el, texte, depot, commit) {
+    const [avant, apres = ""] = texte.split("{commit}");
+    const lien = document.createElement("a");
+    lien.href = `https://github.com/gmoulard/${depot}/commit/${encodeURIComponent(commit)}`;
+    lien.rel = "noopener";
+    const code = document.createElement("code");
+    code.textContent = commit.slice(0, 7);
+    lien.append(code);
+    el.replaceChildren(avant, lien, apres);
+  }
+
+  // Pied de page (TODO-5.21 de pi-appliance) : la documentation (version,
+  // date et commit de pi-appliance) et l'application (son commit et sa date).
   function afficherVersion(v) {
     const el = document.getElementById("version-doc");
     if (!el || !v) return;
-    el.textContent = t("doc.version", { version: v.version, date: dateLocale(v.date) });
+    if (v.commit) avecCommit(el, t("doc.version", { version: v.version, date: dateLocale(v.date) }), "pi-appliance", v.commit);
+    const app = document.getElementById("version-app");
+    if (app && v.app_commit) avecCommit(app, t("app.version", { date: v.app_date ? dateLocale(v.app_date) : "" }), "pi-appliance-pwa", v.app_commit);
   }
 
   async function lireVersion() {

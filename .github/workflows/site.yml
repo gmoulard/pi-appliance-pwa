@@ -69,6 +69,7 @@ jobs:
             --version "${{ steps.pi.outputs.etiquette }}" \
             --commit "${{ steps.pi.outputs.commit }}" \
             --date "${{ steps.pi.outputs.date }}" \
+            --app-commit "${GITHUB_SHA}" --app-date "$(git log -1 --format=%cs)" \
             --out _site
 
       - name: Essais dans Chromium

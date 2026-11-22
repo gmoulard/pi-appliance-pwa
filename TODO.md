@@ -19,6 +19,7 @@ Avancement de l'application mobile pi-appliance ([spécification](docs/specifica
 - [x] **TODO-2.4**: Manifeste, icônes (maison or sur fond framboise, 2026-11-21 ; blanche auparavant), aide à l'installation dans le menu (5) (2026-11-21).
 - [x] **TODO-2.5**: Essais dans Chromium sans tête : `node outils/essai.cjs <site>` (site gardé, lecture et recherche sans réseau, mise à jour en silence), aussi lancés par le workflow (2026-11-21).
 - [ ] **TODO-2.6**: À essayer sur l'Android : installation, lecture en mode avion, mise à jour après une nouvelle version de pi-appliance.
+- [x] **TODO-2.7**: Pied de page complet (TODO-5.21 de pi-appliance, 2026-11-22) : documentation (version, date et commit de pi-appliance, liés) et application (son commit lié et sa date), licence AGPL-3.0 et code source, sur l'écran principal et chaque page de documentation ; essayé dans Chromium (`outils/essai.cjs`). À voir sur l'Android.
 
 ## 3. Mes Pi (4)
 
