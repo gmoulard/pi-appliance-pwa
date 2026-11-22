@@ -1,6 +1,6 @@
 # Spécification de l'application mobile pi-appliance
 
-> **Statut : en partie réalisé.** La documentation hors ligne (section 3) et la première partie de « Mes Pi » (section 4 : liste, ajout à la main, lien `#add`, recherche à la maison, état deviné, ouverture) sont construites (2026-11-21) ; le lecteur de code QR et `api/hello` attendent pi-appliance. Ce document décrit l'application visée ; l'avancement est dans [TODO.md](TODO.md). Une section passe de « cible » à « réalisé » quand le code existe. Choix de l'utilisateur du 2026-11-21 repris ici (questions et réponses : [questions.md](questions.md)).
+> **Statut : en partie réalisé.** La documentation hors ligne (section 3) et la première partie de « Mes Pi » (section 4 : liste, ajout à la main, lien `#add`, recherche à la maison, état deviné, ouverture) sont construites (2026-11-21) ; le lecteur de code QR et `api/hello` attendent pi-appliance. Ce document décrit l'application visée ; l'avancement est dans [TODO.md](../TODO.md). Une section passe de « cible » à « réalisé » quand le code existe. Choix de l'utilisateur du 2026-11-21 repris ici (questions et réponses : [questions.md](questions.md)).
 
 ## 1. Objet
 

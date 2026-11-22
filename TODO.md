@@ -1,6 +1,6 @@
 # TODO
 
-Avancement de l'application mobile pi-appliance ([spécification](specification.md)). Une action réalisée est cochée avec la date ou la version.
+Avancement de l'application mobile pi-appliance ([spécification](docs/specification.md)). Une action réalisée est cochée avec la date ou la version.
 
 ## 1. Mise en place
 
@@ -27,7 +27,7 @@ Avancement de l'application mobile pi-appliance ([spécification](specification.
 - [x] **TODO-3.3**: Ajout par code QR, lu par l'application (`lecteur.js`, jsQR dans `vendor/jsqr/`) ou par l'appareil photo sur Android ; lien `#add?...` avec services `s` ; identifiant stable (2026-11-21, essayé dans Chromium avec une fausse caméra). À essayer sur l'Android avec le code de la console.
 - [x] **TODO-3.4**: Recherche à la maison parmi les noms connus, avec ses limites dites à l'écran (2026-11-21). À essayer à la maison avec un vrai Pi.
 - [ ] **TODO-3.5**: État toujours affiché, et services relus dans `api/hello`. Fait le 2026-11-21 : état deviné sans `api/hello`, vérification à la maison après un geste (autorisation de Chrome), lecture de `api/hello` selon le format de la demande. Restent : format définitif de pi-appliance, essai avec un vrai Pi.
-- [x] **TODO-3.6**: Côté pi-appliance : [demande](demande-pi-appliance.md) réalisée par une session de pi-appliance sur sa branche `claude/application-mobile` (2026-11-21) : code QR et lien dans « Mon Pi », `api/hello`, appairage, connexion, retrait, « Mon compte → Appareils ». Versée dans `master` et sortie dans la version **v0.1.5** de pi-appliance (2026-11-21, image en construction par le workflow « Image »). Reste à l'essayer sur un vrai Pi.
+- [x] **TODO-3.6**: Côté pi-appliance : [demande](docs/demande-pi-appliance.md) réalisée par une session de pi-appliance sur sa branche `claude/application-mobile` (2026-11-21) : code QR et lien dans « Mon Pi », `api/hello`, appairage, connexion, retrait, « Mon compte → Appareils ». Versée dans `master` et sortie dans la version **v0.1.5** de pi-appliance (2026-11-21, image en construction par le workflow « Image »). Reste à l'essayer sur un vrai Pi.
 
 - [ ] **TODO-3.7**: Appairage (4.4) : clé du téléphone (WebCrypto, non exportable, IndexedDB), appairage au lien `#add?...&c=…`, connexion signée à « Ouvrir ». Côté application fait le 2026-11-21 (`cle.js`, essayé dans Chromium avec un faux Pi, signatures vérifiées par Node). Côté pi-appliance : demande, section 4, confiée à sa session. Reste l'essai avec un vrai Pi.
 

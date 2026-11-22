@@ -4,7 +4,7 @@ Instructions pour Claude Code (ou tout agent) travaillant sur ce dépôt.
 
 ## Le projet
 
-pi-appliance-pwa est l'application mobile de [pi-appliance](https://github.com/gmoulard/pi-appliance) : une application web installable (PWA) publiée sur `https://app.pi-appliance.com`, qui donne la documentation de pi-appliance lisible sans réseau et un lien direct vers ses Raspberry Pi. L'application visée est décrite dans [docs/specification.md](docs/specification.md), l'avancement dans [docs/TODO.md](docs/TODO.md) : les lire avant toute modification fonctionnelle et les mettre à jour dans le même changement. La spécification est marquée « cible » tant que le code n'existe pas : quand une fonction est réalisée, le dire dans la spécification et cocher le TODO.
+pi-appliance-pwa est l'application mobile de [pi-appliance](https://github.com/gmoulard/pi-appliance) : une application web installable (PWA) publiée sur `https://app.pi-appliance.com`, qui donne la documentation de pi-appliance lisible sans réseau et un lien direct vers ses Raspberry Pi. L'application visée est décrite dans [docs/specification.md](docs/specification.md), l'avancement dans [TODO.md](TODO.md) : les lire avant toute modification fonctionnelle et les mettre à jour dans le même changement. La spécification est marquée « cible » tant que le code n'existe pas : quand une fonction est réalisée, le dire dans la spécification et cocher le TODO.
 
 Public visé : le grand public (spécification 1.1). Les écrans parlent en langage courant, sans jargon technique, en français dans la première version, puis dans les 12 langues de la console de pi-appliance (arabe et persan de droite à gauche). Charte graphique : `docs/charte-graphique.md` de pi-appliance.
 
@@ -40,7 +40,7 @@ Ne jamais versionner de secret, et ne jamais mettre de mot de passe ou de clé d
     ```
 - **`spec-sync`** :
   - référence : `docs/specification.md`, en français, qui fait foi ; pas de traduction pour l'instant ;
-  - évolutions non implémentées : `docs/TODO.md`, section 7 « Questions ouvertes » de la spécification et `docs/questions.md` ; ce qui est attendu de pi-appliance : section 6 et `docs/demande-pi-appliance.md` ;
+  - évolutions non implémentées : `TODO.md`, section 7 « Questions ouvertes » de la spécification et `docs/questions.md` ; ce qui est attendu de pi-appliance : section 6 et `docs/demande-pi-appliance.md` ;
   - choix techniques : section 2 ; arborescence : README.
 - **Tests** : `npm ci --prefix outils`, construction (`node outils/site.mjs --docs <docs de pi-appliance> --version vX.Y.Z --commit <sha> --date AAAA-MM-JJ --out _site`), puis `node outils/essai.cjs _site` (Chromium sans tête, Playwright) ; à la main : Android 16 (One UI 8.5) de l'utilisateur, sans réseau et à la maison ; pas d'iPhone pour les essais.
 - **`release`** : pas de numéro de version pour l'instant ; le site est republié par GitHub Pages à chaque changement de la branche principale `main`. Choix de l'utilisateur (2026-11-21) : pousser directement sur `main`, jamais par une pull request ; garder la branche de travail au même point. La documentation affichée porte la version de pi-appliance dont elle vient (étiquette `vX.Y.Z`).
