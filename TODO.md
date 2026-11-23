@@ -15,7 +15,7 @@ Avancement de l'application mobile pi-appliance ([spécification](docs/specifica
 
 ## 2. Documentation hors ligne (3) — en premier
 
-- [x] **TODO-2.1**: Workflow « Site » qui récupère `docs/` de pi-appliance à la dernière étiquette, convertit le Markdown en HTML (`outils/site.mjs` : pages reprises, liens « en ligne », catalogue de la marketplace écrit dans la page) et publie le site, chaque jour, à chaque changement de `main` et à la demande (2026-11-21). Premier passage réussi le 2026-11-21 (construction, essais, publication).
+- [x] **TODO-2.1**: Workflow « Site » qui récupère `docs/` de pi-appliance à la dernière étiquette, convertit le Markdown en HTML (`outils/site.mjs` : pages reprises, liens « en ligne », catalogue de la marketplace écrit dans la page) et publie le site, toutes les heures (sans republier si rien n'a changé, depuis le 2026-11-23), à chaque changement de `main` et à la demande (2026-11-21). Premier passage réussi le 2026-11-21 (construction, essais, publication).
 - [x] **TODO-2.2**: *Service worker* : pages et images gardées pour le hors ligne, mise à jour en silence, version, commit et date en bas de page (2026-11-21).
 - [x] **TODO-2.3**: Recherche sans réseau (2026-11-21).
 - [x] **TODO-2.4**: Manifeste, icônes (maison or sur fond framboise, 2026-11-21 ; blanche auparavant), aide à l'installation dans le menu (5) (2026-11-21).

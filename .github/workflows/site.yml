@@ -26,7 +26,11 @@ on:
   push:
     branches: [main]
   schedule:
-    - cron: "17 4 * * *"
+    # Toutes les heures : une nouvelle version de pi-appliance arrive dans
+    # l'application sans attendre un changement de main (2026-11-23 : la
+    # documentation était restée en v0.1.14) ; rien n'est republié si la
+    # version en ligne est déjà la dernière.
+    - cron: "17 * * * *"
   workflow_dispatch:
 
 permissions:
@@ -41,6 +45,8 @@ concurrency:
 jobs:
   construire:
     runs-on: ubuntu-latest
+    outputs:
+      a_jour: ${{ steps.verif.outputs.a_jour }}
     steps:
       - uses: actions/checkout@v4
 
@@ -62,7 +68,23 @@ jobs:
           echo "date=$(git -C pi-appliance log -1 --format=%cs)" >> "$GITHUB_OUTPUT"
           echo "Documentation de pi-appliance $etiquette"
 
+      - name: Déjà à jour ?
+        id: verif
+        env:
+          ETIQUETTE: ${{ steps.pi.outputs.etiquette }}
+          SITE: https://gmoulard.github.io/pi-appliance-pwa/version.json
+        run: |
+          set -u
+          a_jour=false
+          if [ "${GITHUB_EVENT_NAME}" = schedule ]; then
+            en_ligne=$(curl -fsSL "$SITE" | jq -r '.version + " " + .app_commit' 2>/dev/null || true)
+            if [ "$en_ligne" = "$ETIQUETTE $GITHUB_SHA" ]; then a_jour=true; fi
+            echo "En ligne : ${en_ligne:-illisible} ; attendu : $ETIQUETTE $GITHUB_SHA"
+          fi
+          echo "a_jour=$a_jour" >> "$GITHUB_OUTPUT"
+
       - name: Construction
+        if: steps.verif.outputs.a_jour != 'true'
         run: |
           npm ci --prefix outils
           node outils/site.mjs --docs pi-appliance/docs \
@@ -73,17 +95,20 @@ jobs:
             --out _site
 
       - name: Essais dans Chromium
+        if: steps.verif.outputs.a_jour != 'true'
         run: |
           npm install --no-save --prefix outils playwright@1.63.0
           npx --prefix outils playwright install --with-deps chromium
           node outils/essai.cjs _site
 
       - uses: actions/upload-pages-artifact@v3
+        if: steps.verif.outputs.a_jour != 'true'
         with:
           path: _site
 
   publier:
     needs: construire
+    if: needs.construire.outputs.a_jour != 'true'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
