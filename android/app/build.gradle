@@ -1,0 +1,64 @@
+// This file is part of pi-appliance-pwa <https://github.com/gmoulard/pi-appliance-pwa>.
+// Copyright (c) 2026 Guillaume Moulard.
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published
+// by the Free Software Foundation, version 3.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+plugins {
+    id "com.android.application"
+}
+
+def paquet = providers.gradleProperty("paquet").get()
+def hote = providers.gradleProperty("hote").get()
+def numero = (System.getenv("NUMERO_VERSION") ?: "1") as int
+def cle = System.getenv("ANDROID_KEYSTORE_FICHIER")
+def declaration = """[{"relation": ["delegate_permission/common.handle_all_urls"], "target": {"namespace": "web", "site": "https://${hote}"}}]"""
+
+android {
+    namespace = paquet
+    compileSdk = 36
+
+    defaultConfig {
+        applicationId = paquet
+        minSdk = 26
+        targetSdk = 36
+        versionCode = numero
+        versionName = "1.${numero}"
+        manifestPlaceholders = [hote: hote]
+        // NE PAS retirer le remplacement des guillemets : sans \" devant, Android les enlève de la ressource et Chrome ne lit plus la déclaration.
+        resValue "string", "assetStatements", declaration.replace('"', '\\"')
+    }
+
+    signingConfigs {
+        if (cle) {
+            publication {
+                storeFile = file(cle)
+                storePassword = System.getenv("ANDROID_KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("ANDROID_KEY_ALIAS")
+                keyPassword = System.getenv("ANDROID_KEY_PASSWORD")
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled = true
+            if (cle) {
+                signingConfig = signingConfigs.publication
+            }
+        }
+    }
+}
+
+dependencies {
+    implementation "com.google.androidbrowserhelper:androidbrowserhelper:2.7.4"
+}

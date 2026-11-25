@@ -1,0 +1,121 @@
+# This file is part of pi-appliance-pwa <https://github.com/gmoulard/pi-appliance-pwa>.
+# Copyright (c) 2026 Guillaume Moulard.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, version 3.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+# Application Android (spécification 2) : Trusted Web Activity qui ouvre
+# https://app.pi-appliance.com, projet Gradle android/. Construite à la demande
+# et à chaque changement de ses fichiers. Avec les secrets ANDROID_KEYSTORE
+# (fichier .jks en base64), ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS et
+# ANDROID_KEY_PASSWORD : APK et AAB signés, prêts pour la Play Console. Sans
+# eux : APK de débogage à essayer sur le téléphone, AAB non signé (refusé par
+# la Play Console). Étapes à faire à la main : docs/mise-en-production.md.
+
+name: Android
+
+on:
+  push:
+    paths:
+      - "android/**"
+      - ".github/workflows/android.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  construire:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: android-actions/setup-android@v3
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.11.1"
+
+      - name: Aucune bibliothèque de Google Play Services ni de Firebase
+        run: |
+          set -euo pipefail
+          gradle -p android --no-daemon :app:dependencies --configuration releaseRuntimeClasspath > dependances.txt
+          cat dependances.txt
+          if grep -nE 'com\.google\.android\.gms|com\.google\.firebase|com\.android\.billingclient' dependances.txt; then
+            echo "::error::Bibliothèque de Google Play Services ou de Firebase dans l'application (spécification 2 : pas de traceur)."
+            exit 1
+          fi
+
+      - name: Clé de signature
+        id: cle
+        env:
+          ANDROID_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE }}
+        run: |
+          set -euo pipefail
+          if [ -z "$ANDROID_KEYSTORE" ]; then
+            echo "signee=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Pas de secret ANDROID_KEYSTORE : APK de débogage et AAB non signé."
+            exit 0
+          fi
+          printf '%s' "$ANDROID_KEYSTORE" | base64 -d > "$RUNNER_TEMP/cle.jks"
+          echo "ANDROID_KEYSTORE_FICHIER=$RUNNER_TEMP/cle.jks" >> "$GITHUB_ENV"
+          echo "signee=true" >> "$GITHUB_OUTPUT"
+
+      - name: Construction
+        env:
+          NUMERO_VERSION: ${{ github.run_number }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: gradle -p android --no-daemon assembleDebug assembleRelease bundleRelease
+
+      - name: Empreinte du certificat (pour assetlinks.json)
+        if: steps.cle.outputs.signee == 'true'
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+        run: |
+          set -euo pipefail
+          empreinte=$(keytool -list -v -keystore "$ANDROID_KEYSTORE_FICHIER" -alias "$ANDROID_KEY_ALIAS" -storepass:env ANDROID_KEYSTORE_PASSWORD \
+            | sed -n 's/^[[:space:]]*SHA256: //p')
+          test -n "$empreinte"
+          echo "Empreinte SHA-256 de la clé d'envoi : $empreinte"
+          echo "Empreinte SHA-256 de la clé d'envoi (variable ANDROID_EMPREINTES_SHA256) : \`$empreinte\`" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Fichiers construits
+        run: |
+          set -euo pipefail
+          sortie=android/app/build/outputs
+          mkdir -p livraison
+          cp "$sortie/apk/debug/app-debug.apk" livraison/pi-appliance-essai.apk
+          if [ "${{ steps.cle.outputs.signee }}" = true ]; then
+            cp "$sortie/apk/release/app-release.apk" livraison/pi-appliance.apk
+            cp "$sortie/bundle/release/app-release.aab" livraison/pi-appliance.aab
+          else
+            cp "$sortie/bundle/release/app-release.aab" livraison/pi-appliance-non-signe.aab
+          fi
+          ls -l livraison
+
+      - name: Effacer la clé
+        if: always()
+        run: rm -f "$RUNNER_TEMP/cle.jks"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pi-appliance-android-${{ github.run_number }}
+          path: livraison/
+          if-no-files-found: error

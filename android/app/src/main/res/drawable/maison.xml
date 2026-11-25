@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+This file is part of pi-appliance-pwa <https://github.com/gmoulard/pi-appliance-pwa>.
+Copyright (c) 2026 Guillaume Moulard.
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published
+by the Free Software Foundation, version 3.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="120"
+    android:viewportHeight="120">
+    <group
+        android:scaleX="0.566"
+        android:scaleY="0.566"
+        android:translateX="26"
+        android:translateY="24">
+        <path
+            android:pathData="M16,56 L60,18 L104,56"
+            android:strokeColor="@color/or"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round"
+            android:strokeWidth="12" />
+        <path
+            android:fillColor="@color/or"
+            android:pathData="M38,52 H82 A10,10 0 0 1 92,62 V96 A10,10 0 0 1 82,106 H38 A10,10 0 0 1 28,96 V62 A10,10 0 0 1 38,52 Z" />
+        <path
+            android:fillColor="@color/framboise"
+            android:pathData="M44,64 H76 A4,4 0 0 1 80,68 A4,4 0 0 1 76,72 H44 A4,4 0 0 1 40,68 A4,4 0 0 1 44,64 Z" />
+        <path
+            android:pathData="M52,72 V94"
+            android:strokeColor="@color/framboise"
+            android:strokeLineCap="round"
+            android:strokeWidth="8" />
+        <path
+            android:pathData="M68,72 V90 Q68,94 73,94"
+            android:strokeColor="@color/framboise"
+            android:strokeLineCap="round"
+            android:strokeWidth="8" />
+    </group>
+</vector>
