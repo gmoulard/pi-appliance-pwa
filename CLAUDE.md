@@ -42,5 +42,9 @@ Ne jamais versionner de secret, et ne jamais mettre de mot de passe ou de clé d
   - référence : `docs/specification.md`, en français, qui fait foi ; pas de traduction pour l'instant ;
   - évolutions non implémentées : `TODO.md`, section 7 « Questions ouvertes » de la spécification et `docs/questions.md` ; ce qui est attendu de pi-appliance : section 6 et `docs/demande-pi-appliance.md` ;
   - choix techniques : section 2 ; arborescence : README.
+- **`todo`** :
+  - TODO : `TODO.md` à la racine ; pas de fichier des actions réalisées (elles restent cochées sur une ligne dans le TODO) ; pas de boîte de réception ;
+  - spécification : `docs/specification.md` ; filtres : non ;
+  - lots : tableau « Lots » en tête du TODO, réalisés par l'agent `todo-lot` (`.claude/agents/todo-lot.md`, lien vers le sous-module) ; branche de push : celle de la session, puis `main`.
 - **Tests** : `npm ci --prefix outils`, construction (`node outils/site.mjs --docs <docs de pi-appliance> --version vX.Y.Z --commit <sha> --date AAAA-MM-JJ --out _site`), puis `node outils/essai.cjs _site` (Chromium sans tête, Playwright) ; à la main : Android 16 (One UI 8.5) de l'utilisateur, sans réseau et à la maison ; pas d'iPhone pour les essais.
 - **`release`** : pas de numéro de version pour l'instant ; le site est republié par GitHub Pages à chaque changement de la branche principale `main`. Choix de l'utilisateur (2026-11-21) : pousser directement sur `main`, jamais par une pull request ; garder la branche de travail au même point. La documentation affichée porte la version de pi-appliance dont elle vient (étiquette `vX.Y.Z`).

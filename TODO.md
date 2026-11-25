@@ -2,13 +2,23 @@
 
 Avancement de l'application mobile pi-appliance ([spécification](docs/specification.md)). États : `[ ]` à faire ; `[~]` en cours ou à vérifier (fait, mais pas encore validé, le plus souvent sur le téléphone ou avec un vrai Pi) ; `[!]` bloqué (attend une décision ou un accès : la raison est dite) ; `[x]` réalisé et validé, avec la date ou la version. Une action ouverte dit de quoi elle dépend (« Dépend de : ») et ses critères d'acceptation ; elle n'est cochée `[x]` qu'une fois ses critères remplis. Les actions réalisées tiennent sur une ligne.
 
+## Lots
+
+Groupes d'actions cohérents, réalisés chacun par le sous-agent `todo-lot` (une action = un commit poussé). LOT-1 tient une seule action : elle attend l'utilisateur.
+
+| Lot | Titre | Actions | Dépend de | État |
+|-----|-------|---------|-----------|------|
+| LOT-1 | Accès à régler par l'utilisateur | TODO-1.6 | aucun | [!] |
+| LOT-2 | Documentation sur le téléphone | TODO-2.6, TODO-2.7, TODO-4.3 | aucun | [~] |
+| LOT-3 | Mes Pi avec un vrai Pi | TODO-3.2, TODO-3.3, TODO-3.4, TODO-3.5, TODO-3.6, TODO-3.7, TODO-3.8 | LOT-1 | [~] |
+| LOT-4 | Langues | TODO-4.1, TODO-4.2 | aucun | [ ] |
+
 ## 1. Mise en place
 
 - [x] **TODO-1.1**: Dépôt `gmoulard/pi-appliance-pwa` créé (2026-11-21) ; spécification écrite.
 - [x] **TODO-1.2**: Licence AGPL-3.0 (`LICENSE`), `README.md`, `CLAUDE.md` avec les paramètres des skills partagés (2026-11-21).
 - [x] **TODO-1.3**: Questions de spécification posées et tranchées, précisions 31 à 37 comprises (2026-11-21).
-- [!] **TODO-1.4**: Sous-module `.claude/skills/` (https://github.com/gmoulard/claude_skills, au même commit que pi-appliance) : à ajouter par l'utilisateur, l'agent n'y a pas été autorisé. Dépend de : aucune.
-  - Critères d'acceptation : `.claude/skills/` présent, au même commit que dans pi-appliance, `git submodule update --init` fonctionne après un clone. Bloqué par : ajout par l'utilisateur, l'agent n'y est pas autorisé.
+- [x] **TODO-1.4**: Sous-module `.claude/skills/` (https://github.com/gmoulard/claude_skills, au même commit que pi-appliance), ajouté le 2026-11-25 ; agent `todo-lot` relié dans `.claude/agents/`.
 - [x] **TODO-1.5**: Branche `main` créée, publiée par GitHub Pages (source « GitHub Actions ») ; premier site publié par le workflow « Site » le 2026-11-21, à l'adresse provisoire `https://gmoulard.github.io/pi-appliance-pwa/`.
 - [!] **TODO-1.6**: Nom `app.pi-appliance.com` dans Route 53 (`CNAME` vers `gmoulard.github.io`), GitHub Pages avec HTTPS (2). Dépend de : TODO-1.5.
   - Critères d'acceptation : `https://app.pi-appliance.com` ouvre l'application avec un certificat valide ; l'ancienne adresse github.io renvoie vers elle. Bloqué par : entrée DNS dans Route 53 et réglage de GitHub Pages, à faire par l'utilisateur.
