@@ -87,6 +87,16 @@ Choix de l'utilisateur du 2026-11-21 (A1, B1, C2) : un téléphone appairé à u
 - **Si le Pi ne reconnaît plus le téléphone** (appareil retiré, Pi remis à zéro) : la console affiche son écran de connexion habituel ; rescanner le code QR appaire de nouveau.
 - Protocole détaillé : [demande-pi-appliance.md](demande-pi-appliance.md), section 4.
 
+### 4.5 Installer un nouveau Pi (cible)
+
+Demande de l'utilisateur du 2026-11-25 (pi-appliance, spécification 5.1, TODO-2.78 à TODO-2.80) : l'installation d'un Pi neuf se fait **par l'application**, plus par la console dans la fenêtre du portail.
+
+- **Copie servie par le Pi** : sur son Wi-Fi « pi-appliance-XXXX » (sans internet), le Pi sert une copie de l'application à **`http://10.42.0.1/`**, qui s'ouvre d'elle-même (portail captif) : écran « Installer mon Pi », même aspect et mêmes textes que l'application. En HTTP, sans certificat : pas d'avertissement, et la page parle à la console du Pi à la même adresse (une page en HTTPS ne pourrait pas joindre `10.42.0.1`).
+- **Étapes**, chacune avec ses messages d'aide en langage courant : bienvenue (ce qui va se passer, environ 5 minutes) ; création du compte administrateur (identifiant, e-mail, mot de passe) ; Wi-Fi de la maison : « Associer avec le bouton de la box » (WPS) en premier, sinon la liste des Wi-Fi et le mot de passe, ou le câble ; avertissement avant que le Pi quitte son Wi-Fi (« votre téléphone va revenir sur votre Wi-Fi habituel, c'est normal »).
+- **Le Pi noté pour être retrouvé** : avant le changement de réseau, l'écran reçoit du Pi le lien `https://app.pi-appliance.com/#add?id=…&l=…&n=…&c=…` (code d'appairage d'installation, une seule fois). La copie ne peut pas écrire dans l'application installée (autre adresse, autre stockage) : elle garde le lien et affiche « Ajouter ce Pi à mon application », qui ouvre la vraie application une fois internet retrouvé (la page attend et le dit). L'application ajoute alors le Pi (4.1), le retrouve à sa nouvelle adresse à la maison et appaire le téléphone (4.4) ; la suite de la mise en route se fait dans la console.
+- **Dans l'application installée** : bouton « Installer un nouveau Pi » dans « Mes Pi », qui explique quoi faire (flasher la carte, démarrer le Pi, rejoindre son Wi-Fi, page qui s'ouvre ou `http://10.42.0.1`).
+- **Technique** : les écrans d'installation sont dans ce dépôt ; pi-appliance prend la dernière publication de l'application et l'embarque dans son socle. Sur `10.42.0.1`, ni service worker ni stockage durable utiles : la page n'y sert qu'une fois.
+
 ## 5. Écrans
 
 - **Premier écran** : « Mes Pi » s'il y a au moins un Pi ; sinon un accueil avec « Ajouter mon Pi » et « Lire la documentation ».

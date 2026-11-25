@@ -95,3 +95,11 @@ Mêmes vérifications que la connexion ; puis le Pi retire l'appareil (sa clé n
 - Liste des appareils appairés du compte : nom, date d'appairage, dernière utilisation ; bouton « Retirer » (la clé ne vaut plus rien) et « Renommer ».
 - Sans limite de durée (C2) : un appareil reste appairé jusqu'à ce qu'il soit retiré, ici ou depuis l'application (4.6). Changer de mot de passe ne retire pas les appareils ; la remise à zéro du Pi les retire tous.
 
+## 5. Installation guidée par l'application (demande du 2026-11-25)
+
+Cible, pas encore réalisée (spécification de l'application 4.5 ; pi-appliance spécification 5.1, TODO-2.78 à TODO-2.80) :
+
+- Sur le point d'accès seulement (clients `10.42.0.0/24`), servir en HTTP sur `http://10.42.0.1/` la copie des écrans d'installation de l'application, et y laisser passer en HTTP les demandes de la console qu'ils utilisent (`api/session`, `api/setup`, réseau : liste des Wi-Fi, WPS, connexion) ; le portail captif renvoie vers `http://10.42.0.1/`.
+- Après la création du compte, donner le lien d'ajout `https://app.pi-appliance.com/#add?…&c=…` avec un code d'appairage d'installation, une seule fois, assez long pour que le Pi change de réseau (par exemple 1 heure).
+- Embarquer dans le socle la dernière publication de l'application.
+
