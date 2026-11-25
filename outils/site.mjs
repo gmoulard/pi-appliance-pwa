@@ -20,6 +20,12 @@
 // node outils/site.mjs --docs <docs de pi-appliance> --version v0.1.4 \
 //   --commit <sha> --date AAAA-MM-JJ --out _site \
 //   [--app-commit <sha de ce dépôt> --app-date AAAA-MM-JJ]
+//   [--empreintes "AA:BB:…, CC:DD:…"]
+//
+// --empreintes : empreintes SHA-256 des certificats de l'application Android
+// (variable GitHub ANDROID_EMPREINTES_SHA256) ; avec elles, le site publie
+// .well-known/assetlinks.json pour le paquet de android/gradle.properties.
+// Sans empreinte, rien n'est publié.
 //
 // Sans --app-commit, le commit de l'application et sa date sont lus dans le
 // dépôt git de l'application (git log), et omis si git ne répond pas.
@@ -41,7 +47,7 @@ const PAGES = ["guide-utilisateur", "faq", "installation", "marketplace", "essai
 const APPLICATION = [
   "index.html", "app.css", "app.js", "textes.js", "cle.js", "lecteur.js", "mespi.js",
   "vendor/jsqr/jsQR.js", "vendor/jsqr/LICENSE", "recherche.js", "sw.js",
-  "manifest.webmanifest",
+  "manifest.webmanifest", "confidentialite.html",
   "icones/symbole.svg", "icones/favicon.svg", "icones/icone.svg",
   "icones/icone-192.png", "icones/icone-512.png", "icones/apple-touch-icon.png",
 ];
@@ -72,7 +78,28 @@ function options() {
   }
   if (o["app-commit"] && !/^[0-9a-f]{7,40}$/.test(o["app-commit"])) throw new Error(`Commit de l'application invalide : ${o["app-commit"]}`);
   if (o["app-date"] && !/^\d{4}-\d{2}-\d{2}$/.test(o["app-date"])) throw new Error(`Date de l'application invalide : ${o["app-date"]}`);
+  o.empreintes = (o.empreintes || "").split(/[\s,]+/).filter(Boolean).map((e) => e.toUpperCase());
+  for (const e of o.empreintes) {
+    if (!/^([0-9A-F]{2}:){31}[0-9A-F]{2}$/.test(e)) throw new Error(`Empreinte SHA-256 invalide (32 octets « AA:BB:… » attendus) : ${e}`);
+  }
   return o;
+}
+
+function paquetAndroid() {
+  const proprietes = fs.readFileSync(path.join(RACINE, "android", "gradle.properties"), "utf8");
+  const paquet = (proprietes.match(/^paquet=(.+)$/m) || [])[1]?.trim();
+  if (!paquet || !/^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$/.test(paquet)) throw new Error(`Paquet Android illisible dans android/gradle.properties : ${paquet}`);
+  return paquet;
+}
+
+function liensAndroid(sortie, empreintes) {
+  if (!empreintes.length) return;
+  const declaration = [{
+    relation: ["delegate_permission/common.handle_all_urls"],
+    target: { namespace: "android_app", package_name: paquetAndroid(), sha256_cert_fingerprints: empreintes },
+  }];
+  fs.mkdirSync(path.join(sortie, ".well-known"), { recursive: true });
+  fs.writeFileSync(path.join(sortie, ".well-known", "assetlinks.json"), `${JSON.stringify(declaration, null, 2)}\n`);
 }
 
 // Dépôts et licence (pied de page de chaque page, TODO-5.21 de pi-appliance).
@@ -258,6 +285,7 @@ function main() {
   // GitHub Actions, Pages ignore ce fichier ; le domaine se règle dans les
   // réglages Pages du dépôt (docs/mise-en-production.md).
   if (fs.existsSync(path.join(RACINE, "CNAME"))) fs.copyFileSync(path.join(RACINE, "CNAME"), path.join(sortie, "CNAME"));
+  liensAndroid(sortie, o.empreintes);
 
   for (const f of APPLICATION) {
     const source = path.join(RACINE, f);
@@ -315,6 +343,7 @@ ${sommaire.join("\n")}
   const parcourir = (dossier) => {
     for (const e of fs.readdirSync(path.join(sortie, dossier), { withFileTypes: true })) {
       const rel = dossier ? `${dossier}/${e.name}` : e.name;
+      if (rel === ".well-known") continue;
       if (e.isDirectory()) parcourir(rel);
       else if (!["CNAME", "sw.js", "version.json"].includes(rel)) fichiers.push(rel);
     }

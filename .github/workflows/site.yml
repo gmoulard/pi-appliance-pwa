@@ -89,6 +89,10 @@ jobs:
 
       - name: Construction
         if: steps.verif.outputs.a_jour != 'true'
+        env:
+          # Empreintes du certificat de l'application Android (variable du
+          # dépôt, pas un secret) : sans elles, pas de .well-known/assetlinks.json.
+          EMPREINTES: ${{ vars.ANDROID_EMPREINTES_SHA256 }}
         run: |
           npm ci --prefix outils
           node outils/site.mjs --docs pi-appliance/docs \
@@ -96,6 +100,7 @@ jobs:
             --commit "${{ steps.pi.outputs.commit }}" \
             --date "${{ steps.pi.outputs.date }}" \
             --app-commit "${GITHUB_SHA}" --app-date "$(git log -1 --format=%cs)" \
+            --empreintes "${EMPREINTES}" \
             --out _site
 
       - name: Essais dans Chromium
@@ -105,6 +110,7 @@ jobs:
           npx --prefix outils playwright install --with-deps chromium
           node outils/essai.cjs _site
 
+      # NE PAS passer à upload-pages-artifact@v4 : il laisse de côté les dossiers commençant par un point, donc .well-known/assetlinks.json de l'application Android.
       - uses: actions/upload-pages-artifact@v3
         if: steps.verif.outputs.a_jour != 'true'
         with:

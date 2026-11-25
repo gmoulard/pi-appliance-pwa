@@ -113,6 +113,29 @@ function verifier(condition, message) {
     verifier(pied.liens.includes("https://github.com/gmoulard/pi-appliance-pwa/blob/main/LICENSE") && pied.liens.includes("https://github.com/gmoulard/pi-appliance-pwa"), "licence et code source dans le pied de page");
     if (captures) await page.screenshot({ path: path.join(captures, "accueil.png") });
 
+    const android = await page.evaluate(async () => {
+      const r = await fetch(".well-known/assetlinks.json", { cache: "no-store" });
+      return { statut: r.status, type: r.headers.get("content-type") || "", texte: r.ok ? await r.text() : "" };
+    });
+    if (fs.existsSync(path.join(site, ".well-known", "assetlinks.json"))) {
+      const paquet = fs.readFileSync(path.join(__dirname, "..", "android", "gradle.properties"), "utf8").match(/^paquet=(.+)$/m)[1].trim();
+      let declaration = null;
+      try { declaration = JSON.parse(android.texte); } catch (e) { declaration = null; }
+      const cible = declaration?.[0]?.target || {};
+      verifier(android.statut === 200 && /json/.test(android.type)
+        && declaration?.[0]?.relation?.includes("delegate_permission/common.handle_all_urls")
+        && cible.namespace === "android_app" && cible.package_name === paquet
+        && Array.isArray(cible.sha256_cert_fingerprints) && cible.sha256_cert_fingerprints.length > 0
+        && cible.sha256_cert_fingerprints.every((e) => /^([0-9A-F]{2}:){31}[0-9A-F]{2}$/.test(e)),
+      `.well-known/assetlinks.json pour ${paquet} (${(cible.sha256_cert_fingerprints || []).length} empreinte(s))`);
+      verifier(!version.fichiers.some((f) => f.startsWith(".well-known")), "assetlinks.json n'est pas gardé par le service worker");
+    } else {
+      verifier(android.statut === 404, "pas d'empreinte : pas de .well-known/assetlinks.json publié");
+    }
+    await page.goto(`${adresse}confidentialite.html`);
+    verifier(/ne collecte rien/.test(await page.textContent("main")), "page de confidentialité");
+    await page.goto(adresse);
+
     await contexte.setOffline(true);
     await page.goto(`${adresse}doc/guide-utilisateur.html#fichier-reset`);
     verifier((await page.textContent("h1")).length > 0, "page du guide lue sans réseau");
