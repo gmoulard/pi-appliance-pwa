@@ -1,0 +1,14 @@
+{
+  "Comment": "Application mobile pi-appliance : app.pi-appliance.com vers GitHub Pages",
+  "Changes": [
+    {
+      "Action": "UPSERT",
+      "ResourceRecordSet": {
+        "Name": "app.pi-appliance.com",
+        "Type": "CNAME",
+        "TTL": 300,
+        "ResourceRecords": [{ "Value": "gmoulard.github.io" }]
+      }
+    }
+  ]
+}

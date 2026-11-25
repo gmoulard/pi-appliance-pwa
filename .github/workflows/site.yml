@@ -16,8 +16,8 @@
 # Construit et publie app.pi-appliance.com (spécification 2 et 3) : récupère
 # docs/ de pi-appliance à sa dernière étiquette vX.Y.Z, la convertit avec
 # outils/site.mjs, essaie le site dans Chromium (outils/essai.cjs), puis le
-# publie par GitHub Pages. Chaque jour, à chaque changement de main, et à la
-# demande. Un site inchangé garde la même empreinte : les téléphones ne
+# publie par GitHub Pages et vérifie le site en ligne (outils/production.cjs).
+# Toutes les heures, à chaque changement de main, et à la demande. Un site inchangé garde la même empreinte : les téléphones ne
 # retéléchargent rien.
 
 name: Site
@@ -72,12 +72,16 @@ jobs:
         id: verif
         env:
           ETIQUETTE: ${{ steps.pi.outputs.etiquette }}
-          SITE: https://gmoulard.github.io/pi-appliance-pwa/version.json
+          # Nouvelle adresse d'abord ; l'adresse provisoire tant que le nom
+          # app.pi-appliance.com n'est pas en service (TODO-1.6). Une fois le
+          # domaine réglé, github.io renvoie vers app.pi-appliance.com (-L).
+          SITE: https://app.pi-appliance.com/version.json
+          PROVISOIRE: https://gmoulard.github.io/pi-appliance-pwa/version.json
         run: |
           set -u
           a_jour=false
           if [ "${GITHUB_EVENT_NAME}" = schedule ]; then
-            en_ligne=$(curl -fsSL "$SITE" | jq -r '.version + " " + .app_commit' 2>/dev/null || true)
+            en_ligne=$( (curl -fsSL --max-time 20 "$SITE" || curl -fsSL --max-time 20 "$PROVISOIRE") | jq -r '.version + " " + .app_commit' 2>/dev/null || true)
             if [ "$en_ligne" = "$ETIQUETTE $GITHUB_SHA" ]; then a_jour=true; fi
             echo "En ligne : ${en_ligne:-illisible} ; attendu : $ETIQUETTE $GITHUB_SHA"
           fi
@@ -116,3 +120,24 @@ jobs:
     steps:
       - id: publication
         uses: actions/deploy-pages@v4
+
+  # Vérification du site en ligne (TODO-1.7) : certificat, page, manifeste,
+  # service worker, icônes, renvoi de l'ancienne adresse. NE PAS retirer
+  # continue-on-error avant que app.pi-appliance.com soit en service (TODO-1.6) :
+  # sans l'entrée DNS, chaque publication serait marquée en échec.
+  verifier:
+    needs: publier
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Vérification de app.pi-appliance.com
+        run: |
+          npm install --no-save --prefix outils playwright@1.63.0
+          npx --prefix outils playwright install --with-deps chromium
+          node outils/production.cjs --app-commit "${GITHUB_SHA}"

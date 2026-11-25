@@ -254,8 +254,9 @@ function main() {
   fs.rmSync(sortie, { recursive: true, force: true });
   fs.mkdirSync(path.join(sortie, "doc"), { recursive: true });
 
-  // Domaine personnalisé de GitHub Pages, s'il est donné par un fichier CNAME
-  // (le domaine se règle aussi dans les réglages de Pages, sans ce fichier).
+  // Domaine personnalisé (app.pi-appliance.com), copié pour mémoire : publié par
+  // GitHub Actions, Pages ignore ce fichier ; le domaine se règle dans les
+  // réglages Pages du dépôt (docs/mise-en-production.md).
   if (fs.existsSync(path.join(RACINE, "CNAME"))) fs.copyFileSync(path.join(RACINE, "CNAME"), path.join(sortie, "CNAME"));
 
   for (const f of APPLICATION) {

@@ -4,11 +4,11 @@ Avancement de l'application mobile pi-appliance ([spécification](docs/specifica
 
 ## Lots
 
-Groupes d'actions cohérents, réalisés chacun par le sous-agent `todo-lot` (une action = un commit poussé). LOT-1 tient une seule action : elle attend l'utilisateur.
+Groupes d'actions cohérents, réalisés chacun par le sous-agent `todo-lot` (une action = un commit poussé). Ce qui reste de LOT-1 attend l'utilisateur (entrée DNS, réglage de GitHub Pages).
 
 | Lot | Titre | Actions | Dépend de | État |
 |-----|-------|---------|-----------|------|
-| LOT-1 | Accès à régler par l'utilisateur | TODO-1.6 | aucun | [!] |
+| LOT-1 | Mise en production à `app.pi-appliance.com` (domaine à régler par l'utilisateur) | TODO-1.6, TODO-1.7 | aucun | [!] |
 | LOT-2 | Documentation sur le téléphone | TODO-2.6, TODO-2.7, TODO-4.3 | aucun | [~] |
 | LOT-3 | Mes Pi avec un vrai Pi | TODO-3.2, TODO-3.3, TODO-3.4, TODO-3.5, TODO-3.6, TODO-3.7, TODO-3.8 | LOT-1 | [~] |
 | LOT-4 | Langues | TODO-4.1, TODO-4.2 | aucun | [~] |
@@ -20,8 +20,14 @@ Groupes d'actions cohérents, réalisés chacun par le sous-agent `todo-lot` (un
 - [x] **TODO-1.3**: Questions de spécification posées et tranchées, précisions 31 à 37 comprises (2026-11-21).
 - [x] **TODO-1.4**: Sous-module `.claude/skills/` (https://github.com/gmoulard/claude_skills, au même commit que pi-appliance), ajouté le 2026-11-25 ; agent `todo-lot` relié dans `.claude/agents/`.
 - [x] **TODO-1.5**: Branche `main` créée, publiée par GitHub Pages (source « GitHub Actions ») ; premier site publié par le workflow « Site » le 2026-11-21, à l'adresse provisoire `https://gmoulard.github.io/pi-appliance-pwa/`.
-- [!] **TODO-1.6**: Nom `app.pi-appliance.com` dans Route 53 (`CNAME` vers `gmoulard.github.io`), GitHub Pages avec HTTPS (2). Dépend de : TODO-1.5.
-  - Critères d'acceptation : `https://app.pi-appliance.com` ouvre l'application avec un certificat valide ; l'ancienne adresse github.io renvoie vers elle. Bloqué par : entrée DNS dans Route 53 et réglage de GitHub Pages, à faire par l'utilisateur.
+- [!] **TODO-1.6**: Nom `app.pi-appliance.com` dans Route 53 (`CNAME` vers `gmoulard.github.io`), GitHub Pages avec HTTPS (2). Dépend de : TODO-1.5. Bloqué par : entrée DNS et réglage Pages à faire par l'utilisateur. Dépôt prêt le 2026-11-25 : fichier `CNAME`, demande Route 53 `docs/dns-app.json`, manifeste et *service worker* sans adresse en dur (le site marche aux deux adresses), workflow « Site » qui lit d'abord `app.pi-appliance.com` puis l'adresse provisoire. Étapes à faire, dans cet ordre (détail : [docs/mise-en-production.md](docs/mise-en-production.md)) :
+  - Critères d'acceptation : `https://app.pi-appliance.com` ouvre l'application avec un certificat valide ; l'ancienne adresse github.io renvoie vers elle (`node outils/production.cjs` sans échec, TODO-1.7).
+  - [ ] Réglages Pages du dépôt (https://github.com/gmoulard/pi-appliance-pwa/settings/pages) : « Custom domain » `app.pi-appliance.com`, « Save » (avant l'entrée DNS ; le fichier `CNAME` est ignoré avec une publication par GitHub Actions).
+  - [ ] Entrée DNS, dans PowerShell à la racine de ce dépôt : `docker run --rm -v "$env:USERPROFILE\AWS\.aws:/root/.aws:ro" -v "${PWD}\docs:/demande:ro" amazon/aws-cli route53 change-resource-record-sets --hosted-zone-id Z01037363SBTB2LIT0ZB4 --change-batch file:///demande/dns-app.json` ; vérifier avec `nslookup app.pi-appliance.com` (alias `gmoulard.github.io`).
+  - [ ] Une fois le contrôle DNS passé et le certificat obtenu : cocher « Enforce HTTPS » dans les mêmes réglages.
+  - [ ] Relancer le workflow « Site » (Actions → Site → « Run workflow ») : le job « verifier » doit passer ; puis retirer son `continue-on-error` (TODO-1.7).
+- [~] **TODO-1.7**: Vérification du site en ligne : `outils/production.cjs` (certificat, http vers https, page, manifeste, icônes, `sw.js`, `version.json`, renvoi de l'ancienne adresse, *service worker* dans Chromium), lancé par le workflow « Site » après chaque publication (job « verifier », `continue-on-error` tant que le domaine n'est pas en service) (2). Fait le 2026-11-25, essayé contre le site construit servi en local (faux renvoi de l'ancienne adresse) ; pas encore contre la production (domaine pas en service, et pas de réseau dans la session). Dépend de : TODO-1.6.
+  - Critères d'acceptation : job « verifier » du workflow « Site » réussi contre `https://app.pi-appliance.com` ; `continue-on-error` retiré du workflow.
 
 ## 2. Documentation hors ligne (3) — en premier
 
