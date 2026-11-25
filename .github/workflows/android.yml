@@ -45,6 +45,9 @@ jobs:
           java-version: 17
 
       - uses: android-actions/setup-android@v3
+        with:
+          # NE PAS garder la liste par défaut : son paquet « tools » n'existe plus et sdkmanager échoue.
+          packages: "platform-tools platforms;android-36"
 
       - uses: gradle/actions/setup-gradle@v4
         with:
