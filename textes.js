@@ -45,6 +45,7 @@ window.TEXTES = {
     "reseau.explication": "Pour voir si vos Pi répondent à la maison, l'application doit pouvoir parler aux appareils de votre réseau. Chrome va vous demander l'autorisation : acceptez-la.",
     "reseau.verifier": "Vérifier à la maison",
     "pi.ouvrir": "Ouvrir",
+    "service.maison": "à la maison seulement",
     "pi.supprimer": "Supprimer",
     "pi.supprimer.confirmer": "Retirer « {nom} » de vos Pi ? Le Pi lui-même ne change pas.",
     "etat.verification": "Vérification…",

@@ -249,6 +249,7 @@ dialog h2 { margin-top: 0; }
 .etat.attente { color: #8A6200; }
 .etat.arret { color: var(--framboise); }
 .services { margin: 8px 0 0; padding-inline-start: 1.2em; }
+.service-maison { opacity: 0.75; font-size: 0.9em; }
 .formulaire label { display: block; font-weight: 700; margin: 16px 0 6px; }
 .formulaire input[type="text"] {
   width: 100%;

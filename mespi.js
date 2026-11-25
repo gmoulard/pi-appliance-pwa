@@ -205,6 +205,22 @@
     return `${pi.maison}/`;
   }
 
+  // Adresse d'un service : celle d'internet quand on est loin de chez soi
+  // (internet répond, la maison non ou pas vérifiée) et que le service y est
+  // ouvert ; sinon celle de la maison (.local, qui ne marche qu'à la maison).
+  function loinDeChezSoi(pi) {
+    const e = etats.get(pi.maison) || {};
+    return !!(e.internet && e.internet.repond && !(e.maison && e.maison.repond));
+  }
+
+  function lienService(pi, s) {
+    const loin = loinDeChezSoi(pi);
+    const adresse = loin && s.internet ? s.internet : s.adresse;
+    return el("li", {},
+      el("a", { href: adresse, target: "_blank", rel: "noopener", texte: s.nom }),
+      loin && !s.internet ? el("span", { class: "service-maison", texte: ` (${t("service.maison")})` }) : null);
+  }
+
   function appairable(pi) {
     return !!(pi.appaire && pi.id && window.cleTelephone && window.cleTelephone.disponible);
   }
@@ -279,7 +295,7 @@
             texte: t("pi.supprimer"),
           })),
         services.length ? el("ul", { class: "services" },
-          ...services.map((s) => el("li", {}, el("a", { href: s.adresse, target: "_blank", rel: "noopener", texte: s.nom })))) : null);
+          ...services.map((s) => lienService(pi, s))) : null);
     }));
     document.getElementById("reseau-local").hidden = reseauLocalAutorise() || !liste.length;
   }
@@ -310,7 +326,13 @@
     if (Array.isArray(infos.services)) {
       maj.services = infos.services
         .filter((s) => s && typeof s.name === "string" && typeof s.address === "string")
-        .map((s) => ({ nom: s.name, adresse: /^https?:\/\//.test(s.address) ? s.address : `https://${s.address}` }))
+        .map((s) => {
+          const service = { nom: s.name, adresse: /^https?:\/\//.test(s.address) ? s.address : `https://${s.address}` };
+          // Adresse sur internet du service, s'il y est ouvert (pi-appliance
+          // 0.2.1 et après) : ouverte loin de chez soi, où .local ne répond pas.
+          if (typeof s.internet === "string" && /^https:\/\/[^\s"<>]+$/i.test(s.internet)) service.internet = s.internet;
+          return service;
+        })
         .filter((s) => /^https:\/\//.test(s.adresse));
     }
     if (typeof infos.id === "string" && /^[0-9a-f]{8,64}$/.test(infos.id)) maj.id = infos.id;

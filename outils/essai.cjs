@@ -171,7 +171,7 @@ function verifier(condition, message) {
     // (nom, identifiant, services) ; un autre ne répond pas.
     await contexte.route("https://veranda.pi-appliance.com/**", (route) => route.fulfill({
       status: 200, contentType: "application/json", headers: { "Access-Control-Allow-Origin": "*" },
-      body: JSON.stringify({ name: "veranda", version: "v0.1.9", id: "00112233445566aa", services: [{ name: "Photos", address: "photos-veranda.pi-appliance.com" }] }),
+      body: JSON.stringify({ name: "veranda", version: "v0.1.9", id: "00112233445566aa", services: [{ name: "Photos", address: "photos-veranda.pi-appliance.com", internet: "https://veranda.pi-appliance.com/photos/" }, { name: "Coffre", address: "https://coffre-veranda.local" }] }),
     }));
     await contexte.route("https://absent.pi-appliance.com/**", (route) => route.abort());
     await page.goto(`${adresse}#ajouter`);
@@ -185,8 +185,14 @@ function verifier(condition, message) {
     await page.waitForSelector("#vue-mespi:not([hidden])");
     const veranda = await page.evaluate(() => JSON.parse(localStorage.getItem("mesPi")).find((p) => p.nom === "veranda"));
     verifier(!!veranda && veranda.maison === "https://veranda.local/pi-appliance" && veranda.internet === "https://veranda.pi-appliance.com/pi-appliance"
-      && veranda.id === "00112233445566aa" && veranda.services.length === 1 && veranda.services[0].adresse === "https://photos-veranda.pi-appliance.com",
-      "adresse sur internet seule : nom, adresse à la maison, identifiant et services découverts");
+      && veranda.id === "00112233445566aa" && veranda.services.length === 2 && veranda.services[0].adresse === "https://photos-veranda.pi-appliance.com"
+      && veranda.services[0].internet === "https://veranda.pi-appliance.com/photos/" && !veranda.services[1].internet,
+      "adresse sur internet seule : nom, adresse à la maison, identifiant et services découverts (avec leur adresse sur internet)");
+    // Loin de chez soi (internet répond, la maison non) : un service ouvert sur
+    // internet s'ouvre à son adresse internet, l'autre est dit « à la maison seulement ».
+    const liens = await page.$$eval("#liste-pi .services li", (l) => l.map((li) => `${li.querySelector("a").textContent}=${li.querySelector("a").href}${li.querySelector(".service-maison") ? " (maison)" : ""}`));
+    verifier(liens.includes("Photos=https://veranda.pi-appliance.com/photos/") && liens.includes("Coffre=https://coffre-veranda.local/ (maison)"),
+      `services loin de chez soi : ${liens.join(", ")}`);
     await page.evaluate(() => localStorage.setItem("mesPi", JSON.stringify(JSON.parse(localStorage.getItem("mesPi")).filter((p) => p.nom !== "veranda"))));
     await contexte.unroute("https://veranda.pi-appliance.com/**");
     await contexte.unroute("https://absent.pi-appliance.com/**");
