@@ -92,8 +92,8 @@
     const ua = navigator.userAgent || "";
     if (/iPhone/.test(ua)) return "iPhone";
     if (/iPad/.test(ua)) return "iPad";
-    if (/Android/.test(ua)) return /Mobile/.test(ua) ? "Téléphone Android" : "Tablette Android";
-    return "Navigateur";
+    if (/Android/.test(ua)) return window.t(/Mobile/.test(ua) ? "appareil.telephone" : "appareil.tablette");
+    return window.t("appareil.navigateur");
   }
 
   // Envoie un formulaire au Pi dans un nouvel onglet (rien dans l'adresse).

@@ -159,7 +159,7 @@ function convertir(nom, md, pages, aCopier, gabarit) {
         const cible = lien(href, pages, aCopier);
         const t = title ? ` title="${echapper(title)}"` : "";
         if (cible.enLigne) {
-          return `<a href="${echapper(cible.href)}"${t} rel="noopener">${contenu}<span class="en-ligne">en ligne</span></a>`;
+          return `<a href="${echapper(cible.href)}"${t} rel="noopener">${contenu}<span class="en-ligne" data-t="doc.enligne">en ligne</span></a>`;
         }
         return `<a href="${echapper(cible.href)}"${t}>${contenu}</a>`;
       },
@@ -265,15 +265,15 @@ function main() {
     fs.copyFileSync(source, path.join(sortie, f));
   }
 
-  const lien = (href, contenu) => `<a href="${echapper(href)}" rel="noopener">${contenu}<span class="en-ligne">en ligne</span></a>`;
+  const lien = (href, contenu) => `<a href="${echapper(href)}" rel="noopener">${contenu}<span class="en-ligne" data-t="doc.enligne">en ligne</span></a>`;
   const commitCourt = o.commit.slice(0, 7);
-  let pied = `<span>Documentation de pi-appliance <strong>${echapper(o.version)}</strong> du ${dateFrancaise(o.date)}, `
+  let pied = `<span id="version-doc">Documentation de pi-appliance <strong>${echapper(o.version)}</strong> du ${dateFrancaise(o.date)}, `
     + `commit ${lien(`${DEPOT_PI}/commit/${o.commit}`, `<code>${commitCourt}</code>`)}.</span> `;
   if (o["app-commit"]) {
-    pied += `<span>Application, commit ${lien(`${DEPOT_APP}/commit/${o["app-commit"]}`, `<code>${o["app-commit"].slice(0, 7)}</code>`)}`
+    pied += `<span id="version-app">Application, commit ${lien(`${DEPOT_APP}/commit/${o["app-commit"]}`, `<code>${o["app-commit"].slice(0, 7)}</code>`)}`
       + `${o["app-date"] ? ` du ${dateFrancaise(o["app-date"])}` : ""}.</span> `;
   }
-  pied += `<span>${lien(LICENCE_APP, "Logiciel libre, licence AGPL-3.0")} · ${lien(DEPOT_APP, "Code source")}</span>`;
+  pied += `<span>${lien(LICENCE_APP, '<span data-t="pied.licence">Logiciel libre, licence AGPL-3.0</span>')} · ${lien(DEPOT_APP, '<span data-t="pied.source">Code source</span>')}</span>`;
   const gabarit = gabaritPage(pied);
 
   const presentes = PAGES.filter((p) => fs.existsSync(path.join(docs, `${p}.md`)));

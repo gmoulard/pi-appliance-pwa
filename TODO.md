@@ -11,7 +11,7 @@ Groupes d'actions cohérents, réalisés chacun par le sous-agent `todo-lot` (un
 | LOT-1 | Accès à régler par l'utilisateur | TODO-1.6 | aucun | [!] |
 | LOT-2 | Documentation sur le téléphone | TODO-2.6, TODO-2.7, TODO-4.3 | aucun | [~] |
 | LOT-3 | Mes Pi avec un vrai Pi | TODO-3.2, TODO-3.3, TODO-3.4, TODO-3.5, TODO-3.6, TODO-3.7, TODO-3.8 | LOT-1 | [~] |
-| LOT-4 | Langues | TODO-4.1, TODO-4.2 | aucun | [ ] |
+| LOT-4 | Langues | TODO-4.1, TODO-4.2 | aucun | [~] |
 
 ## 1. Mise en place
 
@@ -55,8 +55,7 @@ Groupes d'actions cohérents, réalisés chacun par le sous-agent `todo-lot` (un
 
 ## 4. Finitions
 
-- [ ] **TODO-4.1**: Interface en français, textes à part et sens de lecture prêts pour les autres langues ; charte graphique de pi-appliance. Dépend de : aucune.
-  - Critères d'acceptation : aucun texte de l'interface écrit en dur dans le code, sens de lecture de droite à gauche prévu, couleurs et logo de la charte graphique de pi-appliance.
+- [x] **TODO-4.1**: Interface en français, textes à part (`textes.js`, attribut `data-t` ; derniers textes rangés le 2026-11-25 : nom de l'appareil envoyé au Pi, mention « en ligne » et pied de page des pages de documentation), sens de lecture de droite à gauche prévu (`dir`, pas de marge gauche ou droite dans les styles), charte graphique de pi-appliance (2026-11-25).
 - [ ] **TODO-4.2**: Traduction dans les 11 autres langues, arabe et persan de droite à gauche (après la première version). Dépend de : TODO-4.1.
   - Critères d'acceptation : interface dans les 12 langues de la console, arabe et persan de droite à gauche, traductions relues.
 - [~] **TODO-4.3**: Essais sur Android 16 (One UI 8.5), sans réseau et à la maison. Chrome. iPhone (Safari) visé mais pas essayé : pas de téléphone (question 37) ; noter ici ce qui n'y a pas été vérifié. Le 2026-11-21 : installation réussie avec Chrome (adresse provisoire github.io) ; avec Firefox, pas de bouton « Installer », aide ajoutée (menu ⋮). Dépend de : aucune.

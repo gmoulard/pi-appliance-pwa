@@ -91,7 +91,7 @@
       const r = await fetch(new URL("version.json", racine));
       if (r.ok) afficherVersion(await r.json());
     } catch (e) {
-      el.textContent = t("doc.horsligne");
+      if (!el.textContent) el.textContent = t("doc.horsligne");
     }
   }
 
