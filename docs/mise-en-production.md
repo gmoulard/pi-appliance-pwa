@@ -7,6 +7,7 @@ L'application est publiée par GitHub Pages (workflow « Site », source « GitH
 GitHub demande de déclarer le domaine **avant** de créer l'entrée DNS (sinon un autre compte pourrait le prendre). Avec une publication par GitHub Actions, le fichier `CNAME` du site est ignoré : le domaine se règle seulement ici.
 
 1. https://github.com/gmoulard/pi-appliance-pwa/settings/pages
+   « Build and deployment » → « Source » doit être **« GitHub Actions »**, pas « Deploy from a branch ». Le 2026-11-25, une construction « pages build and deployment » (Jekyll, branche `main`) tournait encore à chaque changement de `main`, en plus du workflow « Site » : elle publie le dépôt tel quel, sans la documentation, sans `version.json` et sans `.well-known/` (Jekyll ignore les dossiers commençant par un point), et la dernière publication arrivée l'emporte.
 2. « Custom domain » : `app.pi-appliance.com`, puis « Save ». Le contrôle DNS échoue tant que l'étape 2 n'est pas faite : c'est normal.
 
 Facultatif, contre la prise du domaine par un autre compte : https://github.com/settings/pages → « Add a domain » → `pi-appliance.com`, puis créer l'entrée `TXT` qu'il indique (si ce n'est pas déjà fait pour www.pi-appliance.com).
