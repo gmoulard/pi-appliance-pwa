@@ -12,6 +12,7 @@ Groupes d'actions cohérents, réalisés chacun par le sous-agent `todo-lot` (un
 | LOT-2 | Documentation sur le téléphone | TODO-2.6, TODO-2.7, TODO-4.3 | aucun | [~] |
 | LOT-3 | Mes Pi avec un vrai Pi | TODO-3.2, TODO-3.3, TODO-3.4, TODO-3.5, TODO-3.6, TODO-3.7, TODO-3.8 | LOT-1 | [~] |
 | LOT-4 | Langues | TODO-4.1, TODO-4.2 | aucun | [~] |
+| LOT-5 | Application Android sur la Play Store | TODO-1.8, TODO-1.9, TODO-1.10 | LOT-1 | [~] |
 
 ## 1. Mise en place
 
@@ -28,6 +29,20 @@ Groupes d'actions cohérents, réalisés chacun par le sous-agent `todo-lot` (un
   - [ ] Relancer le workflow « Site » (Actions → Site → « Run workflow ») : le job « verifier » doit passer ; puis retirer son `continue-on-error` (TODO-1.7).
 - [~] **TODO-1.7**: Vérification du site en ligne : `outils/production.cjs` (certificat, http vers https, page, manifeste, icônes, `sw.js`, `version.json`, renvoi de l'ancienne adresse, *service worker* dans Chromium), lancé par le workflow « Site » après chaque publication (job « verifier », `continue-on-error` tant que le domaine n'est pas en service) (2). Fait le 2026-11-25, essayé contre le site construit servi en local (faux renvoi de l'ancienne adresse) ; pas encore contre la production (domaine pas en service, et pas de réseau dans la session). Dépend de : TODO-1.6.
   - Critères d'acceptation : job « verifier » du workflow « Site » réussi contre `https://app.pi-appliance.com` ; `continue-on-error` retiré du workflow.
+- [~] **TODO-1.8**: Application Android, *Trusted Web Activity* qui ouvre `https://app.pi-appliance.com` (2). Tranché le 2026-11-25 (demande « générer l'appli en prod : Web App, Android, iPhone ») : Play Store, au lieu de « pas pour l'instant » (7). Fait le 2026-11-25 : projet Gradle minimal `android/` (aucun code Java, activité de `androidbrowserhelper` 2.7.4, Android Gradle Plugin 8.9.1, SDK 36, Android 8 au moins, icône adaptative dessinée, aucune permission), identifiant `com.pi_appliance.app` à un seul endroit (`android/gradle.properties`, question 38) ; workflow « Android » (à la demande et à chaque changement de `android/`) : JDK 17, SDK, Gradle 8.11.1, contrôle « ni Google Play Services ni Firebase », signature par les secrets `ANDROID_KEYSTORE`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`, APK de débogage et AAB (signés ou non) en artefact, empreinte de la clé dans le résumé. Pas construit dans la session (SDK Android et dépôt Maven de Google injoignables) : le premier passage du workflow le dira. Dépend de : aucune.
+  - Critères d'acceptation : workflow « Android » réussi, sans secrets (APK de débogage, AAB non signé) puis avec (APK et AAB signés) ; APK installé sur l'Android de l'utilisateur, qui ouvre l'application.
+- [~] **TODO-1.9**: Lien entre l'application et le site : `.well-known/assetlinks.json` écrit par `outils/site.mjs` (`--empreintes`, variable GitHub `ANDROID_EMPREINTES_SHA256` passée par le workflow « Site » ; empreinte invalide : construction en échec ; sans empreinte : rien de publié), pas gardé par le *service worker* ; `upload-pages-artifact@v3` gardé (la v4 laisse de côté les dossiers commençant par un point ; pas de `.nojekyll` : la publication par Actions ne passe pas par Jekyll) ; essayé par `outils/essai.cjs` avec et sans empreintes (2026-11-25). Dépend de : TODO-1.6, TODO-1.8.
+  - Critères d'acceptation : `https://app.pi-appliance.com/.well-known/assetlinks.json` servi avec l'empreinte de la clé de signature de Google Play et celle de la clé d'envoi ; confirmé par l'outil de Google (« Test statement ») ; application ouverte sans barre d'adresse sur le téléphone.
+- [!] **TODO-1.10**: Play Store : compte développeur, fiche, première mise en ligne en test interne, puis test fermé et production (2). Prêt dans le dépôt le 2026-11-25 : étapes, commandes et textes de la fiche dans [docs/mise-en-production.md](docs/mise-en-production.md) (« Application Android sur la Play Store »), page `confidentialite.html` (liée dans le menu). Bloqué par : réponses aux questions 38 (identifiant) et 39 (signature par Google Play), clé et compte à créer par l'utilisateur. Dépend de : TODO-1.8, TODO-1.9.
+  - Critères d'acceptation : application installée depuis la Play Store (test interne) sur l'Android de l'utilisateur, ouverte sans barre d'adresse, documentation lue en mode avion, un Pi ouvert.
+  - [ ] Questions 38 et 39 de [docs/questions.md](docs/questions.md) tranchées.
+  - [ ] Clé d'envoi créée avec `keytool` hors du dépôt, gardée en sauvegarde (étape 2).
+  - [ ] Quatre secrets GitHub rangés, workflow « Android » relancé : APK et AAB signés (étape 3).
+  - [ ] Compte développeur Google Play ouvert : 25 dollars, identité vérifiée (étape 4).
+  - [ ] Application créée dans la Play Console, signature par Google Play, AAB importé en test interne (étape 5).
+  - [ ] Variable `ANDROID_EMPREINTES_SHA256` (deux empreintes), workflow « Site » relancé (étape 6, TODO-1.9).
+  - [ ] Fiche, confidentialité, sécurité des données, classification remplies ; captures et image de présentation (étape 7).
+  - [ ] Test interne installé sur le téléphone (étape 8) ; puis test fermé (12 testeurs, 14 jours) et production.
 
 ## 2. Documentation hors ligne (3) — en premier
 

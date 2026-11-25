@@ -9,7 +9,7 @@ Aucun compte, aucun traceur : ce qui est saisi reste sur le téléphone.
 
 pi-appliance a trois parties, qui portent toutes ce nom : **l'image** à flasher sur la carte SD, **le socle** toujours installé sur le Pi (sa **console** web, ses outils et la commande **`pia`**), et **cette application mobile**.
 
-Projet en cours : la documentation hors ligne est construite, « Mes Pi » en partie (le code QR attend pi-appliance). Voir la [spécification](docs/specification.md) et le [TODO](TODO.md). Adresse : `https://app.pi-appliance.com` (GitHub Pages), dès que son entrée DNS et le réglage de GitHub Pages sont faits ([mise en production](docs/mise-en-production.md)) ; en attendant, adresse provisoire `https://gmoulard.github.io/pi-appliance-pwa/`, qui renverra ensuite vers la nouvelle.
+Projet en cours : la documentation hors ligne est construite, « Mes Pi » en partie (le code QR attend pi-appliance). Application Android (Play Store) préparée : étapes dans la [mise en production](docs/mise-en-production.md). Voir la [spécification](docs/specification.md) et le [TODO](TODO.md). Adresse : `https://app.pi-appliance.com` (GitHub Pages), dès que son entrée DNS et le réglage de GitHub Pages sont faits ([mise en production](docs/mise-en-production.md)) ; en attendant, adresse provisoire `https://gmoulard.github.io/pi-appliance-pwa/`, qui renverra ensuite vers la nouvelle.
 
 ## Pour contribuer
 
@@ -29,6 +29,8 @@ HTML, CSS et JavaScript sans framework ni étape de construction pour l'applicat
 | `outils/pia-update` | À lancer sur le Pi en SSH : installe la dernière version de pi-appliance (`curl -fsSLO https://raw.githubusercontent.com/gmoulard/pi-appliance-pwa/main/outils/pia-update && sudo sh pia-update [version]` ; sans version, la dernière ; `-l` : liste des versions) |
 | `outils/production.cjs` | Vérification du site en ligne : certificat, page, manifeste, *service worker*, icônes, renvoi de l'ancienne adresse (`node outils/production.cjs`) |
 | `CNAME`, `docs/dns-app.json`, `docs/mise-en-production.md` | Domaine `app.pi-appliance.com` : nom pour GitHub Pages, entrée DNS de Route 53, étapes à faire à la main |
+| `android/`, `.github/workflows/android.yml` | Application Android de la Play Store (*Trusted Web Activity* qui ouvre le site) et sa construction ; identifiant du paquet dans `android/gradle.properties` |
+| `confidentialite.html` | Politique de confidentialité (l'application ne collecte rien), demandée par la Play Store |
 | `outils/icones.cjs` | Icônes PNG dessinées à partir de `icones/icone.svg` |
 | `.github/workflows/site.yml` | Construction, essais, publication sur GitHub Pages et vérification du site en ligne |
 

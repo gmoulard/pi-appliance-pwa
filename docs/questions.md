@@ -1,6 +1,6 @@
 # Questions pour finir la spécification
 
-Les 30 premières questions ont été tranchées le 2026-11-21 et sont reprises dans la [spécification](specification.md). Les précisions 31 à 37, nées des réponses, ont été tranchées aussi, le même jour : toutes les questions sont reprises dans la spécification. Chaque question a des choix numérotés ; celui que je propose est marqué **(proposé)**. Écrire après **Réponse :** le numéro choisi, ou un autre choix en quelques mots.
+Les 30 premières questions ont été tranchées le 2026-11-21 et sont reprises dans la [spécification](specification.md). Les précisions 31 à 37, nées des réponses, ont été tranchées aussi, le même jour : toutes les questions sont reprises dans la spécification. Les questions 38 et 39 (application Android, 2026-11-25) attendent une réponse. Chaque question a des choix numérotés ; celui que je propose est marqué **(proposé)**. Écrire après **Réponse :** le numéro choisi, ou un autre choix en quelques mots.
 
 ### 31. « Lien de partage » (réponse à la question 12)
 
@@ -68,3 +68,23 @@ Proposé après « J'aimerais ne plus jamais avoir à remplir mon identifiant et
 - B. Double authentification : 1. l'appairage compte pour les deux facteurs ; 2. code demandé à chaque ouverture. **Réponse : 1.**
 - C. Durée : 1. jusqu'au retrait, ou un an sans servir ; 2. jusqu'au retrait, sans limite. **Réponse : 2**, « avec rupture possible dans l'appli ou dans le Pi ».
 
+## Application Android (2026-11-25)
+
+Nées de la demande « générer l'appli en prod : Web App, Android, iPhone ». En attendant la réponse, le dépôt utilise le choix proposé.
+
+### 38. Identifiant de l'application sur la Play Store
+
+Il ne se change plus après la première mise en ligne. Il est écrit à un seul endroit : `paquet=` dans `android/gradle.properties`.
+
+1. `com.pi_appliance.app` (le domaine `pi-appliance.com` à l'envers ; le tiret n'est pas permis) **(proposé)**
+2. `com.piappliance.app`
+3. Un autre, à dire
+
+**Réponse :**
+
+### 39. Signature de l'application
+
+1. Signature par Google Play (*Play App Signing*) : la Play Store garde la clé de l'application ; la clé créée avec `keytool` ne sert qu'à envoyer les versions (perdue, elle se remplace) **(proposé)**
+2. Sa propre clé seulement (perdue, l'application ne peut plus être mise à jour)
+
+**Réponse :**

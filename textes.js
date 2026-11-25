@@ -94,6 +94,7 @@ window.TEXTES = {
     "menu": "Menu",
     "menu.doc": "Documentation",
     "menu.installer": "Installer l'application",
+    "menu.confidentialite": "Confidentialité",
     "installer.titre": "Mettre l'application sur l'écran d'accueil",
     "installer.android": "Sur Android, avec Chrome : touchez le bouton ci-dessous, ou le menu ⋮ puis « Ajouter à l'écran d'accueil ».",
     "installer.bouton": "Installer",
