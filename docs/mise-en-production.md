@@ -1,6 +1,6 @@
 # Mise en production à `app.pi-appliance.com`
 
-L'application est publiée par GitHub Pages (workflow « Site », source « GitHub Actions »), aujourd'hui à l'adresse provisoire `https://gmoulard.github.io/pi-appliance-pwa/`. Le dépôt est prêt pour `https://app.pi-appliance.com` (fichier `CNAME`, adresses relatives dans le manifeste et le *service worker*, vérification `outils/production.cjs`). Restent trois gestes, à faire par l'utilisateur, **dans cet ordre** (TODO-1.6). Aucun secret n'est demandé ici : la CLI AWS lit ses clés dans `%USERPROFILE%\AWS\.aws`, comme dans `docs/environnement.md` de pi-appliance.
+L'application est publiée par GitHub Pages (workflow « Site », source « GitHub Actions »), aujourd'hui à l'adresse provisoire `https://gmoulard.github.io/pi-appliance-pwa/`. Le dépôt est prêt pour `https://app.pi-appliance.com` (fichier `CNAME`, adresses relatives dans le manifeste et le *service worker*, vérification `outils/production.cjs`). Restent trois gestes, à faire par l'utilisateur, **dans cet ordre** (TODO-1.6). Aucun secret n'est demandé ici : l'entrée DNS se crée à la main dans l'espace client OVH, où est la zone `pi-appliance.com` depuis le 2026-11-26.
 
 ## 1. Déclarer le domaine dans GitHub Pages
 
@@ -12,20 +12,19 @@ GitHub demande de déclarer le domaine **avant** de créer l'entrée DNS (sinon 
 
 Facultatif, contre la prise du domaine par un autre compte : https://github.com/settings/pages → « Add a domain » → `pi-appliance.com`, puis créer l'entrée `TXT` qu'il indique (si ce n'est pas déjà fait pour www.pi-appliance.com).
 
-## 2. Créer l'entrée DNS dans Route 53
+## 2. Créer l'entrée DNS chez OVH
 
-Enregistrement `app.pi-appliance.com CNAME gmoulard.github.io` (TTL 300), dans la zone `Z01037363SBTB2LIT0ZB4`. Le fichier de la demande est [`dns-app.json`](dns-app.json) (`UPSERT` : relancer la commande ne crée pas de doublon).
+Enregistrement `app.pi-appliance.com CNAME gmoulard.github.io.` dans la zone `pi-appliance.com` chez OVH (zone passée chez OVH, décision de l'utilisateur du 2026-11-26).
 
-Dans PowerShell, depuis la racine de ce dépôt :
+1. https://www.ovh.com/manager/ → « Web Cloud » → « Noms de domaine » → `pi-appliance.com` → onglet **« Zone DNS »**.
+2. Vérifier qu'aucune entrée `app` n'existe déjà (un `CNAME` ne peut pas cohabiter avec une autre entrée du même nom : supprimer l'ancienne s'il y en a une).
+3. « Ajouter une entrée » → **« CNAME »**.
+4. Sous-domaine : `app` ; TTL : « Par défaut » (ou « Personnalisé », 300 secondes) ; Cible : **`gmoulard.github.io.`**, avec le point final (sans lui, OVH ajoute `pi-appliance.com` au bout et la cible devient fausse).
+5. « Suivant », vérifier la ligne proposée (`app IN CNAME gmoulard.github.io.`), puis « Valider ». OVH applique la zone en quelques minutes.
+
+Vérifier, quelques minutes plus tard, dans PowerShell :
 
 ```powershell
-docker run --rm -v "$env:USERPROFILE\AWS\.aws:/root/.aws:ro" -v "${PWD}\docs:/demande:ro" amazon/aws-cli route53 change-resource-record-sets --hosted-zone-id Z01037363SBTB2LIT0ZB4 --change-batch file:///demande/dns-app.json
-```
-
-La réponse donne un `Id` (`/change/C…`) à l'état `PENDING`. Vérifier, une minute plus tard :
-
-```powershell
-docker run --rm -v "$env:USERPROFILE\AWS\.aws:/root/.aws:ro" amazon/aws-cli route53 list-resource-record-sets --hosted-zone-id Z01037363SBTB2LIT0ZB4 --query "ResourceRecordSets[?Name=='app.pi-appliance.com.']"
 nslookup app.pi-appliance.com
 ```
 
@@ -62,7 +61,7 @@ Proposé : `com.pi_appliance.app` (question 38 de [questions.md](questions.md)).
 
 ## 2. Créer la clé d'envoi
 
-Avec la signature par Google Play (*Play App Signing*, question 39, proposée), Google garde la clé qui signe l'application chez les gens ; la tienne sert seulement à envoyer les versions à la Play Console (perdue, elle se remplace par une demande au support). Dans PowerShell, **hors du dépôt** (Java n'a pas besoin d'être installé : Docker suffit, comme pour la CLI AWS) :
+Avec la signature par Google Play (*Play App Signing*, question 39, proposée), Google garde la clé qui signe l'application chez les gens ; la tienne sert seulement à envoyer les versions à la Play Console (perdue, elle se remplace par une demande au support). Dans PowerShell, **hors du dépôt** (Java n'a pas besoin d'être installé : Docker suffit) :
 
 ```powershell
 mkdir "$env:USERPROFILE\pi-appliance-android"

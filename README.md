@@ -28,7 +28,7 @@ HTML, CSS et JavaScript sans framework ni étape de construction pour l'applicat
 | `outils/essai.cjs`, `outils/essai-qr-*.png` | Essais dans Chromium sans tête (fausse caméra, faux Pi) |
 | `outils/pia-update` | À lancer sur le Pi en SSH : installe la dernière version de pi-appliance (`curl -fsSLO https://raw.githubusercontent.com/gmoulard/pi-appliance-pwa/main/outils/pia-update && sudo sh pia-update [version]` ; sans version, la dernière ; `-l` : liste des versions) |
 | `outils/production.cjs` | Vérification du site en ligne : certificat, page, manifeste, *service worker*, icônes, renvoi de l'ancienne adresse (`node outils/production.cjs`) |
-| `CNAME`, `docs/dns-app.json`, `docs/mise-en-production.md` | Domaine `app.pi-appliance.com` : nom pour GitHub Pages, entrée DNS de Route 53, étapes à faire à la main |
+| `CNAME`, `docs/mise-en-production.md` | Domaine `app.pi-appliance.com` : nom pour GitHub Pages, étapes à faire à la main (réglages Pages, entrée DNS chez OVH) |
 | `android/`, `.github/workflows/android.yml` | Application Android de la Play Store (*Trusted Web Activity* qui ouvre le site) et sa construction ; identifiant du paquet dans `android/gradle.properties` |
 | `confidentialite.html` | Politique de confidentialité (l'application ne collecte rien), demandée par la Play Store |
 | `outils/icones.cjs` | Icônes PNG dessinées à partir de `icones/icone.svg` |

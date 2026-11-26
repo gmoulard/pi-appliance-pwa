@@ -1,6 +1,6 @@
 # Questions pour finir la spécification
 
-Les 30 premières questions ont été tranchées le 2026-11-21 et sont reprises dans la [spécification](specification.md). Les précisions 31 à 37, nées des réponses, ont été tranchées aussi, le même jour : toutes les questions sont reprises dans la spécification. Les questions 38 et 39 (application Android, 2026-11-25) attendent une réponse. Chaque question a des choix numérotés ; celui que je propose est marqué **(proposé)**. Écrire après **Réponse :** le numéro choisi, ou un autre choix en quelques mots.
+Les 30 premières questions ont été tranchées le 2026-11-21 et sont reprises dans la [spécification](specification.md). Les précisions 31 à 37, nées des réponses, ont été tranchées aussi, le même jour : toutes les questions sont reprises dans la spécification. Les questions 38 et 39 (application Android, 2026-11-25) et 40 (entrée DNS chez OVH, 2026-11-26) attendent une réponse. Chaque question a des choix numérotés ; celui que je propose est marqué **(proposé)**. Écrire après **Réponse :** le numéro choisi, ou un autre choix en quelques mots.
 
 ### 31. « Lien de partage » (réponse à la question 12)
 
@@ -86,5 +86,19 @@ Il ne se change plus après la première mise en ligne. Il est écrit à un seul
 
 1. Signature par Google Play (*Play App Signing*) : la Play Store garde la clé de l'application ; la clé créée avec `keytool` ne sert qu'à envoyer les versions (perdue, elle se remplace) **(proposé)**
 2. Sa propre clé seulement (perdue, l'application ne peut plus être mise à jour)
+
+**Réponse :**
+
+## Entrée DNS chez OVH (2026-11-26)
+
+Née du passage de la zone `pi-appliance.com` chez OVH. En attendant la réponse, l'entrée est à créer à la main (`docs/mise-en-production.md`, étape 2).
+
+### 40. Création de l'entrée `app` par un workflow
+
+Un workflow pourrait créer l'entrée `CNAME` par l'API OVH, avec les secrets GitHub Actions `OVH_Application_name`, `OVH_Application_key`, `OVH_Application_secret` et `OVH_Consumer_Key` (définis dans pi-appliance, pas forcément dans ce dépôt).
+
+1. À la main dans l'espace client OVH, une seule fois, sans secret dans ce dépôt **(proposé)**
+2. Workflow « DNS » lancé à la demande, avec les quatre secrets copiés dans ce dépôt
+3. Laisser pi-appliance créer l'entrée avec ses propres secrets
 
 **Réponse :**
