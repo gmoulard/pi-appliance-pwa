@@ -4,16 +4,16 @@ Avancement de l'application mobile pi-appliance ([spécification](docs/specifica
 
 ## Lots
 
-Groupes d'actions cohérents, réalisés chacun par le sous-agent `todo-lot` (une action = un commit poussé). Ce qui reste de LOT-1 attend l'utilisateur (entrée DNS, réglage de GitHub Pages) ; LOT-6 aussi (évolution retirée de pi-appliance le 2026-11-26).
+Groupes d'actions cohérents, réalisés chacun par le sous-agent `todo-lot` (une action = un commit poussé). Ce qui reste de LOT-1 attend l'utilisateur (entrée DNS, réglage de GitHub Pages).
 
 | Lot | Titre | Actions | Dépend de | État |
 |-----|-------|---------|-----------|------|
-| LOT-1 | Mise en production à `app.pi-appliance.com` (domaine à régler par l'utilisateur) | TODO-1.6, TODO-1.7 | aucun | [!] |
+| LOT-1 | Mise en production à `app.pi-appliance.com` (domaine à régler par l'utilisateur) | TODO-1.6, TODO-1.7, TODO-1.11 | aucun | [!] |
 | LOT-2 | Documentation sur le téléphone | TODO-2.6, TODO-2.7, TODO-4.3 | aucun | [~] |
 | LOT-3 | Mes Pi avec un vrai Pi | TODO-3.2, TODO-3.3, TODO-3.4, TODO-3.5, TODO-3.6, TODO-3.7, TODO-3.8 | LOT-1 | [~] |
 | LOT-4 | Langues | TODO-4.1, TODO-4.2 | aucun | [~] |
 | LOT-5 | Application Android sur la Play Store | TODO-1.8, TODO-1.9, TODO-1.10 | LOT-1 | [~] |
-| LOT-6 | Installer un nouveau Pi par l'application (pi-appliance LOT-18) | TODO-3.10, TODO-3.9, TODO-3.11 | aucun | [!] |
+| ~~LOT-6~~ | ~~Installer un nouveau Pi par l'application (pi-appliance LOT-18)~~ (retiré le 2026-11-26) | TODO-3.10, TODO-3.9, TODO-3.11 | aucun | [x] |
 
 ## 1. Mise en place
 
@@ -44,6 +44,8 @@ Groupes d'actions cohérents, réalisés chacun par le sous-agent `todo-lot` (un
   - [ ] Variable `ANDROID_EMPREINTES_SHA256` (deux empreintes), workflow « Site » relancé (étape 6, TODO-1.9).
   - [ ] Fiche, confidentialité, sécurité des données, classification remplies ; captures et image de présentation (étape 7).
   - [ ] Test interne installé sur le téléphone (étape 8) ; puis test fermé (12 testeurs, 14 jours) et production.
+- [ ] **TODO-1.11**: DNS de `app.pi-appliance.com` chez OVH au lieu de Route 53 (zone `pi-appliance.com` passée chez OVH, décision de l'utilisateur du 2026-11-26) : remplacer `docs/dns-app.json` et les étapes Route 53 de TODO-1.6 et de [docs/mise-en-production.md](docs/mise-en-production.md) par l'entrée `CNAME` chez OVH. Dépend de : aucune.
+  - Critères d'acceptation : plus aucune mention de Route 53 ni de `dns-app.json` dans le dépôt (spécification 2 et README compris) ; étapes OVH écrites dans `docs/mise-en-production.md` et TODO-1.6 ; après l'entrée faite par l'utilisateur, `nslookup app.pi-appliance.com` donne l'alias `gmoulard.github.io`.
 
 ## 2. Documentation hors ligne (3) — en premier
 
@@ -75,12 +77,9 @@ Groupes d'actions cohérents, réalisés chacun par le sous-agent `todo-lot` (un
 - [~] **TODO-3.8**: Script `outils/pia-update`, à lancer sur le Pi en SSH : dernière version de pi-appliance sur GitHub, archive vérifiée (SHA-256), installée par `updates.sh appliance` comme depuis la console (2026-11-21, demande de l'utilisateur ; essayé avec un faux Pi). À essayer sur le vrai Pi ; sa place serait plutôt dans pi-appliance (par exemple `pia mise-a-jour`). Dépend de : aucune.
   - Critères d'acceptation : essai réussi sur un vrai Pi par SSH : dernière version installée, services gardés ; ou script repris dans pi-appliance (`pia update`, TODO-5.18 de pi-appliance) et retiré d'ici.
 
-- [!] **TODO-3.9**: Écran « Installer mon Pi » servi par le Pi sur `http://10.42.0.1/` (spécification 4.5, demande de l'utilisateur du 2026-11-25 ; pi-appliance TODO-2.79) : bienvenue, compte administrateur, Wi-Fi de la maison (WPS, liste, câble) avec messages d'aide, lien d'ajout gardé et ouvert dans l'application une fois internet retrouvé. Bloqué par : décision de l'utilisateur : l'évolution a été retirée de pi-appliance le 2026-11-26 (commit ccc2cb6, TODO-2.78 à TODO-2.80 annulés) ; la garder ici, l'adapter ou la retirer aussi ? Dépend de : pi-appliance TODO-2.80 (demandes de la console en HTTP sur le point d'accès, code d'appairage d'installation).
-  - Critères d'acceptation : essai dans Chromium contre une console de test ; sur l'Android avec un Pi neuf : la page s'ouvre toute seule sans avertissement, compte créé, Wi-Fi choisi, Pi ajouté et appairé dans l'application.
-- [!] **TODO-3.10**: Bouton « Installer un nouveau Pi » dans « Mes Pi » de l'application installée, qui explique quoi faire (spécification 4.5). Bloqué par : décision de l'utilisateur : l'évolution a été retirée de pi-appliance le 2026-11-26 (commit ccc2cb6, TODO-2.78 à TODO-2.80 annulés) ; la garder ici, l'adapter ou la retirer aussi ? Dépend de : aucune.
-  - Critères d'acceptation : essai dans Chromium (`outils/essai.cjs`).
-- [!] **TODO-3.11**: Publication des écrans d'installation sous une forme que pi-appliance embarque dans son socle (pi-appliance TODO-2.78). Bloqué par : décision de l'utilisateur : l'évolution a été retirée de pi-appliance le 2026-11-26 (commit ccc2cb6, TODO-2.78 à TODO-2.80 annulés) ; la garder ici, l'adapter ou la retirer aussi ? Dépend de : TODO-3.9.
-  - Critères d'acceptation : archive publiée par un workflow, reprise par la construction du socle de pi-appliance.
+- [x] ~~**TODO-3.9**: Écran « Installer mon Pi » servi par le Pi sur `http://10.42.0.1/`~~. Retiré le 2026-11-26 : installation guidée annulée dans pi-appliance (TODO-2.78 à 2.80).
+- [x] ~~**TODO-3.10**: Bouton « Installer un nouveau Pi » dans « Mes Pi » de l'application installée, qui explique quoi faire~~. Retiré le 2026-11-26 : installation guidée annulée dans pi-appliance (TODO-2.78 à 2.80).
+- [x] ~~**TODO-3.11**: Publication des écrans d'installation sous une forme que pi-appliance embarque dans son socle~~. Retiré le 2026-11-26 : installation guidée annulée dans pi-appliance (TODO-2.78 à 2.80).
 
 ## 4. Finitions
 

@@ -10,7 +10,7 @@ Public visé : le grand public (spécification 1.1). Les écrans parlent en lang
 
 Technique : HTML, CSS et JavaScript sans framework, sans étape de construction obligatoire (spécification 2) ; seule bibliothèque extérieure : jsQR, gardée dans le dépôt. Rien de ce que la personne saisit ne quitte son téléphone : ni compte, ni statistiques, ni traceur.
 
-Services hors du dépôt (DNS `pi-appliance.com` chez AWS Route 53, GitHub Pages) : `docs/environnement.md` de pi-appliance.
+Services hors du dépôt (DNS `pi-appliance.com` chez OVH, GitHub Pages) : `docs/environnement.md` de pi-appliance.
 
 Ne jamais versionner de secret, et ne jamais mettre de mot de passe ou de clé dans un code QR ou une adresse `#add?...` : seule exception, le code d'appairage (valable 10 minutes, une seule fois, dans le code QR affiché à l'administrateur connecté, jamais dans le lien à partager ; spécification 4.4). La clé du téléphone est non exportable : elle ne quitte jamais le navigateur.
 
