@@ -4,7 +4,7 @@ Avancement de l'application mobile pi-appliance ([spécification](docs/specifica
 
 ## Lots
 
-Groupes d'actions cohérents, réalisés chacun par le sous-agent `todo-lot` (une action = un commit poussé). Ce qui reste de LOT-1 attend l'utilisateur (entrée DNS, réglage de GitHub Pages).
+Groupes d'actions cohérents, réalisés chacun par le sous-agent `todo-lot` (une action = un commit poussé). Ce qui reste de LOT-1 attend l'utilisateur (entrée DNS, réglage de GitHub Pages) ; LOT-6 aussi (évolution retirée de pi-appliance le 2026-11-26).
 
 | Lot | Titre | Actions | Dépend de | État |
 |-----|-------|---------|-----------|------|
@@ -13,7 +13,7 @@ Groupes d'actions cohérents, réalisés chacun par le sous-agent `todo-lot` (un
 | LOT-3 | Mes Pi avec un vrai Pi | TODO-3.2, TODO-3.3, TODO-3.4, TODO-3.5, TODO-3.6, TODO-3.7, TODO-3.8 | LOT-1 | [~] |
 | LOT-4 | Langues | TODO-4.1, TODO-4.2 | aucun | [~] |
 | LOT-5 | Application Android sur la Play Store | TODO-1.8, TODO-1.9, TODO-1.10 | LOT-1 | [~] |
-| LOT-6 | Installer un nouveau Pi par l'application (pi-appliance LOT-18) | TODO-3.10, TODO-3.9, TODO-3.11 | aucun | [ ] |
+| LOT-6 | Installer un nouveau Pi par l'application (pi-appliance LOT-18) | TODO-3.10, TODO-3.9, TODO-3.11 | aucun | [!] |
 
 ## 1. Mise en place
 
@@ -75,11 +75,11 @@ Groupes d'actions cohérents, réalisés chacun par le sous-agent `todo-lot` (un
 - [~] **TODO-3.8**: Script `outils/pia-update`, à lancer sur le Pi en SSH : dernière version de pi-appliance sur GitHub, archive vérifiée (SHA-256), installée par `updates.sh appliance` comme depuis la console (2026-11-21, demande de l'utilisateur ; essayé avec un faux Pi). À essayer sur le vrai Pi ; sa place serait plutôt dans pi-appliance (par exemple `pia mise-a-jour`). Dépend de : aucune.
   - Critères d'acceptation : essai réussi sur un vrai Pi par SSH : dernière version installée, services gardés ; ou script repris dans pi-appliance (`pia update`, TODO-5.18 de pi-appliance) et retiré d'ici.
 
-- [ ] **TODO-3.9**: Écran « Installer mon Pi » servi par le Pi sur `http://10.42.0.1/` (spécification 4.5, demande de l'utilisateur du 2026-11-25 ; pi-appliance TODO-2.79) : bienvenue, compte administrateur, Wi-Fi de la maison (WPS, liste, câble) avec messages d'aide, lien d'ajout gardé et ouvert dans l'application une fois internet retrouvé. Dépend de : pi-appliance TODO-2.80 (demandes de la console en HTTP sur le point d'accès, code d'appairage d'installation).
+- [!] **TODO-3.9**: Écran « Installer mon Pi » servi par le Pi sur `http://10.42.0.1/` (spécification 4.5, demande de l'utilisateur du 2026-11-25 ; pi-appliance TODO-2.79) : bienvenue, compte administrateur, Wi-Fi de la maison (WPS, liste, câble) avec messages d'aide, lien d'ajout gardé et ouvert dans l'application une fois internet retrouvé. Bloqué par : décision de l'utilisateur : l'évolution a été retirée de pi-appliance le 2026-11-26 (commit ccc2cb6, TODO-2.78 à TODO-2.80 annulés) ; la garder ici, l'adapter ou la retirer aussi ? Dépend de : pi-appliance TODO-2.80 (demandes de la console en HTTP sur le point d'accès, code d'appairage d'installation).
   - Critères d'acceptation : essai dans Chromium contre une console de test ; sur l'Android avec un Pi neuf : la page s'ouvre toute seule sans avertissement, compte créé, Wi-Fi choisi, Pi ajouté et appairé dans l'application.
-- [ ] **TODO-3.10**: Bouton « Installer un nouveau Pi » dans « Mes Pi » de l'application installée, qui explique quoi faire (spécification 4.5). Dépend de : aucune.
+- [!] **TODO-3.10**: Bouton « Installer un nouveau Pi » dans « Mes Pi » de l'application installée, qui explique quoi faire (spécification 4.5). Bloqué par : décision de l'utilisateur : l'évolution a été retirée de pi-appliance le 2026-11-26 (commit ccc2cb6, TODO-2.78 à TODO-2.80 annulés) ; la garder ici, l'adapter ou la retirer aussi ? Dépend de : aucune.
   - Critères d'acceptation : essai dans Chromium (`outils/essai.cjs`).
-- [ ] **TODO-3.11**: Publication des écrans d'installation sous une forme que pi-appliance embarque dans son socle (pi-appliance TODO-2.78). Dépend de : TODO-3.9.
+- [!] **TODO-3.11**: Publication des écrans d'installation sous une forme que pi-appliance embarque dans son socle (pi-appliance TODO-2.78). Bloqué par : décision de l'utilisateur : l'évolution a été retirée de pi-appliance le 2026-11-26 (commit ccc2cb6, TODO-2.78 à TODO-2.80 annulés) ; la garder ici, l'adapter ou la retirer aussi ? Dépend de : TODO-3.9.
   - Critères d'acceptation : archive publiée par un workflow, reprise par la construction du socle de pi-appliance.
 
 ## 4. Finitions
