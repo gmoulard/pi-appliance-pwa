@@ -41,6 +41,7 @@ targets:
       - path: PiAppliance
         excludes:
           - Info.plist
+          - PiAppliance.entitlements
       - path: site
         type: folder
         buildPhase: resources
@@ -50,6 +51,10 @@ targets:
         PRODUCT_NAME: PiAppliance
         INFOPLIST_FILE: PiAppliance/Info.plist
         GENERATE_INFOPLIST_FILE: "NO"
+        # Liens universels (question 46) : applinks:app.pi-appliance.com ;
+        # fichier versionné tel quel (pas de clé « entitlements » de XcodeGen,
+        # qui le réécrirait).
+        CODE_SIGN_ENTITLEMENTS: PiAppliance/PiAppliance.entitlements
         TARGETED_DEVICE_FAMILY: "1"
         SUPPORTS_MACCATALYST: "NO"
         SUPPORTED_PLATFORMS: "iphoneos iphonesimulator"

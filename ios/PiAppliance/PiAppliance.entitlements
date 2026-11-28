@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+This file is part of pi-appliance-pwa <https://github.com/gmoulard/pi-appliance-pwa>.
+Copyright (c) 2026 Guillaume Moulard.
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published
+by the Free Software Foundation, version 3.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+Capacités de l'application iPhone (ios/project.yml). Liens universels
+(question 46) : un lien https://app.pi-appliance.com/#add?… ouvre
+l'application, d'après .well-known/apple-app-site-association du site
+(outils/site.mjs, variable GitHub APPLE_TEAM_ID). Il faut aussi cocher
+« Associated Domains » sur l'identifiant com.pi-appliance.app chez Apple
+(docs/app-store.md, étape 1).
+-->
+<plist version="1.0">
+<dict>
+	<key>com.apple.developer.associated-domains</key>
+	<array>
+		<string>applinks:app.pi-appliance.com</string>
+	</array>
+</dict>
+</plist>

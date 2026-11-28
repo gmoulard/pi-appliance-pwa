@@ -141,6 +141,12 @@ final class LecteurQR: UIViewController, AVCaptureMetadataOutputObjectsDelegate 
         }
     }
 
+    /// Lien « Ajouter un Pi » arrivé pendant la lecture (lien universel,
+    /// LiensRecus) : rendu comme un code QR lu.
+    func rendre(_ texte: String) {
+        terminer(["texte": texte])
+    }
+
     private func terminer(_ resultat: [String: Any]) {
         guard let fin else { return }
         self.fin = nil

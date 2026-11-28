@@ -16,9 +16,14 @@
 // Les pages de l'application web (le site construit par outils/site.mjs,
 // copié dans le dossier « site » de l'application) servies depuis le paquet
 // par le schéma app://pi-appliance/ : lisibles sans réseau, sans service
-// worker. Tout lien vers l'extérieur (console d'un Pi, services, pages « en
-// ligne ») s'ouvre dans Safari (spécification 4.2). Les pages appellent
-// l'application par pont.js : sonder un Pi, lire un code QR, oublier un Pi.
+// worker ; la documentation, depuis sa copie à jour si l'application en a
+// téléchargé une (Documentation.swift, question 45). La console d'un Pi
+// s'ouvre dans l'application (Console.swift, question 43) ; les services d'un
+// Pi et les pages « en ligne » dans Safari. Les pages appellent l'application
+// par pont.js : sonder un Pi, lire un code QR, oublier un Pi, ouvrir sa
+// console, lui envoyer un formulaire de l'appairage. Un lien « Ajouter un Pi »
+// ouvert hors de l'application (lien universel, question 46) arrive ici par
+// LiensRecus.
 
 import UIKit
 import WebKit
@@ -30,6 +35,45 @@ enum Site {
     static let dossier = Bundle.main.bundleURL.appendingPathComponent("site", isDirectory: true)
 }
 
+/// Liens « Ajouter un Pi » (https://app.pi-appliance.com/#add?…) reçus par
+/// l'application : lien universel ouvert par l'appareil photo, un message ou
+/// Safari (PiApplianceApp.swift), ou touché dans une console. Gardé jusqu'à ce
+/// que l'écran des pages soit là (application lancée par le lien).
+@MainActor
+final class LiensRecus {
+    static let partage = LiensRecus()
+
+    private var enAttente: URL?
+    weak var controleur: ControleurWeb? {
+        didSet { remettre() }
+    }
+
+    /// « #add?… » d'un lien de la console (mêmes adresses que le lecteur de
+    /// code QR, fragment laissé tel quel pour mespi.js), sinon nil.
+    static func ajout(_ lien: URL) -> String? {
+        guard LecteurQR.vientDeLaConsole(lien.absoluteString),
+              let fragment = URLComponents(url: lien, resolvingAgainstBaseURL: false)?.percentEncodedFragment,
+              fragment.hasPrefix("add?") else { return nil }
+        return "#" + fragment
+    }
+
+    func recevoir(_ lien: URL) {
+        guard Self.ajout(lien) != nil else { return }
+        enAttente = lien
+        remettre()
+    }
+
+    func prendre() -> URL? {
+        defer { enAttente = nil }
+        return enAttente
+    }
+
+    private func remettre() {
+        guard let controleur, controleur.isViewLoaded, let lien = prendre() else { return }
+        controleur.ouvrirAjout(lien)
+    }
+}
+
 final class ControleurWeb: UIViewController, WKNavigationDelegate, WKUIDelegate, WKScriptMessageHandlerWithReply {
     private var vueWeb: WKWebView!
     private let sonde = Sonde()
@@ -39,7 +83,7 @@ final class ControleurWeb: UIViewController, WKNavigationDelegate, WKUIDelegate,
         view.backgroundColor = .white
         let reglages = WKWebViewConfiguration()
         reglages.setURLSchemeHandler(PagesEmbarquees(), forURLScheme: Site.schema)
-        reglages.websiteDataStore = .default() // liste des Pi gardée (localStorage)
+        reglages.websiteDataStore = .default() // liste des Pi et clé du téléphone gardées (localStorage, IndexedDB)
         let contenu = reglages.userContentController
         if let fichier = Bundle.main.url(forResource: "pont", withExtension: "js"),
            let source = try? String(contentsOf: fichier, encoding: .utf8) {
@@ -54,7 +98,27 @@ final class ControleurWeb: UIViewController, WKNavigationDelegate, WKUIDelegate,
         vueWeb.navigationDelegate = self
         vueWeb.uiDelegate = self
         view.addSubview(vueWeb)
-        vueWeb.load(URLRequest(url: Site.accueil))
+        // Application lancée par un lien « Ajouter un Pi » : « Ajouter ce Pi ? » d'emblée.
+        let depart = LiensRecus.partage.prendre().flatMap(Self.pageAjout) ?? Site.accueil
+        vueWeb.load(URLRequest(url: depart))
+        LiensRecus.partage.controleur = self
+        Documentation.partage.verifier()
+    }
+
+    private static func pageAjout(_ lien: URL) -> URL? {
+        LiensRecus.ajout(lien).flatMap { URL(string: Site.accueil.absoluteString + $0) }
+    }
+
+    /// Lien « Ajouter un Pi » reçu : « Ajouter ce Pi ? » (mespi.js), par-dessus
+    /// la console ou le lecteur de code QR s'ils sont ouverts.
+    func ouvrirAjout(_ lien: URL) {
+        guard let page = Self.pageAjout(lien) else { return }
+        if let lecteur = presentedViewController as? LecteurQR {
+            lecteur.rendre(lien.absoluteString) // comme un code QR lu
+            return
+        }
+        if presentedViewController != nil { dismiss(animated: true) }
+        vueWeb.load(URLRequest(url: page))
     }
 
     // MARK: Navigation : les pages embarquées ici, le reste dans Safari.
@@ -67,7 +131,8 @@ final class ControleurWeb: UIViewController, WKNavigationDelegate, WKUIDelegate,
         decisionHandler(.cancel)
     }
 
-    // Liens target="_blank" et window.open : « Ouvrir » un Pi, ses services.
+    // Liens target="_blank" et window.open : services d'un Pi, pages en ligne.
+    // La console d'un Pi passe par pont.js (mespi.js), pas par ici.
     func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration,
                  for action: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
         if let url = action.request.url {
@@ -77,6 +142,7 @@ final class ControleurWeb: UIViewController, WKNavigationDelegate, WKUIDelegate,
     }
 
     private func ouvrirDansSafari(_ url: URL) {
+        if LiensRecus.ajout(url) != nil { return LiensRecus.partage.recevoir(url) }
         guard ["https", "http", "mailto"].contains(url.scheme?.lowercased() ?? "") else { return }
         UIApplication.shared.open(url)
     }
@@ -85,21 +151,17 @@ final class ControleurWeb: UIViewController, WKNavigationDelegate, WKUIDelegate,
         webView.reload()
     }
 
-    // MARK: alert() et confirm() des pages (« Supprimer » un Pi).
+    // MARK: alert() et confirm() des pages (« Supprimer » un Pi), par-dessus
+    // tout écran ouvert (Console.swift).
 
     func webView(_ webView: WKWebView, runJavaScriptAlertPanelWithMessage message: String,
                  initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping () -> Void) {
-        let alerte = UIAlertController(title: nil, message: message, preferredStyle: .alert)
-        alerte.addAction(UIAlertAction(title: "OK", style: .default) { _ in completionHandler() })
-        present(alerte, animated: true)
+        montrerAlerte(message, completionHandler)
     }
 
     func webView(_ webView: WKWebView, runJavaScriptConfirmPanelWithMessage message: String,
                  initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping (Bool) -> Void) {
-        let alerte = UIAlertController(title: nil, message: message, preferredStyle: .alert)
-        alerte.addAction(UIAlertAction(title: "Annuler", style: .cancel) { _ in completionHandler(false) })
-        alerte.addAction(UIAlertAction(title: "OK", style: .default) { _ in completionHandler(true) })
-        present(alerte, animated: true)
+        montrerConfirmation(message, completionHandler)
     }
 
     // MARK: Appels des pages (pont.js)
@@ -123,27 +185,71 @@ final class ControleurWeb: UIViewController, WKNavigationDelegate, WKUIDelegate,
         case "scanner":
             let lecteur = LecteurQR(textes: corps["textes"] as? [String: String] ?? [:]) { replyHandler($0, nil) }
             lecteur.modalPresentationStyle = .fullScreen
-            present(lecteur, animated: true)
+            montrer(lecteur)
+        case "console":
+            ouvrirConsole(corps, replyHandler)
+        case "envoyer":
+            guard let adresse = (corps["adresse"] as? String).flatMap(URL.init(string:)), Formulaire.valable(adresse),
+                  let champs = corps["champs"] as? [String: String] else {
+                return replyHandler(["ok": false, "erreur": "adresse"], nil)
+            }
+            Task {
+                do {
+                    let r = try await Formulaire.envoyer(adresse, champs)
+                    replyHandler(["ok": true, "statut": r.statut], nil)
+                } catch {
+                    replyHandler(["ok": false, "erreur": (error as? Formulaire.Echec)?.rawValue ?? "injoignable"], nil)
+                }
+            }
         default:
             replyHandler(nil, "inconnu")
         }
     }
+
+    /// Écran de la console d'un Pi : son adresse (https://…/pi-appliance/…),
+    /// avec ou sans formulaire de l'appairage (cle.js) à lui envoyer d'abord.
+    private func ouvrirConsole(_ corps: [String: Any], _ replyHandler: @escaping (Any?, String?) -> Void) {
+        guard let adresse = (corps["adresse"] as? String).flatMap(URL.init(string:)), adresse.scheme == "https",
+              adresse.host != nil, adresse.user == nil, adresse.path.hasPrefix("/pi-appliance") else {
+            return replyHandler(["ok": false, "erreur": "adresse"], nil)
+        }
+        let depart: ControleurConsole.Depart
+        if let champs = corps["champs"] as? [String: String] {
+            guard Formulaire.valable(adresse) else { return replyHandler(["ok": false, "erreur": "adresse"], nil) }
+            let repli = (corps["repli"] as? String).flatMap(URL.init(string:))
+                .flatMap { $0.scheme == "https" && $0.host == adresse.host && $0.port == adresse.port ? $0 : nil }
+            depart = .formulaire(adresse, champs, repli: repli)
+        } else {
+            depart = .adresse(adresse)
+        }
+        let console = ControleurConsole(depart: depart, textes: corps["textes"] as? [String: String] ?? [:]) { replyHandler($0, nil) }
+        console.modalPresentationStyle = .fullScreen
+        montrer(console)
+    }
 }
 
 /// Sert les fichiers du dossier « site » du paquet ; « dossier/ » donne
-/// « dossier/index.html ». Rien en dehors de ce dossier.
+/// « dossier/index.html ». Rien en dehors de ce dossier. Sous doc/, la
+/// documentation téléchargée passe d'abord (Documentation.swift), sans aucun
+/// script à elle : seuls ceux de l'application (app://) peuvent s'y exécuter.
 final class PagesEmbarquees: NSObject, WKURLSchemeHandler {
     private static let types = [
         "html": "text/html; charset=utf-8", "css": "text/css; charset=utf-8",
         "js": "text/javascript; charset=utf-8", "json": "application/json; charset=utf-8",
         "webmanifest": "application/manifest+json", "svg": "image/svg+xml", "png": "image/png",
+        "jpg": "image/jpeg", "jpeg": "image/jpeg", "webp": "image/webp", "gif": "image/gif",
     ]
+    private static let reglesTelechargees = "default-src 'self' app:; script-src 'self' app:; style-src 'self' app: 'unsafe-inline'; "
+        + "img-src 'self' app: data:; object-src 'none'; base-uri 'none'; form-action 'none'"
 
     func webView(_ webView: WKWebView, start tache: WKURLSchemeTask) {
         let url = tache.request.url ?? Site.accueil
-        if let fichier = Self.fichier(url), let donnees = try? Data(contentsOf: fichier) {
+        if url.host == Site.hote, url.path == "/version.json", let version = Documentation.partage.version() {
+            return repondre(tache, url, 200, Self.types["json"]!, version)
+        }
+        if case let (fichier, telecharge)? = Self.fichier(url), let donnees = try? Data(contentsOf: fichier) {
             let type = Self.types[fichier.pathExtension.lowercased()] ?? "text/plain; charset=utf-8"
-            repondre(tache, url, 200, type, donnees)
+            repondre(tache, url, 200, type, donnees, regles: telecharge ? Self.reglesTelechargees : nil)
         } else {
             repondre(tache, url, 404, "text/plain; charset=utf-8", Data())
         }
@@ -151,22 +257,27 @@ final class PagesEmbarquees: NSObject, WKURLSchemeHandler {
 
     func webView(_ webView: WKWebView, stop tache: WKURLSchemeTask) {}
 
-    private func repondre(_ tache: WKURLSchemeTask, _ url: URL, _ statut: Int, _ type: String, _ donnees: Data) {
-        let entetes = ["Content-Type": type, "Content-Length": String(donnees.count), "Cache-Control": "no-cache"]
+    private func repondre(_ tache: WKURLSchemeTask, _ url: URL, _ statut: Int, _ type: String, _ donnees: Data, regles: String? = nil) {
+        var entetes = ["Content-Type": type, "Content-Length": String(donnees.count), "Cache-Control": "no-cache"]
+        if let regles { entetes["Content-Security-Policy"] = regles }
         tache.didReceive(HTTPURLResponse(url: url, statusCode: statut, httpVersion: "HTTP/1.1", headerFields: entetes)!)
         tache.didReceive(donnees)
         tache.didFinish()
     }
 
-    static func fichier(_ url: URL) -> URL? {
+    /// Fichier à servir, et s'il vient de la documentation téléchargée.
+    static func fichier(_ url: URL) -> (URL, Bool)? {
         guard url.host == Site.hote else { return nil }
         var chemin = url.path
         if chemin.isEmpty || chemin.hasSuffix("/") { chemin += "index.html" }
+        chemin = String(chemin.drop(while: { $0 == "/" }))
+        if chemin == "doc" { chemin = "doc/index.html" }
+        if let telecharge = Documentation.partage.fichier(chemin) { return (telecharge, true) }
         let racine = Site.dossier.standardizedFileURL
-        let fichier = racine.appendingPathComponent(String(chemin.drop(while: { $0 == "/" }))).standardizedFileURL
+        let fichier = racine.appendingPathComponent(chemin).standardizedFileURL
         guard fichier.path.hasPrefix(racine.path + "/") else { return nil }
         var dossier: ObjCBool = false
         guard FileManager.default.fileExists(atPath: fichier.path, isDirectory: &dossier) else { return nil }
-        return dossier.boolValue ? fichier.appendingPathComponent("index.html") : fichier
+        return (dossier.boolValue ? fichier.appendingPathComponent("index.html") : fichier, false)
     }
 }

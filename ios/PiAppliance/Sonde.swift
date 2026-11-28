@@ -85,12 +85,25 @@ final class Sonde {
     }
 }
 
-private final class Suivi: NSObject, URLSessionTaskDelegate {
+/// Certificat d'une demande de l'application (Sonde, et Formulaire de
+/// Console.swift) : celui d'un Pi de la liste est retenu à la première
+/// connexion, refusé s'il change. renvois : suivre un renvoi (faux pour un
+/// formulaire, dont la réponse est lue telle quelle).
+final class Suivi: NSObject, URLSessionTaskDelegate {
     let ajoute: Bool
+    let renvois: Bool
     var presente = false
     var certificatChange = false
 
-    init(ajoute: Bool) { self.ajoute = ajoute }
+    init(ajoute: Bool, renvois: Bool = true) {
+        self.ajoute = ajoute
+        self.renvois = renvois
+    }
+
+    func urlSession(_ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection reponse: HTTPURLResponse,
+                    newRequest: URLRequest, completionHandler: @escaping (URLRequest?) -> Void) {
+        completionHandler(renvois ? newRequest : nil)
+    }
 
     func urlSession(_ session: URLSession, task: URLSessionTask, didReceive defi: URLAuthenticationChallenge,
                     completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {

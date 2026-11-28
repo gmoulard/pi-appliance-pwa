@@ -251,23 +251,36 @@
   // maison, sauf si elle a été vérifiée sans réponse alors qu'internet répond
   // (on est loin de chez soi) : la console demande alors le mot de passe.
   function ouvrir(pi, event) {
-    if (!appairable(pi)) return;
+    const ios = !!window.piApplianceIos;
+    if (ios) event.preventDefault(); // pas Safari : l'écran de la console
     const e = etats.get(pi.maison) || {};
     const loin = e.maison && !e.maison.repond && e.internet && e.internet.repond;
-    if (loin) return;
+    if (!appairable(pi) || loin) {
+      if (ios) ouvrirConsole(adresseAOuvrir(pi));
+      return;
+    }
     event.preventDefault();
     window.cleTelephone.connecter(pi.maison, pi.id).then((fait) => {
-      if (!fait) window.open(`${pi.maison}/`, "_blank", "noopener");
-    }).catch(() => window.open(`${pi.maison}/`, "_blank", "noopener"));
+      if (!fait) ouvrirConsole(`${pi.maison}/`);
+    }).catch(() => ouvrirConsole(`${pi.maison}/`));
+  }
+
+  // Console d'un Pi : nouvel onglet du navigateur ; dans l'application iPhone,
+  // son écran de la console, avec « Retour » (question 43).
+  function ouvrirConsole(adresse) {
+    if (window.piApplianceIos) window.piApplianceIos.console(adresse).catch(() => {});
+    else window.open(adresse, "_blank", "noopener");
   }
 
   // Rompre l'appairage (spécification 4.4) : le Pi est prévenu par un message
   // signé ; sur le téléphone, la fiche n'est plus marquée appairée, même si le
   // Pi ne répond pas (il faudra alors retirer l'appareil dans sa console).
+  // Rend la promesse de l'envoi.
   function desappairer(pi) {
-    window.cleTelephone.retirer(pi.maison, pi.id).catch(() => {}); // à la maison seulement
+    const envoi = window.cleTelephone.retirer(pi.maison, pi.id).catch(() => {}); // à la maison seulement
     enregistrer({ ...pi, appaire: false });
     afficherListe();
+    return envoi;
   }
 
   function texteEtat(pi) {
@@ -307,11 +320,13 @@
             onclick: () => {
               const appaire = appairable(pi);
               if (window.confirm(t(appaire ? "pi.supprimer.confirmer.appaire" : "pi.supprimer.confirmer", { nom: pi.nom }))) {
-                if (appaire) desappairer(pi);
+                const envoi = appaire ? desappairer(pi) : Promise.resolve();
                 supprimer(pi.maison);
                 etats.delete(pi.maison);
-                if (window.piApplianceIos) { // certificats retenus pour ce Pi : oubliés
-                  for (const base of [pi.maison, pi.internet]) if (base) window.piApplianceIos.oublier(base).catch(() => {});
+                if (window.piApplianceIos) { // certificats retenus pour ce Pi : oubliés, après le message au Pi
+                  envoi.then(() => {
+                    for (const base of [pi.maison, pi.internet]) if (base) window.piApplianceIos.oublier(base).catch(() => {});
+                  });
                 }
                 route();
               }

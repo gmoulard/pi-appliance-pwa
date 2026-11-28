@@ -360,8 +360,11 @@ function verifier(condition, message) {
       const lien = "https://app.pi-appliance.com/#add?id=00112233445566778899&n=bureau&l=bureau.local&c=abcdefghijklmnop1234";
       window.webkit = { messageHandlers: { piAppliance: { postMessage: async (m) => {
         appels.push(m);
-        if (m.action === "scanner") return { texte: lien };
+        if (m.action === "scanner") return { texte: localStorage.getItem("lien-essai") || lien };
         if (m.action === "oublier") return true;
+        // Console dans l'application et formulaires de l'appairage (question 43) :
+        // le Pi « cave » ne répond pas.
+        if (m.action === "console" || m.action === "envoyer") return m.adresse.includes("cave.local") ? { ok: false, erreur: "injoignable" } : { ok: true };
         if (m.base.includes("salon.local")) return { repond: true, texte: JSON.stringify({ name: "salon", id: "0123456789abcdef", services: [{ name: "Blog", address: "blog-salon.local" }] }) };
         if (m.base.includes("garage.local")) return { repond: false, certificat: "change" };
         return { repond: false };
@@ -370,7 +373,8 @@ function verifier(condition, message) {
     const ios = await iphone.newPage();
     const erreursIos = [];
     ios.on("pageerror", (e) => erreursIos.push(e.message));
-    ios.on("dialog", (d) => d.accept());
+    const fenetresIos = [];
+    ios.on("dialog", (d) => { fenetresIos.push(d.message()); d.accept(); });
     await ios.goto(adresse);
     await ios.evaluate(() => {
       localStorage.setItem("reseauLocalAutorise", "oui");
@@ -391,17 +395,73 @@ function verifier(condition, message) {
       sondes: window.appelsIos.filter((m) => m.action === "sonder").map((m) => `${m.base} ${m.ajoute}`),
     }));
     verifier(vueIos.sw === 0 && vueIos.installer, "iPhone : pas de service worker, pas d'« Installer l'application »");
-    verifier(!vueIos.appairage, "iPhone : pas d'appairage (la console s'ouvre dans Safari)");
+    verifier(vueIos.appairage, "iPhone : appairage possible (clé du téléphone dans la page, console dans l'application)");
     verifier(vueIos.sondes.includes("https://salon.local/pi-appliance true"), `iPhone : Pi sondé par l'application, comme Pi de la liste (${vueIos.sondes.join(" ; ")})`);
     verifier(vueIos.salon === "Répond à la maison" && vueIos.services === "Blog", `iPhone : état et services lus par l'application (${vueIos.salon})`);
     verifier(vueIos.garage.includes("certificat du Pi a changé"), `iPhone : certificat changé dit à l'écran (${vueIos.garage})`);
     await ios.goto(`${adresse}#chercher`);
     verifier((await ios.textContent('[data-t="chercher.limite.chrome"]')).includes("L'iPhone"), "iPhone : textes propres à l'iPhone");
+    // « Ouvrir » un Pi non appairé : l'écran de la console, pas Safari (question 43).
     await ios.goto(adresse);
+    await ios.waitForFunction(() => !document.body.textContent.includes("Vérification…"), null, { timeout: 15000 });
+    await ios.locator("#liste-pi li", { hasText: "salon" }).locator("a.bouton").click();
+    await ios.waitForTimeout(300);
+    const consoleSalon = await ios.evaluate(() => window.appelsIos.filter((m) => m.action === "console"));
+    verifier(consoleSalon.length === 1 && consoleSalon[0].adresse === "https://salon.local/pi-appliance/" && !consoleSalon[0].champs
+      && consoleSalon[0].textes.retour === "Retour" && consoleSalon[0].textes.injoignable.length > 0 && iphone.pages().length === 1,
+      `iPhone : « Ouvrir » ouvre la console dans l'application (${consoleSalon.map((m) => m.adresse).join(", ")})`);
+    // Code QR avec code d'appairage : « Ajouter et appairer », formulaire signé
+    // donné à l'application, qui l'envoie au Pi et ouvre la console.
     await ios.goto(`${adresse}#scanner`);
     await ios.waitForSelector("#vue-lien:not([hidden])", { timeout: 15000 });
-    verifier((await ios.textContent("#lien-details h2")) === "bureau" && (await ios.textContent("#lien-ajouter")) === "Ajouter à mes Pi",
-      "iPhone : code QR lu par l'application, Pi proposé sans appairage");
+    verifier((await ios.textContent("#lien-details h2")) === "bureau" && (await ios.textContent("#lien-ajouter")) === "Ajouter et appairer"
+      && (await ios.textContent("#lien-details")).includes("dans l'application"),
+      "iPhone : code QR lu par l'application, Pi proposé avec appairage");
+    await ios.click("#lien-ajouter");
+    await ios.waitForSelector("#vue-mespi:not([hidden])", { timeout: 15000 });
+    const appairageIos = await ios.evaluate(() => window.appelsIos.find((m) => m.action === "console" && m.champs));
+    let jwkIos = null;
+    if (appairageIos) {
+      const c = appairageIos.champs;
+      jwkIos = JSON.parse(c.cle);
+      verifier(appairageIos.adresse === "https://bureau.local/pi-appliance/appareil/appairer" && c.code === "abcdefghijklmnop1234"
+        && c.message === "appairer|00112233445566778899|abcdefghijklmnop1234" && c.appareil.length > 0 && !jwkIos.d
+        && await verifierSignature(jwkIos, c.message, c.signature),
+        "iPhone : appairage donné à l'application (code, clé publique seule, signature valable)");
+    } else {
+      verifier(false, "iPhone : appairage donné à l'application");
+    }
+    verifier(await ios.evaluate(() => JSON.parse(localStorage.getItem("mesPi")).find((p) => p.nom === "bureau").appaire === true),
+      "iPhone : Pi marqué « appairé »");
+    await ios.goto(adresse);
+    await ios.waitForFunction(() => !document.body.textContent.includes("Vérification…"), null, { timeout: 15000 });
+    await ios.locator("#liste-pi li", { hasText: "bureau" }).locator("a.bouton").click();
+    await ios.waitForTimeout(300);
+    const connexionIos = await ios.evaluate(() => window.appelsIos.find((m) => m.action === "console"));
+    verifier(!!connexionIos && !!jwkIos && connexionIos.adresse === "https://bureau.local/pi-appliance/appareil/connexion"
+      && connexionIos.repli === "https://bureau.local/pi-appliance/" && connexionIos.champs.message.startsWith("connexion|00112233445566778899|")
+      && await verifierSignature(jwkIos, connexionIos.champs.message, connexionIos.champs.signature),
+      "iPhone : « Ouvrir » un Pi appairé : connexion signée, console de repli si le Pi ne répond pas");
+    // Supprimer un Pi appairé : « retirer » envoyé par l'application sans
+    // ouvrir la console, puis seulement ses certificats oubliés.
+    const avantSuppression = await ios.evaluate(() => window.appelsIos.length);
+    await ios.locator("#liste-pi li", { hasText: "bureau" }).locator("button", { hasText: "Supprimer" }).click();
+    await ios.waitForTimeout(500);
+    const suppression = await ios.evaluate((n) => window.appelsIos.slice(n).map((m) => `${m.action} ${m.adresse || m.base || ""}`), avantSuppression);
+    const iRetirer = suppression.indexOf("envoyer https://bureau.local/pi-appliance/appareil/retirer");
+    const iOublier = suppression.indexOf("oublier https://bureau.local/pi-appliance");
+    verifier(iRetirer >= 0 && iOublier > iRetirer && !suppression.some((s) => s.startsWith("console")) && fenetresIos.some((f) => f.includes("cet iPhone")),
+      `iPhone : Pi appairé supprimé : « retirer » envoyé, puis certificat oublié (${suppression.filter((s) => !s.startsWith("sonder")).join(" ; ")})`);
+    // Appairage sans réponse du Pi : la page le dit, le Pi reste ajouté sans appairage.
+    await ios.evaluate(() => localStorage.setItem("lien-essai", "https://app.pi-appliance.com/#add?id=aabbccddeeff0011&n=cave&l=cave.local&c=abcdefghijklmnop5678"));
+    await ios.goto(`${adresse}#scanner`);
+    await ios.waitForSelector("#vue-lien:not([hidden])", { timeout: 15000 });
+    await ios.click("#lien-ajouter");
+    await ios.waitForSelector("#vue-mespi:not([hidden])", { timeout: 15000 });
+    await ios.waitForTimeout(300);
+    const cave = await ios.evaluate(() => JSON.parse(localStorage.getItem("mesPi")).find((p) => p.nom === "cave"));
+    verifier(!!cave && cave.appaire === false && fenetresIos.some((f) => f.startsWith("L'appairage n'a pas abouti")),
+      "iPhone : appairage sans réponse du Pi : message, Pi ajouté sans appairage");
     await ios.goto(adresse);
     await ios.locator("#liste-pi li", { hasText: "garage" }).locator("button", { hasText: "Supprimer" }).click();
     await ios.waitForTimeout(300);

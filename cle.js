@@ -18,6 +18,10 @@
 // exportable, gardée dans IndexedDB. Elle sert à appairer le téléphone à un Pi
 // puis à ouvrir sa console sans mot de passe, par un formulaire envoyé au Pi
 // dans un nouvel onglet : l'application ne lit aucune réponse du Pi.
+// Dans l'application iPhone (window.piApplianceIos), le formulaire est envoyé
+// par l'application elle-même (ios/PiAppliance/Console.swift), qui ouvre la
+// console dans son propre écran (question 43) ; la clé reste celle de la page,
+// non exportable, dans la WKWebView.
 
 (function () {
   "use strict";
@@ -99,7 +103,11 @@
   // Envoie un formulaire au Pi dans un nouvel onglet (rien dans l'adresse).
   // NE PAS mettre de retour à la ligne dans un champ signé : le navigateur les
   // change en \r\n à l'envoi, et la signature ne correspondrait plus.
-  function envoyer(action, champs) {
+  // Sur iPhone : la console s'ouvre dans l'application, qui envoie le
+  // formulaire ; repli : adresse ouverte si le Pi ne répond pas. Rend
+  // { ok, erreur? } (ok faux : rien n'est arrivé au Pi).
+  function envoyer(action, champs, repli) {
+    if (window.piApplianceIos) return window.piApplianceIos.console(action, { champs, repli });
     const form = document.createElement("form");
     form.method = "post";
     form.action = action;
@@ -116,19 +124,21 @@
     document.body.append(form);
     form.submit();
     form.remove();
+    return Promise.resolve({ ok: true });
   }
 
   // Appairage (demande, 4.3) : base = adresse de la console, sans « / » final.
   async function appairer(base, idPi, code) {
     const c = await cle();
     const message = `appairer|${idPi}|${code}`;
-    envoyer(`${base}/appareil/appairer`, {
+    const r = await envoyer(`${base}/appareil/appairer`, {
       code,
       cle: JSON.stringify(c.publique),
       appareil: nomAppareil(),
       message,
       signature: await signer(c, message),
     });
+    if (r && r.ok === false) throw new Error(`appairage : ${r.erreur || "échec"}`);
   }
 
   // Connexion (demande, 4.4).
@@ -136,24 +146,29 @@
     const c = await lireCle();
     if (!c || !c.privee) return false;
     const message = `connexion|${idPi}|${Math.floor(Date.now() / 1000)}|${aleatoire(16)}`;
-    envoyer(`${base}/appareil/connexion`, { cle: c.empreinte, message, signature: await signer(c, message) });
+    await envoyer(`${base}/appareil/connexion`, { cle: c.empreinte, message, signature: await signer(c, message) }, `${base}/`);
     return true;
   }
 
   // Rupture de l'appairage depuis l'application (demande, 4.7) : le Pi oublie
-  // la clé de ce téléphone.
+  // la clé de ce téléphone. Sur iPhone, envoyé par l'application sans ouvrir
+  // la console ; la promesse se résout une fois la réponse du Pi reçue.
   async function retirer(base, idPi) {
     const c = await lireCle();
     if (!c || !c.privee) return false;
     const message = `retirer|${idPi}|${Math.floor(Date.now() / 1000)}|${aleatoire(16)}`;
-    envoyer(`${base}/appareil/retirer`, { cle: c.empreinte, message, signature: await signer(c, message) });
+    const champs = { cle: c.empreinte, message, signature: await signer(c, message) };
+    if (window.piApplianceIos) {
+      const r = await window.piApplianceIos.envoyerFormulaire(`${base}/appareil/retirer`, champs);
+      return !!(r && r.ok);
+    }
+    envoyer(`${base}/appareil/retirer`, champs);
     return true;
   }
 
-  // Pas dans l'application iPhone : la console s'y ouvre dans Safari
-  // (spécification 4.2), qui ne peut pas recevoir le formulaire envoyé ici ;
-  // le Pi s'y ajoute sans appairage (question 43 de docs/questions.md).
-  const disponible = !window.piApplianceIos && !!(window.crypto && crypto.subtle && window.indexedDB);
+  // Aussi dans l'application iPhone (question 43) : la console s'y ouvre dans
+  // l'application, qui lui envoie le formulaire.
+  const disponible = !!(window.crypto && crypto.subtle && window.indexedDB);
 
   window.cleTelephone = { disponible, cle, lireCle, appairer, connecter, retirer, empreinte, signer };
 })();

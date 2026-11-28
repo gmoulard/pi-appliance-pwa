@@ -14,16 +14,31 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 // Application iPhone de pi-appliance (spécification 2, TODO-1.12) : un seul
-// écran, les pages de l'application web embarquées (ControleurWeb).
+// écran, les pages de l'application web embarquées (ControleurWeb). Un lien
+// « Ajouter un Pi » de la console (https://app.pi-appliance.com/#add?…) lu
+// par l'appareil photo ou touché ailleurs ouvre l'application (lien
+// universel, question 46 ; PiAppliance.entitlements et
+// .well-known/apple-app-site-association du site). À chaque retour dans
+// l'application, la documentation à jour est cherchée (Documentation.swift).
 
 import SwiftUI
 
 @main
 struct PiApplianceApp: App {
+    @Environment(\.scenePhase) private var phase
+
     var body: some Scene {
         WindowGroup {
             // Les pages gèrent elles-mêmes les bords de l'écran (viewport-fit=cover).
-            VueWeb().ignoresSafeArea()
+            VueWeb()
+                .ignoresSafeArea()
+                .onOpenURL { LiensRecus.partage.recevoir($0) }
+                .onContinueUserActivity(NSUserActivityTypeBrowsingWeb) { activite in
+                    if let lien = activite.webpageURL { LiensRecus.partage.recevoir(lien) }
+                }
+        }
+        .onChange(of: phase) { nouvelle in
+            if nouvelle == .active { Documentation.partage.verifier() }
         }
     }
 }
