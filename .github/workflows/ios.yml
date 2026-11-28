@@ -1,0 +1,191 @@
+# This file is part of pi-appliance-pwa <https://github.com/gmoulard/pi-appliance-pwa>.
+# Copyright (c) 2026 Guillaume Moulard.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, version 3.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+# Application iPhone (spécification 2, TODO-1.12) : construit le site comme le
+# workflow « Site » (documentation de pi-appliance à sa dernière étiquette),
+# l'embarque dans ios/site/, fabrique le projet Xcode avec XcodeGen
+# (ios/project.yml) et construit une IPA non signée, gardée en artefact.
+# Puis, seulement si les secrets APPLE_TEAM_ID, APP_STORE_CONNECT_KEY_ID,
+# APP_STORE_CONNECT_ISSUER_ID et APP_STORE_CONNECT_KEY_P8 sont posés : version
+# signée (signature automatique gérée par Apple, clé d'API App Store Connect)
+# envoyée à App Store Connect ; sans eux, l'étape est sautée sans échec.
+# Guide : docs/app-store.md. Version : MARKETING_VERSION de ios/project.yml ;
+# numéro de build : numéro d'exécution de ce workflow.
+# À chaque changement de ios/ ou des pages de l'application sur main, et à la
+# demande.
+
+name: iPhone
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "ios/**"
+      - ".github/workflows/ios.yml"
+      - "*.html"
+      - "*.css"
+      - "*.js"
+      - "icones/**"
+      - "vendor/**"
+      - "outils/site.mjs"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ios
+  cancel-in-progress: false
+
+jobs:
+  construire:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Dernière version de pi-appliance
+        id: pi
+        run: |
+          set -euo pipefail
+          depot=https://github.com/gmoulard/pi-appliance.git
+          etiquette=$(git -c versionsort.suffix=- ls-remote --tags --refs --sort=-v:refname "$depot" 'v*' \
+            | sed 's#.*refs/tags/##' | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)
+          test -n "$etiquette"
+          git clone --quiet --depth 1 --branch "$etiquette" "$depot" pi-appliance
+          echo "etiquette=$etiquette" >> "$GITHUB_OUTPUT"
+          echo "commit=$(git -C pi-appliance rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "date=$(git -C pi-appliance log -1 --format=%cs)" >> "$GITHUB_OUTPUT"
+          echo "Documentation de pi-appliance $etiquette"
+
+      - name: Pages embarquées (ios/site)
+        run: |
+          set -euo pipefail
+          npm ci --prefix outils
+          node outils/site.mjs --docs pi-appliance/docs \
+            --version "${{ steps.pi.outputs.etiquette }}" \
+            --commit "${{ steps.pi.outputs.commit }}" \
+            --date "${{ steps.pi.outputs.date }}" \
+            --app-commit "${GITHUB_SHA}" --app-date "$(git log -1 --format=%cs)" \
+            --out ios/site
+
+      - name: Projet Xcode (XcodeGen)
+        id: projet
+        run: |
+          set -euo pipefail
+          HOMEBREW_NO_AUTO_UPDATE=1 brew install xcodegen
+          (cd ios && xcodegen generate)
+          version=$(sed -nE 's/^ *MARKETING_VERSION: *"?([0-9.]+)"?.*/\1/p' ios/project.yml)
+          test -n "$version"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Application $version, build $GITHUB_RUN_NUMBER"
+          xcodebuild -version
+
+      - name: IPA non signée
+        run: |
+          set -euo pipefail
+          xcodebuild -project ios/PiAppliance.xcodeproj -scheme PiAppliance -configuration Release \
+            -destination 'generic/platform=iOS' -derivedDataPath "$RUNNER_TEMP/construction" \
+            CURRENT_PROJECT_VERSION="$GITHUB_RUN_NUMBER" \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            build
+          app="$RUNNER_TEMP/construction/Build/Products/Release-iphoneos/PiAppliance.app"
+          test -f "$app/site/index.html"
+          test -f "$app/pont.js"
+          mkdir -p livraison/Payload
+          cp -R "$app" livraison/Payload/
+          (cd livraison && zip -qr pi-appliance-non-signe.ipa Payload && rm -rf Payload)
+          ls -l livraison
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pi-appliance-iphone-${{ github.run_number }}
+          path: livraison/
+          if-no-files-found: error
+
+      # Version signée pour l'App Store : signature automatique gérée par Apple
+      # (« cloud signing ») avec la clé d'API App Store Connect, puis envoi à
+      # App Store Connect (TestFlight, soumission à Apple à la main).
+      - name: App Store (version signée envoyée à App Store Connect)
+        env:
+          VERSION: ${{ steps.projet.outputs.version }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          ASC_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          # Contenu du fichier AuthKey_<id>.p8 tel quel (« -----BEGIN PRIVATE
+          # KEY----- … ») ; une version en base64 est aussi acceptée.
+          ASC_KEY_P8: ${{ secrets.APP_STORE_CONNECT_KEY_P8 }}
+        run: |
+          set -euo pipefail
+          manquants=""
+          [ -n "$APPLE_TEAM_ID" ] || manquants="$manquants APPLE_TEAM_ID"
+          [ -n "$ASC_KEY_ID" ] || manquants="$manquants APP_STORE_CONNECT_KEY_ID"
+          [ -n "$ASC_ISSUER_ID" ] || manquants="$manquants APP_STORE_CONNECT_ISSUER_ID"
+          [ -n "$ASC_KEY_P8" ] || manquants="$manquants APP_STORE_CONNECT_KEY_P8"
+          if [ -n "$manquants" ]; then
+            echo "::notice title=App Store::Étape sautée : secrets absents :$manquants (guide : docs/app-store.md)"
+            exit 0
+          fi
+          # Clé d'API : seulement sur la machine de construction, effacée à la fin.
+          dossier="$HOME/.appstoreconnect/private_keys"
+          cle="$dossier/AuthKey_$ASC_KEY_ID.p8"
+          mkdir -p "$dossier"
+          trap 'rm -f "$cle"' EXIT
+          (
+            umask 077
+            if printf '%s' "$ASC_KEY_P8" | grep -q 'BEGIN PRIVATE KEY'; then
+              printf '%s\n' "$ASC_KEY_P8" > "$cle"
+            else
+              printf '%s' "$ASC_KEY_P8" | base64 --decode > "$cle"
+            fi
+          )
+          if ! grep -q 'BEGIN PRIVATE KEY' "$cle"; then
+            echo "::error title=App Store::APP_STORE_CONNECT_KEY_P8 n'est pas le contenu d'un fichier .p8"
+            exit 1
+          fi
+          AUTH=(-allowProvisioningUpdates -authenticationKeyPath "$cle"
+                -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID")
+          archive="$RUNNER_TEMP/PiAppliance.xcarchive"
+          export_dir="$RUNNER_TEMP/app-store"
+          xcodebuild -project ios/PiAppliance.xcodeproj -scheme PiAppliance -configuration Release \
+            -destination 'generic/platform=iOS' -archivePath "$archive" \
+            "${AUTH[@]}" DEVELOPMENT_TEAM="$APPLE_TEAM_ID" CODE_SIGN_STYLE=Automatic \
+            CURRENT_PROJECT_VERSION="$GITHUB_RUN_NUMBER" \
+            archive
+          cat > "$RUNNER_TEMP/ExportOptions.plist" <<PLIST
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>destination</key><string>export</string>
+            <key>signingStyle</key><string>automatic</string>
+            <key>teamID</key><string>$APPLE_TEAM_ID</string>
+            <key>uploadSymbols</key><true/>
+            <key>manageAppVersionAndBuildNumber</key><false/>
+          </dict>
+          </plist>
+          PLIST
+          xcodebuild -exportArchive -archivePath "$archive" -exportPath "$export_dir" \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" "${AUTH[@]}"
+          ipa=$(ls "$export_dir"/*.ipa | head -n 1)
+          echo "IPA de l'App Store : $ipa"
+          # altool lit la clé dans ~/.appstoreconnect/private_keys/AuthKey_<id>.p8.
+          xcrun altool --upload-app --type ios --file "$ipa" \
+            --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID"
+          echo "::notice title=App Store::Version $VERSION, build $GITHUB_RUN_NUMBER envoyée à App Store Connect (traitement par Apple : 10 à 30 minutes, puis TestFlight)"
