@@ -135,7 +135,7 @@ La spécification (4.2) dit « dans le navigateur habituel » : sur l'iPhone, Sa
 2. Dans l'application, sur un écran plein avec un bouton « Retour » : appairage et connexion sans mot de passe comme sur Android, certificat du Pi déjà vérifié par l'application ; la connexion à la console n'est pas partagée avec Safari ; montre aussi à Apple une application plus complète (règle 4.2) **(proposé)**
 3. Dans Safari, et l'appairage par un autre moyen à demander à pi-appliance
 
-**Réponse :**
+**Réponse :** 2, dans l'application, plein écran avec « Retour », appairage compris (2026-11-28).
 
 ### 44. Certificat fait par le Pi, dans l'application iPhone
 
@@ -145,7 +145,7 @@ Il est accepté pour un Pi de la liste seulement, retenu à la première connexi
 2. Demander la première fois : « Faire confiance à ce Pi ? »
 3. Comme 1, plus un bouton « Faire de nouveau confiance » sur la fiche quand il a changé
 
-**Réponse :**
+**Réponse :** 1, rien à confirmer la première fois (2026-11-28).
 
 ### 45. Documentation embarquée dans l'application iPhone
 
@@ -155,7 +155,7 @@ Aujourd'hui, la documentation est celle de la dernière version de pi-appliance 
 2. Une nouvelle version de l'application à chaque version de pi-appliance (workflow lancé par la nouvelle étiquette, soumission à Apple à la main)
 3. Documentation de la version de l'application, mise à jour avec elle seulement
 
-**Réponse :**
+**Réponse :** 1, l'application télécharge elle-même la documentation à jour (2026-11-28).
 
 ### 46. Code QR lu avec l'appareil photo de l'iPhone
 
@@ -164,4 +164,4 @@ Hors de l'application, l'appareil photo ouvre le lien `https://app.pi-appliance.
 1. Rien de plus : le code se lit dans l'application, « Scanner le code de mon Pi » (réalisé) **(proposé)**
 2. Liens universels : ce lien ouvre l'application (fichier `apple-app-site-association` publié par le site, capacité « Associated Domains » de l'identifiant)
 
-**Réponse :**
+**Réponse :** 2, liens universels (2026-11-28).

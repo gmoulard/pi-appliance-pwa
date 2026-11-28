@@ -57,6 +57,7 @@ Groupes d'actions cohérents, réalisés chacun par le sous-agent `todo-lot` (un
   - [ ] Questions 43 à 46 de [docs/questions.md](docs/questions.md) tranchées (appairage et console, certificat, documentation embarquée, liens universels).
   - [ ] Fiche, captures 6,9 pouces, confidentialité (« Aucune donnée collectée »), notes et vidéo pour la relecture (étape 5) ; soumission, acceptation par Apple (étape 6).
 
+  - Tranché le 2026-11-28 (questions 43 à 46) : console du Pi ouverte dans l'application avec « Retour » et appairage ; certificat retenu sans confirmation ; documentation téléchargée à jour par l'application ; liens universels (le code QR lu par l'appareil photo ouvre l'application). À réaliser.
 ## 2. Documentation hors ligne (3) — en premier
 
 - [x] **TODO-2.1**: Workflow « Site » qui récupère `docs/` de pi-appliance à la dernière étiquette, convertit le Markdown en HTML (`outils/site.mjs` : pages reprises, liens « en ligne », catalogue de la marketplace écrit dans la page) et publie le site, toutes les heures (sans republier si rien n'a changé, depuis le 2026-11-23), à chaque changement de `main` et à la demande (2026-11-21). Premier passage réussi le 2026-11-21 (construction, essais, publication).
