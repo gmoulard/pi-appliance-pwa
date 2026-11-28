@@ -20,12 +20,21 @@
 // node outils/site.mjs --docs <docs de pi-appliance> --version v0.1.4 \
 //   --commit <sha> --date AAAA-MM-JJ --out _site \
 //   [--app-commit <sha de ce dépôt> --app-date AAAA-MM-JJ]
-//   [--empreintes "AA:BB:…, CC:DD:…"]
+//   [--empreintes "AA:BB:…, CC:DD:…"] [--apple-team-id ABCDE12345]
 //
 // --empreintes : empreintes SHA-256 des certificats de l'application Android
 // (variable GitHub ANDROID_EMPREINTES_SHA256) ; avec elles, le site publie
 // .well-known/assetlinks.json pour le paquet de android/gradle.properties.
 // Sans empreinte, rien n'est publié.
+//
+// --apple-team-id : Team ID du compte Apple Developer (variable GitHub
+// APPLE_TEAM_ID, pas un secret) ; avec lui, le site publie
+// .well-known/apple-app-site-association (liens universels de l'application
+// iPhone, question 46) pour l'identifiant de ios/project.yml. Sans lui, rien.
+//
+// version.json donne aussi l'empreinte SHA-256 de chaque fichier (« sha256 ») :
+// l'application iPhone vérifie ainsi la documentation qu'elle télécharge
+// (question 45) ; le service worker ne s'en sert pas.
 //
 // Sans --app-commit, le commit de l'application et sa date sont lus dans le
 // dépôt git de l'application (git log), et omis si git ne répond pas.
@@ -82,7 +91,33 @@ function options() {
   for (const e of o.empreintes) {
     if (!/^([0-9A-F]{2}:){31}[0-9A-F]{2}$/.test(e)) throw new Error(`Empreinte SHA-256 invalide (32 octets « AA:BB:… » attendus) : ${e}`);
   }
+  o["apple-team-id"] = (o["apple-team-id"] || "").trim().toUpperCase();
+  if (o["apple-team-id"] && !/^[A-Z0-9]{10}$/.test(o["apple-team-id"])) throw new Error(`Team ID d'Apple invalide (10 lettres ou chiffres attendus) : ${o["apple-team-id"]}`);
   return o;
+}
+
+function identifiantIos() {
+  const projet = fs.readFileSync(path.join(RACINE, "ios", "project.yml"), "utf8");
+  const id = (projet.match(/^\s*PRODUCT_BUNDLE_IDENTIFIER:\s*"?([^"\s#]+)"?/m) || [])[1];
+  if (!id || !/^[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)+$/.test(id)) throw new Error(`Identifiant de l'application iPhone illisible dans ios/project.yml : ${id}`);
+  return id;
+}
+
+// Liens universels (question 46) : seul le lien « Ajouter un Pi » de la console
+// (https://app.pi-appliance.com/#add?…, fragment compris) ouvre l'application ;
+// toute autre page du site reste dans Safari.
+function liensIos(sortie, equipe) {
+  if (!equipe) return;
+  const declaration = {
+    applinks: {
+      details: [{
+        appIDs: [`${equipe}.${identifiantIos()}`],
+        components: [{ "/": "/", "#": "add?*", comment: "Lien « Ajouter un Pi » de la console" }],
+      }],
+    },
+  };
+  fs.mkdirSync(path.join(sortie, ".well-known"), { recursive: true });
+  fs.writeFileSync(path.join(sortie, ".well-known", "apple-app-site-association"), `${JSON.stringify(declaration, null, 2)}\n`);
 }
 
 function paquetAndroid() {
@@ -265,6 +300,10 @@ ${corps}
 `;
 }
 
+function sha256(fichier) {
+  return createHash("sha256").update(fs.readFileSync(fichier)).digest("hex");
+}
+
 function empreinte(fichiers, sortie) {
   const h = createHash("sha256");
   for (const f of fichiers) {
@@ -286,6 +325,7 @@ function main() {
   // réglages Pages du dépôt (docs/mise-en-production.md).
   if (fs.existsSync(path.join(RACINE, "CNAME"))) fs.copyFileSync(path.join(RACINE, "CNAME"), path.join(sortie, "CNAME"));
   liensAndroid(sortie, o.empreintes);
+  liensIos(sortie, o["apple-team-id"]);
 
   for (const f of APPLICATION) {
     const source = path.join(RACINE, f);
@@ -358,6 +398,7 @@ ${sommaire.join("\n")}
     app_commit: o["app-commit"] || "",
     app_date: o["app-date"] || "",
     fichiers: ["./", ...fichiers],
+    sha256: Object.fromEntries(fichiers.map((f) => [f, sha256(path.join(sortie, f))])),
   };
   fs.writeFileSync(path.join(sortie, "version.json"), `${JSON.stringify(version, null, 2)}\n`);
   console.log(`Site construit dans ${sortie} : ${presentes.length} pages, ${fichiers.length} fichiers, build ${version.build}.`);

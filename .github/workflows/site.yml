@@ -93,6 +93,10 @@ jobs:
           # Empreintes du certificat de l'application Android (variable du
           # dépôt, pas un secret) : sans elles, pas de .well-known/assetlinks.json.
           EMPREINTES: ${{ vars.ANDROID_EMPREINTES_SHA256 }}
+          # Team ID d'Apple (variable du dépôt, pas un secret) : sans lui, pas
+          # de .well-known/apple-app-site-association (liens universels de
+          # l'application iPhone, question 46).
+          APPLE_TEAM_ID: ${{ vars.APPLE_TEAM_ID }}
         run: |
           npm ci --prefix outils
           node outils/site.mjs --docs pi-appliance/docs \
@@ -101,6 +105,7 @@ jobs:
             --date "${{ steps.pi.outputs.date }}" \
             --app-commit "${GITHUB_SHA}" --app-date "$(git log -1 --format=%cs)" \
             --empreintes "${EMPREINTES}" \
+            --apple-team-id "${APPLE_TEAM_ID}" \
             --out _site
 
       - name: Essais dans Chromium
@@ -110,7 +115,8 @@ jobs:
           npx --prefix outils playwright install --with-deps chromium
           node outils/essai.cjs _site
 
-      # NE PAS passer à upload-pages-artifact@v4 : il laisse de côté les dossiers commençant par un point, donc .well-known/assetlinks.json de l'application Android.
+      # NE PAS passer à upload-pages-artifact@v4 : il laisse de côté les dossiers commençant par un point, donc .well-known/ (assetlinks.json de l'application Android, apple-app-site-association de l'iPhone).
+      # Publié par GitHub Actions : Jekyll ne passe pas sur le site, .nojekyll est inutile.
       - uses: actions/upload-pages-artifact@v3
         if: steps.verif.outputs.a_jour != 'true'
         with:

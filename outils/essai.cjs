@@ -132,6 +132,23 @@ function verifier(condition, message) {
     } else {
       verifier(android.statut === 404, "pas d'empreinte : pas de .well-known/assetlinks.json publié");
     }
+    // Liens universels de l'iPhone (question 46) : seulement avec --apple-team-id.
+    const aasa = path.join(site, ".well-known", "apple-app-site-association");
+    if (fs.existsSync(aasa)) {
+      const id = fs.readFileSync(path.join(__dirname, "..", "ios", "project.yml"), "utf8").match(/PRODUCT_BUNDLE_IDENTIFIER:\s*"?([^"\s#]+)/)[1];
+      let d = null;
+      try { d = JSON.parse(fs.readFileSync(aasa, "utf8")).applinks.details[0]; } catch (e) { d = null; }
+      verifier(!!d && d.appIDs.length === 1 && new RegExp(`^[A-Z0-9]{10}\\.${id.replace(/\./g, "\\.")}$`).test(d.appIDs[0])
+        && d.components.length === 1 && d.components[0]["/"] === "/" && d.components[0]["#"] === "add?*",
+      `.well-known/apple-app-site-association pour ${d ? d.appIDs.join(", ") : "?"} : lien « #add? » seulement`);
+    } else {
+      verifier(true, "pas de Team ID : pas de .well-known/apple-app-site-association publié");
+    }
+    // Empreinte SHA-256 de chaque fichier (documentation téléchargée par l'iPhone, question 45).
+    const fausses = version.fichiers.filter((f) => f !== "./" && (!version.sha256 || version.sha256[f]
+      !== require("node:crypto").createHash("sha256").update(fs.readFileSync(path.join(site, f))).digest("hex")));
+    verifier(!!version.sha256 && fausses.length === 0 && Object.keys(version.sha256).length === version.fichiers.length - 1,
+      `version.json : empreinte SHA-256 juste pour chaque fichier${fausses.length ? ` — fausses : ${fausses.join(", ")}` : ""}`);
     await page.goto(`${adresse}confidentialite.html`);
     verifier(/ne collecte rien/.test(await page.textContent("main")), "page de confidentialité");
     await page.goto(adresse);

@@ -17,7 +17,8 @@
 # workflow « Site » (documentation de pi-appliance à sa dernière étiquette),
 # l'embarque dans ios/site/, fabrique le projet Xcode avec XcodeGen
 # (ios/project.yml) et construit une IPA non signée, gardée en artefact.
-# Puis, seulement si les secrets APPLE_TEAM_ID, APP_STORE_CONNECT_KEY_ID,
+# Puis, seulement si APPLE_TEAM_ID (secret, ou variable du dépôt, la même que
+# celle du workflow « Site ») et les secrets APP_STORE_CONNECT_KEY_ID,
 # APP_STORE_CONNECT_ISSUER_ID et APP_STORE_CONNECT_KEY_P8 sont posés : version
 # signée (signature automatique gérée par Apple, clé d'API App Store Connect)
 # envoyée à App Store Connect ; sans eux, l'étape est sautée sans échec.
@@ -124,7 +125,7 @@ jobs:
       - name: App Store (version signée envoyée à App Store Connect)
         env:
           VERSION: ${{ steps.projet.outputs.version }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID || vars.APPLE_TEAM_ID }}
           ASC_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           # Contenu du fichier AuthKey_<id>.p8 tel quel (« -----BEGIN PRIVATE
