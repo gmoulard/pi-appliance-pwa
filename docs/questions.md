@@ -102,3 +102,23 @@ Un workflow pourrait créer l'entrée `CNAME` par l'API OVH, avec les secrets Gi
 3. Laisser pi-appliance créer l'entrée avec ses propres secrets
 
 **Réponse :**
+
+## Application iPhone (2026-11-28)
+
+Née de la demande de l'utilisateur du 2026-11-28 : « Fabrique une appli iPhone pour pi-appliance » ; il a un compte Apple Developer (celui de NautiLink).
+
+### 41. Forme de l'application iPhone
+
+1. Application native publiée sur l'App Store : petite application Swift qui embarque les pages de l'application web (lisibles sans réseau) et ajoute la lecture native du code QR, l'accès au réseau de la maison et l'acceptation du certificat du seul Pi ajouté **(proposé)**
+2. L'application web seule, dans Safari (« Sur l'écran d'accueil »)
+3. Les deux
+
+**Réponse :** 1 (2026-11-28).
+
+### 42. Identifiant de l'application iPhone
+
+1. `com.pi-appliance.app`
+2. `org.moulard.piappliance`
+3. Le même que l'Android (question 38)
+
+**Réponse :** 1, `com.pi-appliance.app` (2026-11-28) ; compte Apple Developer : le même que NautiLink.

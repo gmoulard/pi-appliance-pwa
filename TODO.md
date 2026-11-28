@@ -13,6 +13,7 @@ Groupes d'actions cohérents, réalisés chacun par le sous-agent `todo-lot` (un
 | LOT-3 | Mes Pi avec un vrai Pi | TODO-3.2, TODO-3.3, TODO-3.4, TODO-3.5, TODO-3.6, TODO-3.7, TODO-3.8 | LOT-1 | [~] |
 | LOT-4 | Langues | TODO-4.1, TODO-4.2 | aucun | [~] |
 | LOT-5 | Application Android sur la Play Store | TODO-1.8, TODO-1.9, TODO-1.10 | LOT-1 | [~] |
+| LOT-6 | Application iPhone sur l'App Store | TODO-1.12 | aucun | [ ] |
 | ~~LOT-6~~ | ~~Installer un nouveau Pi par l'application (pi-appliance LOT-18)~~ (retiré le 2026-11-26) | TODO-3.10, TODO-3.9, TODO-3.11 | aucun | [x] |
 
 ## 1. Mise en place
@@ -47,6 +48,8 @@ Groupes d'actions cohérents, réalisés chacun par le sous-agent `todo-lot` (un
 - [~] **TODO-1.11**: DNS de `app.pi-appliance.com` chez OVH au lieu de l'ancien hébergeur DNS (zone `pi-appliance.com` passée chez OVH, décision de l'utilisateur du 2026-11-26) : remplacer `docs/dns-app.json` et les étapes Route 53 de TODO-1.6 et de [docs/mise-en-production.md](docs/mise-en-production.md) par l'entrée `CNAME` chez OVH. Fait dans le dépôt le 2026-11-26 : `docs/dns-app.json` retiré, étapes de l'espace client OVH dans `docs/mise-en-production.md` (étape 2) et TODO-1.6, spécification 2 et README à jour ; entrée créée à la main en attendant la question 40 (workflow par l'API OVH). Reste : l'entrée faite par l'utilisateur et le `nslookup`. Dépend de : aucune.
   - Critères d'acceptation : plus aucune mention de l'ancien hébergeur DNS ni de son fichier de demande dans le dépôt (spécification 2 et README compris) ; étapes OVH écrites dans `docs/mise-en-production.md` et TODO-1.6 ; après l'entrée faite par l'utilisateur, `nslookup app.pi-appliance.com` donne l'alias `gmoulard.github.io`.
 
+- [ ] **TODO-1.12**: Application iPhone native pour l'App Store (questions 41 et 42, spécification 7) : dossier `ios/` (Swift, WKWebView sans framework), identifiant `com.pi-appliance.app`, pages de l'application web embarquées et lisibles sans réseau, lecture native du code QR, réseau de la maison (autorisation « Réseau local »), certificat du Pi accepté pour le seul Pi ajouté, workflow « iPhone » sur macOS (IPA non signée, puis version signée envoyée à App Store Connect avec les secrets de l'utilisateur), guide App Store. Dépend de : aucune.
+  - Critères d'acceptation : application construite par le workflow ; installée sur un iPhone de l'utilisateur : documentation sans réseau, ajout d'un Pi par code QR, « Ouvrir » à la maison ; build reçu dans App Store Connect ; acceptée par Apple.
 ## 2. Documentation hors ligne (3) — en premier
 
 - [x] **TODO-2.1**: Workflow « Site » qui récupère `docs/` de pi-appliance à la dernière étiquette, convertit le Markdown en HTML (`outils/site.mjs` : pages reprises, liens « en ligne », catalogue de la marketplace écrit dans la page) et publie le site, toutes les heures (sans republier si rien n'a changé, depuis le 2026-11-23), à chaque changement de `main` et à la demande (2026-11-21). Premier passage réussi le 2026-11-21 (construction, essais, publication).
