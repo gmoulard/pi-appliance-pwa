@@ -1,6 +1,6 @@
 # Questions pour finir la spécification
 
-Les 30 premières questions ont été tranchées le 2026-11-21 et sont reprises dans la [spécification](specification.md). Les précisions 31 à 37, nées des réponses, ont été tranchées aussi, le même jour : toutes les questions sont reprises dans la spécification. Les questions 38 et 39 (application Android, 2026-11-25) et 40 (entrée DNS chez OVH, 2026-11-26) attendent une réponse. Chaque question a des choix numérotés ; celui que je propose est marqué **(proposé)**. Écrire après **Réponse :** le numéro choisi, ou un autre choix en quelques mots.
+Les 30 premières questions ont été tranchées le 2026-11-21 et sont reprises dans la [spécification](specification.md). Les précisions 31 à 37, nées des réponses, ont été tranchées aussi, le même jour : toutes les questions sont reprises dans la spécification. Les questions 38 et 39 (application Android, 2026-11-25) et 40 (entrée DNS chez OVH, 2026-11-26), 43 à 46 (application iPhone, 2026-11-28) attendent une réponse ; 41 et 42 sont tranchées. Chaque question a des choix numérotés ; celui que je propose est marqué **(proposé)**. Écrire après **Réponse :** le numéro choisi, ou un autre choix en quelques mots.
 
 ### 31. « Lien de partage » (réponse à la question 12)
 
@@ -122,3 +122,46 @@ Née de la demande de l'utilisateur du 2026-11-28 : « Fabrique une appli iPhone
 3. Le même que l'Android (question 38)
 
 **Réponse :** 1, `com.pi-appliance.app` (2026-11-28) ; compte Apple Developer : le même que NautiLink.
+
+## Application iPhone, nées de sa réalisation (2026-11-28)
+
+L'application est faite dans `ios/` (TODO-1.12) avec le premier choix de chaque question, sauf pour la 43 (choix 1 réalisé en attendant, conforme à la spécification 4.2).
+
+### 43. Où s'ouvre la console d'un Pi dans l'application iPhone
+
+La spécification (4.2) dit « dans le navigateur habituel » : sur l'iPhone, Safari. Mais l'appairage et la connexion sans mot de passe (4.4) envoient un formulaire au Pi dans le navigateur où la console s'ouvre, ce que l'application ne peut pas faire vers Safari. Réalisé en attendant : Safari, sans appairage.
+
+1. Dans Safari, sans appairage : la console demande le mot de passe à chaque fois (réalisé)
+2. Dans l'application, sur un écran plein avec un bouton « Retour » : appairage et connexion sans mot de passe comme sur Android, certificat du Pi déjà vérifié par l'application ; la connexion à la console n'est pas partagée avec Safari ; montre aussi à Apple une application plus complète (règle 4.2) **(proposé)**
+3. Dans Safari, et l'appairage par un autre moyen à demander à pi-appliance
+
+**Réponse :**
+
+### 44. Certificat fait par le Pi, dans l'application iPhone
+
+Il est accepté pour un Pi de la liste seulement, retenu à la première connexion, refusé s'il change.
+
+1. Rien à confirmer la première fois (ajouter le Pi vaut accord) ; s'il change, la fiche le dit, et il faut supprimer puis rajouter le Pi (réalisé) **(proposé)**
+2. Demander la première fois : « Faire confiance à ce Pi ? »
+3. Comme 1, plus un bouton « Faire de nouveau confiance » sur la fiche quand il a changé
+
+**Réponse :**
+
+### 45. Documentation embarquée dans l'application iPhone
+
+Aujourd'hui, la documentation est celle de la dernière version de pi-appliance au moment où l'application est construite ; elle ne change qu'avec une nouvelle version de l'application, relue par Apple (un à trois jours). Sur le Web, elle suit chaque nouvelle version dans l'heure (spécification 3).
+
+1. L'application télécharge elle-même les pages de documentation à jour (`doc/` seulement, d'après `version.json` du site, comme le *service worker*) et les garde ; les pages embarquées servent tant qu'il n'y a rien de plus récent ; le code de l'application ne change jamais ainsi **(proposé)**
+2. Une nouvelle version de l'application à chaque version de pi-appliance (workflow lancé par la nouvelle étiquette, soumission à Apple à la main)
+3. Documentation de la version de l'application, mise à jour avec elle seulement
+
+**Réponse :**
+
+### 46. Code QR lu avec l'appareil photo de l'iPhone
+
+Hors de l'application, l'appareil photo ouvre le lien `https://app.pi-appliance.com/#add?…` dans Safari, pas dans l'application.
+
+1. Rien de plus : le code se lit dans l'application, « Scanner le code de mon Pi » (réalisé) **(proposé)**
+2. Liens universels : ce lien ouvre l'application (fichier `apple-app-site-association` publié par le site, capacité « Associated Domains » de l'identifiant)
+
+**Réponse :**
