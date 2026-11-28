@@ -59,6 +59,7 @@ Groupes d'actions cohérents, réalisés chacun par le sous-agent `todo-lot` (un
   - [ ] Fiche, captures 6,9 pouces, confidentialité (« Aucune donnée collectée »), notes et vidéo pour la relecture (étape 5) ; soumission, acceptation par Apple (étape 6).
   - Limites connues : un fichier que la console propose de télécharger (sauvegarde) ne s'enregistre pas depuis l'écran de la console ; la documentation téléchargée garde le code (scripts, styles) de la version de l'application.
 
+  - Constaté (2026-11-28) : le Swift des questions 43 à 46 compile sur macOS : [exécution n° 3 du workflow « iPhone »](https://github.com/gmoulard/pi-appliance-pwa/actions/runs/46163094166) réussie (IPA non signée en artefact ; étape « App Store » sautée faute de secrets).
 ## 2. Documentation hors ligne (3) — en premier
 
 - [x] **TODO-2.1**: Workflow « Site » qui récupère `docs/` de pi-appliance à la dernière étiquette, convertit le Markdown en HTML (`outils/site.mjs` : pages reprises, liens « en ligne », catalogue de la marketplace écrit dans la page) et publie le site, toutes les heures (sans republier si rien n'a changé, depuis le 2026-11-23), à chaque changement de `main` et à la demande (2026-11-21). Premier passage réussi le 2026-11-21 (construction, essais, publication).
