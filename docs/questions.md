@@ -1,6 +1,6 @@
 # Questions pour finir la spécification
 
-Les 30 premières questions ont été tranchées le 2026-11-21 et sont reprises dans la [spécification](specification.md). Les précisions 31 à 37, nées des réponses, ont été tranchées aussi, le même jour : toutes les questions sont reprises dans la spécification. Les questions 38 et 39 (application Android, 2026-11-25) et 40 (entrée DNS chez OVH, 2026-11-26), 43 à 46 (application iPhone, 2026-11-28) attendent une réponse ; 41 et 42 sont tranchées. Chaque question a des choix numérotés ; celui que je propose est marqué **(proposé)**. Écrire après **Réponse :** le numéro choisi, ou un autre choix en quelques mots.
+Les 30 premières questions ont été tranchées le 2026-11-21 et sont reprises dans la [spécification](specification.md). Les précisions 31 à 37, nées des réponses, ont été tranchées aussi, le même jour : toutes les questions sont reprises dans la spécification. Les questions 38 et 39 (application Android, 2026-11-25) et 40 (entrée DNS chez OVH, 2026-11-26) attendent une réponse ; 41 à 46 (application iPhone, 2026-11-28) sont tranchées et réalisées dans le dépôt (spécification 2). Chaque question a des choix numérotés ; celui que je propose est marqué **(proposé)**. Écrire après **Réponse :** le numéro choisi, ou un autre choix en quelques mots.
 
 ### 31. « Lien de partage » (réponse à la question 12)
 
@@ -125,7 +125,7 @@ Née de la demande de l'utilisateur du 2026-11-28 : « Fabrique une appli iPhone
 
 ## Application iPhone, nées de sa réalisation (2026-11-28)
 
-L'application est faite dans `ios/` (TODO-1.12) avec le premier choix de chaque question, sauf pour la 43 (choix 1 réalisé en attendant, conforme à la spécification 4.2).
+L'application est faite dans `ios/` (TODO-1.12) avec le premier choix de chaque question, sauf pour la 43 (choix 1 réalisé en attendant, conforme à la spécification 4.2). Réponses du 2026-11-28 réalisées dans le dépôt le même jour (spécification 2, TODO-1.12).
 
 ### 43. Où s'ouvre la console d'un Pi dans l'application iPhone
 

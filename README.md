@@ -24,13 +24,13 @@ HTML, CSS et JavaScript sans framework ni étape de construction pour l'applicat
 | `recherche.js` | Recherche dans la documentation, sans réseau |
 | `sw.js` | *Service worker* : site gardé sur le téléphone, mise à jour en silence |
 | `manifest.webmanifest`, `icones/` | Application installable et ses icônes |
-| `outils/site.mjs` | Construction du site : documentation de pi-appliance convertie, index de recherche, `version.json` |
+| `outils/site.mjs` | Construction du site : documentation de pi-appliance convertie, index de recherche, `version.json` (avec l'empreinte SHA-256 de chaque fichier), `.well-known/` (Android avec `--empreintes`, iPhone avec `--apple-team-id`) |
 | `outils/essai.cjs`, `outils/essai-qr-*.png` | Essais dans Chromium sans tête (fausse caméra, faux Pi) |
 | `outils/pia-update` | À lancer sur le Pi en SSH : installe la dernière version de pi-appliance (`curl -fsSLO https://raw.githubusercontent.com/gmoulard/pi-appliance-pwa/main/outils/pia-update && sudo sh pia-update [version]` ; sans version, la dernière ; `-l` : liste des versions) |
 | `outils/production.cjs` | Vérification du site en ligne : certificat, page, manifeste, *service worker*, icônes, renvoi de l'ancienne adresse (`node outils/production.cjs`) |
 | `CNAME`, `docs/mise-en-production.md` | Domaine `app.pi-appliance.com` : nom pour GitHub Pages, étapes à faire à la main (réglages Pages, entrée DNS chez OVH) |
 | `android/`, `.github/workflows/android.yml` | Application Android de la Play Store (*Trusted Web Activity* qui ouvre le site) et sa construction ; identifiant du paquet dans `android/gradle.properties` |
-| `ios/`, `.github/workflows/ios.yml` | Application iPhone de l'App Store (Swift, `WKWebView` : pages embarquées, code QR, état des Pi, certificat du Pi retenu), projet Xcode fabriqué par XcodeGen (`ios/project.yml`), et sa construction ; étapes chez Apple : [docs/app-store.md](docs/app-store.md) |
+| `ios/`, `.github/workflows/ios.yml` | Application iPhone de l'App Store (Swift, `WKWebView` : pages embarquées, code QR, état des Pi, certificat du Pi retenu, console du Pi dans l'application avec appairage, documentation téléchargée à jour, liens universels), projet Xcode fabriqué par XcodeGen (`ios/project.yml`), et sa construction ; étapes chez Apple : [docs/app-store.md](docs/app-store.md) |
 | `confidentialite.html` | Politique de confidentialité (l'application ne collecte rien), demandée par la Play Store et l'App Store |
 | `outils/icones.cjs` | Icônes PNG dessinées à partir de `icones/icone.svg` (aussi l'icône 1024 × 1024 de l'iPhone) |
 | `.github/workflows/site.yml` | Construction, essais, publication sur GitHub Pages et vérification du site en ligne |

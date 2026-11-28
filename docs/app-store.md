@@ -1,8 +1,8 @@
 # Publier pi-appliance sur l'App Store
 
-Mode d'emploi pour l'utilisateur (TODO-1.12, questions 41 et 42 de [questions.md](questions.md)), repris de celui de NautiLink (`docs/etudes/app-store.md` de NautiLink) : même compte Apple Developer, même équipe, même clé d'API. Les étapes suivent l'ordre à respecter : chacune a besoin de la précédente. Compter une heure la première fois, sans la relecture d'Apple (un à trois jours en général).
+Mode d'emploi pour l'utilisateur (TODO-1.12, questions 41 à 46 de [questions.md](questions.md)), repris de celui de NautiLink (`docs/etudes/app-store.md` de NautiLink) : même compte Apple Developer, même équipe, même clé d'API. Les étapes suivent l'ordre à respecter : chacune a besoin de la précédente. Compter une heure la première fois, sans la relecture d'Apple (un à trois jours en général).
 
-Ce qui est automatique : à chaque changement de `ios/` ou des pages de l'application poussé sur `main`, et à la demande, le workflow « iPhone » (`.github/workflows/ios.yml`, sur macOS) construit le site (documentation de la dernière version de pi-appliance), l'embarque dans l'application et fabrique une IPA non signée (artefact de l'exécution) ; puis, si les quatre secrets de l'étape 3 sont posés, une version signée qu'il envoie à App Store Connect. Ce qui reste à la main : tout ce qui se passe dans les sites d'Apple (identifiant, application, fiche, soumission) et la pose des secrets dans GitHub.
+Ce qui est automatique : à chaque changement de `ios/` ou des pages de l'application poussé sur `main`, et à la demande, le workflow « iPhone » (`.github/workflows/ios.yml`, sur macOS) construit le site (documentation de la dernière version de pi-appliance), l'embarque dans l'application et fabrique une IPA non signée (artefact de l'exécution) ; puis, si les quatre secrets de l'étape 3 sont posés, une version signée qu'il envoie à App Store Connect. Ce qui reste à la main : tout ce qui se passe dans les sites d'Apple (identifiant et sa capacité « Associated Domains », application, fiche, soumission) et la pose des secrets et de la variable `APPLE_TEAM_ID` dans GitHub.
 
 Rien de secret ne va dans le dépôt ni dans une conversation : la clé `.p8` n'est collée que dans le formulaire des secrets de GitHub.
 
@@ -23,7 +23,7 @@ Site : [Certificates, Identifiers & Profiles](https://developer.apple.com/accoun
 
 1. « Identifiers », bouton « + », choisir « App IDs », « Continue », puis « App », « Continue ».
 2. « Description » : `pi-appliance`. « Bundle ID » : choisir « Explicit » et taper `com.pi-appliance.app`.
-3. « Capabilities » : **ne rien cocher**. L'application n'a ni notifications, ni connexion avec Apple, ni iCloud, ni achat. L'appareil photo et le réseau local ne sont pas des capacités : ce sont des autorisations demandées à la personne (textes dans `ios/PiAppliance/Info.plist`).
+3. « Capabilities » : cocher **seulement « Associated Domains »** (liens universels, question 46 : le lien `https://app.pi-appliance.com/#add?…` du code QR de « Mon Pi », lu par l'appareil photo, ouvre l'application ; déclaré dans `ios/PiAppliance/PiAppliance.entitlements`). Rien d'autre : l'application n'a ni notifications, ni connexion avec Apple, ni iCloud, ni achat. L'appareil photo et le réseau local ne sont pas des capacités : ce sont des autorisations demandées à la personne (textes dans `ios/PiAppliance/Info.plist`). Identifiant déjà enregistré sans elle : « Identifiers », `com.pi-appliance.app`, cocher « Associated Domains », « Save » (« Confirm » si Apple prévient que les profils existants deviennent invalides : la signature automatique en refait un). Sans cette capacité, l'étape « App Store » du workflow échoue sur la signature.
 4. « Continue », puis « Register ».
 5. Appareil : l'équipe a déjà l'iPhone enregistré pour NautiLink (« Devices ») ; rien à faire. Sans au moins un appareil, l'envoi échoue avec « Your team has no devices from which to generate a provisioning profile » (voir le guide de NautiLink, § 1.5).
 
@@ -62,12 +62,14 @@ Dépôt `gmoulard/pi-appliance-pwa` sur GitHub : « Settings », « Secrets and 
 
 Le workflow écrit la clé dans `~/.appstoreconnect/private_keys/` sur la machine de construction, le temps de l'étape, puis l'efface. Tant qu'un des quatre secrets manque, l'étape « App Store » s'affiche comme sautée (« Étape sautée : secrets absents : … ») sans faire échouer l'exécution.
 
+**Variable `APPLE_TEAM_ID`** (liens universels, question 46) : le Team ID n'est pas un secret, et le workflow « Site » doit pouvoir l'écrire dans le fichier public `https://app.pi-appliance.com/.well-known/apple-app-site-association` (un secret ne peut pas être publié). Même page de GitHub, onglet **« Variables »** (à côté de « Secrets »), bouton « New repository variable » : « Name » `APPLE_TEAM_ID`, « Value » le Team ID (10 caractères), « Add variable ». Puis onglet « Actions », workflow « Site », « Run workflow » sur `main` : le passage de chaque heure ne republie pas un site déjà à jour. Le workflow « iPhone » prend aussi cette variable si le secret `APPLE_TEAM_ID` n'est pas posé. Sans elle, le site ne publie pas le fichier et le lien du code QR s'ouvre dans Safari.
+
 ## 4. Premier envoi
 
 1. GitHub, onglet « Actions », workflow « iPhone », « Run workflow » sur `main` (ou pousser un changement de `ios/`).
 2. Dans l'exécution, étape « App Store (version signée envoyée à App Store Connect) » : elle se termine par « Version 1.0.0, build … envoyée à App Store Connect ». Compter 10 à 20 minutes pour l'exécution.
 3. App Store Connect, « Apps », pi-appliance, onglet « TestFlight » : le build apparaît « En traitement », puis prêt après **10 à 30 minutes** ; Apple envoie un e-mail. Pour l'essayer avant la soumission : l'ajouter à un groupe de testeurs internes (vous), installer l'application TestFlight sur l'iPhone et y installer pi-appliance.
-4. Essais sur l'iPhone (critères de TODO-1.12) : documentation lue en mode avion ; « Scanner le code de mon Pi » devant « Mon Pi » de la console, Pi ajouté ; à la maison, « Vérifier à la maison », accepter « réseau local », état « Répond à la maison » ; « Ouvrir » : la console s'ouvre dans Safari.
+4. Essais sur l'iPhone (critères de TODO-1.12) : documentation lue en mode avion, puis, avec le réseau, pied de page de la documentation à la dernière version de pi-appliance (documentation téléchargée, question 45) et recherche qui marche ; « Scanner le code de mon Pi » devant « Mon Pi » de la console, « Ajouter et appairer » : la console s'ouvre **dans l'application**, déjà connectée ; « Retour » ; à la maison, « Vérifier à la maison », accepter « réseau local », état « Répond à la maison » ; « Ouvrir » : console déjà connectée ; un service s'ouvre dans Safari ; « Désappairer ». Liens universels (une fois `app.pi-appliance.com` en service, TODO-1.6, et la variable `APPLE_TEAM_ID` posée) : l'adresse `https://app-site-association.cdn-apple.com/a/v1/app.pi-appliance.com` (copie d'Apple, mise à jour en quelques heures) doit montrer le fichier ; le code QR de « Mon Pi » lu par l'appareil photo de l'iPhone propose alors d'ouvrir « pi-appliance ». Une application déjà installée relit le fichier à sa mise à jour : la réinstaller si le lien s'ouvre encore dans Safari.
 
 L'IPA non signée (artefact `pi-appliance-iphone-<numéro>`) peut aussi s'installer sans l'App Store avec un outil comme Sideloadly ou AltStore et un identifiant Apple.
 
@@ -90,7 +92,7 @@ App Store Connect, pi-appliance, onglet « Distribution », version « 1.0 Prepa
 
 - **Sous-titre** (30 caractères au plus) : « Votre Raspberry Pi en poche » (27).
 - **Texte promotionnel** (facultatif) : « La documentation de pi-appliance lisible sans réseau, et vos Raspberry Pi à portée de main. »
-- **Description** : « pi-appliance transforme un Raspberry Pi en petit serveur pour la maison. Cette application l'accompagne. La documentation dans la poche : premier démarrage, Wi-Fi de configuration, mot de passe oublié, diagnostic, lisibles même sans réseau, justement quand le Pi ou le Wi-Fi ne marchent pas. Mes Pi : ajoutez votre Raspberry Pi en scannant le code QR de sa console, ou en écrivant son nom ; l'application dit s'il répond à la maison ou sur internet, et ouvre sa console ou ses services d'un geste. Aucun compte, aucune publicité, aucun traceur : tout reste sur votre iPhone. Il faut un Raspberry Pi avec pi-appliance (logiciel libre, www.pi-appliance.com) pour la partie Mes Pi. »
+- **Description** : « pi-appliance transforme un Raspberry Pi en petit serveur pour la maison. Cette application l'accompagne. La documentation dans la poche : premier démarrage, Wi-Fi de configuration, mot de passe oublié, diagnostic, lisibles même sans réseau, justement quand le Pi ou le Wi-Fi ne marchent pas. Mes Pi : ajoutez votre Raspberry Pi en scannant le code QR de sa console, ou en écrivant son nom ; l'application dit s'il répond à la maison ou sur internet, et ouvre sa console ou ses services d'un geste ; appairé, l'iPhone ouvre la console sans mot de passe. Aucun compte, aucune publicité, aucun traceur : tout reste sur votre iPhone. Il faut un Raspberry Pi avec pi-appliance (logiciel libre, www.pi-appliance.com) pour la partie Mes Pi. »
 - **Mots-clés** (100 caractères au plus) : `raspberry,pi,serveur,maison,domotique,documentation,console,auto-hébergement,QR` (80).
 - **URL d'assistance** (obligatoire) : `https://github.com/gmoulard/pi-appliance-pwa/issues` (ou `https://www.pi-appliance.com`).
 - **URL marketing** (facultative) : `https://www.pi-appliance.com`.
@@ -111,11 +113,11 @@ Proposition : 3 à 4 captures faites sur l'iPhone avec l'application de TestFlig
 ### 5.3 Confidentialité
 
 - **URL de la politique de confidentialité** (obligatoire) : la page `confidentialite.html` de l'application, qui existe déjà (« L'application pi-appliance ne collecte rien sur vous », section « Sur iPhone » comprise) : `https://app.pi-appliance.com/confidentialite.html` une fois le domaine en service (TODO-1.6), en attendant `https://gmoulard.github.io/pi-appliance-pwa/confidentialite.html`. Elle est aussi dans l'application (menu, « Confidentialité »).
-- **Confidentialité de l'app** (« App Privacy ») : « Commencer », puis « Non, nous ne collectons pas de données de cette app ». C'est exact : l'application n'a pas de serveur ; elle ne parle qu'aux Raspberry Pi de la personne ; la liste des Pi et les certificats retenus restent sur l'iPhone ; ni compte, ni statistiques, ni rapport de plantage, ni publicité. Résultat affiché : « Aucune donnée collectée ».
+- **Confidentialité de l'app** (« App Privacy ») : « Commencer », puis « Non, nous ne collectons pas de données de cette app ». C'est exact : l'application n'a pas de serveur ; elle ne parle qu'aux Raspberry Pi de la personne, et lit la documentation à jour sur le site de l'application par une simple demande, sans rien envoyer ; la liste des Pi, la clé de l'appairage et les certificats retenus restent sur l'iPhone ; ni compte, ni statistiques, ni rapport de plantage, ni publicité. Résultat affiché : « Aucune donnée collectée ».
 
 ### 5.4 Classement par âge
 
-« Aucun » ou « Non » partout. Navigation web libre : **non** (l'application n'affiche que ses propres pages ; tout lien vers l'extérieur s'ouvre dans Safari). Pas de messagerie ni de contenu d'autres personnes. Résultat attendu : **4+**.
+« Aucun » ou « Non » partout. Navigation web libre : **non** (l'application n'affiche que ses propres pages et la console des Raspberry Pi de la personne ; tout autre lien s'ouvre dans Safari). Pas de messagerie ni de contenu d'autres personnes. Résultat attendu : **4+**.
 
 ### 5.5 Prix et disponibilité
 
@@ -131,8 +133,8 @@ Gratuit. Disponibilité : tous les pays, ou ceux où l'on parle français (l'app
   >
   > Without a Raspberry Pi, you can test: (1) the offline documentation: turn on Airplane Mode, open "Lire la documentation" (Read the documentation), browse the pages and use the search field; (2) adding a Pi by hand: menu > "Ajouter un Pi", type "pi-appliance", "Ajouter": the Pi appears in "Mes Pi" (My Pis) with its status; "Vérifier à la maison" (Check at home) asks for the Local Network permission, then shows "Ne répond pas" (not responding), since there is no Raspberry Pi on your network; (3) the QR code scanner: "Scanner le code de mon Pi" opens the camera; a QR code that does not come from a pi-appliance console is rejected with a message.
   >
-  > With a Raspberry Pi, the console shows a QR code in "Mon Pi"; the attached video shows the app scanning it, the Pi being added, its status read on the home network (Local Network permission, used only to reach the user's own Raspberry Pi) and "Ouvrir" (Open) launching the Pi's web console in Safari. The camera is used only to read that QR code; the image never leaves the device.
-- **Pièce jointe** : une courte vidéo (une à deux minutes, filmée sur l'iPhone par l'enregistrement de l'écran) : code QR de « Mon Pi » scanné, « Ajouter ce Pi ? », « Mes Pi » avec « Répond à la maison », « Ouvrir » qui ouvre la console dans Safari, puis la documentation en mode avion. Apple la demande souvent quand l'application sert un matériel que le relecteur n'a pas (règle 2.1).
+  > With a Raspberry Pi, the console shows a QR code in "Mon Pi"; the attached video shows the app scanning it, the Pi being added, its status read on the home network (Local Network permission, used only to reach the user's own Raspberry Pi) and "Ouvrir" (Open) showing the Pi's web console inside the app, already signed in thanks to a key kept on the iPhone ("Ajouter et appairer", pair). The camera is used only to read that QR code; the image never leaves the device. With a network connection, the app downloads the latest documentation pages (HTML and images only) from https://app.pi-appliance.com; no code is downloaded.
+- **Pièce jointe** : une courte vidéo (une à deux minutes, filmée sur l'iPhone par l'enregistrement de l'écran) : code QR de « Mon Pi » scanné, « Ajouter et appairer », la console qui s'ouvre dans l'application, « Retour », « Mes Pi » avec « Répond à la maison », « Ouvrir » (console déjà connectée), puis la documentation en mode avion. Apple la demande souvent quand l'application sert un matériel que le relecteur n'a pas (règle 2.1).
 
 ## 6. Soumettre à la relecture
 
@@ -141,18 +143,18 @@ Gratuit. Disponibilité : tous les pays, ou ceux où l'on parle français (l'app
 3. Choisir la publication : automatique ou manuelle après l'acceptation.
 4. Réponse d'Apple en général en 1 à 3 jours, dans le « Centre de résolution » en cas de refus : y répondre, ou corriger puis renvoyer un build (relancer le workflow).
 
-Versions suivantes : changer `MARKETING_VERSION` dans `ios/project.yml`, pousser, puis dans App Store Connect « + » à côté de « iOS App », nouvelle version, choisir le build et soumettre. Un changement des pages de l'application ou de la documentation n'arrive sur les iPhone qu'avec une nouvelle version relue par Apple (question 45).
+Versions suivantes : changer `MARKETING_VERSION` dans `ios/project.yml`, pousser, puis dans App Store Connect « + » à côté de « iOS App », nouvelle version, choisir le build et soumettre. La documentation arrive seule sur les iPhone : l'application télécharge les pages à jour de `doc/` (question 45). Un changement des pages de l'application elle-même (« Mes Pi », styles, scripts) n'y arrive qu'avec une nouvelle version relue par Apple.
 
 ## 7. Risques de refus connus
 
 | Règle d'Apple | Risque | Parade proposée |
 |---------------|--------|-----------------|
-| 4.2 : fonctionnalité minimale (une application qui n'est qu'un site dans une vue web est refusée) | L'application affiche des pages web. | Elle n'ouvre aucun site : ses pages et sa documentation sont **dans** l'application et marchent sans réseau ; elle ajoute ce qu'un site ne peut pas faire : lecture du code QR par l'appareil photo, accès au réseau de la maison pour parler aux Raspberry Pi, reconnaissance du certificat de chaque Pi. Le dire dans les notes (§ 5.6) et la vidéo. Si Apple refuse quand même, répondre dans le Centre de résolution en reprenant ces points ; l'ouverture de la console dans l'application (question 43, choix 2) rendrait l'application plus complète. |
+| 4.2 : fonctionnalité minimale (une application qui n'est qu'un site dans une vue web est refusée) | L'application affiche des pages web. | Elle n'ouvre aucun site : ses pages et sa documentation sont **dans** l'application et marchent sans réseau ; elle ajoute ce qu'un site ne peut pas faire : lecture du code QR par l'appareil photo, accès au réseau de la maison pour parler aux Raspberry Pi, reconnaissance du certificat de chaque Pi. Le dire dans les notes (§ 5.6) et la vidéo. Elle ouvre aussi la console du Pi dans son propre écran, connectée sans mot de passe par une clé gardée sur l'iPhone (question 43). Si Apple refuse quand même, répondre dans le Centre de résolution en reprenant ces points. |
 | 2.1 : application complète, testable | Le relecteur n'a pas de Raspberry Pi. | Notes et vidéo (§ 5.6) ; tout ce qui ne demande pas de Pi reste essayable (documentation, ajout à la main, lecteur). |
 | 5.1.1 : autorisations expliquées | Appareil photo et réseau local. | Textes en clair dans `Info.plist`, demandés seulement au moment du geste (« Scanner », « Vérifier à la maison »). |
 | 5.1.1 (i) : politique de confidentialité | — | `confidentialite.html` (§ 5.3). |
-| 2.3 : fiche exacte | Fonctions décrites mais absentes. | Ne pas annoncer l'ouverture sans mot de passe (appairage) tant que la question 43 n'est pas tranchée et réalisée sur l'iPhone. |
-| 2.5.2 : pas de code téléchargé | — | Les pages sont embarquées ; l'application ne télécharge aucun code (garder cette règle si la question 45 fait télécharger la documentation). |
+| 2.3 : fiche exacte | Fonctions décrites mais absentes. | L'ouverture sans mot de passe (appairage) est réalisée (question 43) : ne la garder dans la description qu'après l'avoir essayée sur l'iPhone (étape 4). |
+| 2.5.2 : pas de code téléchargé | La documentation est téléchargée (question 45). | Seulement des pages HTML, `recherche.json` et des images de `doc/`, vérifiées par leur empreinte ; servies sans aucun script à elles (règle `Content-Security-Policy` : seuls les scripts de l'application, `app://`) ; le code de l'application ne change jamais ainsi. |
 
 ## 8. Une fois l'application acceptée
 
