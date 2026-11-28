@@ -22,7 +22,7 @@
 # APP_STORE_CONNECT_ISSUER_ID et APP_STORE_CONNECT_KEY_P8 sont posés : version
 # signée (signature automatique gérée par Apple, clé d'API App Store Connect)
 # envoyée à App Store Connect ; sans eux, l'étape est sautée sans échec.
-# Guide : docs/app-store.md. Version : MARKETING_VERSION de ios/project.yml ;
+# Guide : docs/etudes/app-store.md de pi-appliance. Version : MARKETING_VERSION de ios/project.yml ;
 # numéro de build : numéro d'exécution de ce workflow.
 # À chaque changement de ios/ ou des pages de l'application sur main, et à la
 # demande.
@@ -139,7 +139,7 @@ jobs:
           [ -n "$ASC_ISSUER_ID" ] || manquants="$manquants APP_STORE_CONNECT_ISSUER_ID"
           [ -n "$ASC_KEY_P8" ] || manquants="$manquants APP_STORE_CONNECT_KEY_P8"
           if [ -n "$manquants" ]; then
-            echo "::notice title=App Store::Étape sautée : secrets absents :$manquants (guide : docs/app-store.md)"
+            echo "::notice title=App Store::Étape sautée : secrets absents :$manquants (guide : docs/etudes/app-store.md de pi-appliance)"
             exit 0
           fi
           # Clé d'API : seulement sur la machine de construction, effacée à la fin.

@@ -21,7 +21,7 @@ Capacités de l'application iPhone (ios/project.yml). Liens universels
 l'application, d'après .well-known/apple-app-site-association du site
 (outils/site.mjs, variable GitHub APPLE_TEAM_ID). Il faut aussi cocher
 « Associated Domains » sur l'identifiant com.pi-appliance.app chez Apple
-(docs/app-store.md, étape 1).
+(docs/etudes/app-store.md de pi-appliance, étape 1).
 -->
 <plist version="1.0">
 <dict>
