@@ -66,9 +66,34 @@
     flux = null;
   }
 
+  // Application iPhone : l'appareil photo est lu par l'application elle-même
+  // (ios/PiAppliance/LecteurQR.swift), qui ne rend qu'un code de la console ;
+  // ni jsQR ni getUserMedia. Lecture abandonnée : annule().
+  async function demarrerIos(video, { trouve, autre, erreur, annule }) {
+    const cadre = video.closest(".camera");
+    if (cadre) cadre.style.display = "none";
+    let r = null;
+    try {
+      r = await window.piApplianceIos.scanner({ explication: window.t("scanner.explication"), annuler: window.t("annuler"), autre: window.t("scanner.autre") });
+    } catch (e) {
+      erreur("scanner.indisponible");
+      return;
+    }
+    if (r && typeof r.texte === "string") {
+      const hash = lienAjout(r.texte);
+      if (hash) trouve(hash); else autre();
+    } else if (r && ["refuse", "aucune", "indisponible"].includes(r.erreur)) {
+      erreur(`scanner.${r.erreur}`);
+    } else if (annule) {
+      annule();
+    }
+  }
+
   // Lance la caméra dans <video> ; trouve(hash) quand un code de la console
   // est lu, autre() pour un code QR qui n'en vient pas, erreur(cle) sinon.
-  async function demarrer(video, { trouve, autre, erreur }) {
+  async function demarrer(video, rappels) {
+    if (window.piApplianceIos) return demarrerIos(video, rappels);
+    const { trouve, autre, erreur } = rappels;
     arreter();
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { erreur("scanner.indisponible"); return; }
     let jsQR;

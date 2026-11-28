@@ -16,6 +16,10 @@
 // Commun à toutes les pages : langue de l'interface, service worker (hors
 // ligne et mise à jour en silence), version de la documentation, aide à
 // l'installation sur l'écran d'accueil (spécification 3 et 5).
+// Dans l'application iPhone (ios/, window.piApplianceIos posé par
+// ios/PiAppliance/pont.js), les pages sont dans l'application : ni service
+// worker ni aide à l'installation, et un texte « <clé>.ios » de textes.js
+// remplace celui de la clé.
 
 (function () {
   "use strict";
@@ -23,6 +27,7 @@
   const DROITE_A_GAUCHE = ["ar", "fa"];
   const script = document.currentScript;
   const racine = new URL(".", script ? script.src : location.href);
+  const IOS = !!window.piApplianceIos;
 
   function langue() {
     const textes = window.TEXTES || {};
@@ -38,9 +43,13 @@
 
   const LANGUE = langue();
 
-  function t(cle, valeurs) {
+  function texteDe(cle) {
     const textes = window.TEXTES || {};
-    let texte = (textes[LANGUE] && textes[LANGUE][cle]) || (textes.fr && textes.fr[cle]) || cle;
+    return (textes[LANGUE] && textes[LANGUE][cle]) || (textes.fr && textes.fr[cle]) || "";
+  }
+
+  function t(cle, valeurs) {
+    let texte = (IOS && texteDe(`${cle}.ios`)) || texteDe(cle) || cle;
     for (const [k, v] of Object.entries(valeurs || {})) texte = texte.split(`{${k}}`).join(v);
     return texte;
   }
@@ -49,8 +58,11 @@
   function appliquerLangue() {
     document.documentElement.lang = LANGUE;
     document.documentElement.dir = DROITE_A_GAUCHE.includes(LANGUE) ? "rtl" : "ltr";
-    if (LANGUE === "fr") return; // le HTML est déjà en français
-    for (const el of document.querySelectorAll("[data-t]")) el.textContent = t(el.dataset.t);
+    // Le HTML est déjà en français : en français, seuls les textes propres à
+    // l'iPhone changent.
+    for (const el of document.querySelectorAll("[data-t]")) {
+      if (LANGUE !== "fr" || (IOS && texteDe(`${el.dataset.t}.ios`))) el.textContent = t(el.dataset.t);
+    }
   }
 
   function dateLocale(iso) {
@@ -96,7 +108,7 @@
   }
 
   function serviceWorker() {
-    if (!("serviceWorker" in navigator)) return;
+    if (IOS || !("serviceWorker" in navigator)) return;
     navigator.serviceWorker.addEventListener("message", (event) => {
       if (event.data && event.data.type === "version") afficherVersion(event.data.version);
     });
@@ -119,6 +131,7 @@
     const fenetre = document.getElementById("installer");
     const ouvrir = document.getElementById("menu-installer");
     if (!fenetre || !ouvrir) return;
+    if (IOS) { ouvrir.hidden = true; return; } // déjà une application de l'App Store
     const installee = window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
     document.getElementById("installer-deja").hidden = !installee;
     ouvrir.addEventListener("click", () => {

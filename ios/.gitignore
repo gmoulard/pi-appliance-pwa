@@ -1,0 +1,4 @@
+# Fabriqués par le workflow « iPhone » (ou à la main, voir project.yml).
+site/
+PiAppliance.xcodeproj/
+build/

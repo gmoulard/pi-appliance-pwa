@@ -1,0 +1,58 @@
+# This file is part of pi-appliance-pwa <https://github.com/gmoulard/pi-appliance-pwa>.
+# Copyright (c) 2026 Guillaume Moulard.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, version 3.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+# Projet Xcode de l'application iPhone (TODO-1.12), fabriqué par XcodeGen :
+#   cd ios && xcodegen generate   → PiAppliance.xcodeproj (non versionné)
+# Avant : le site construit par outils/site.mjs copié dans ios/site/ (non
+# versionné), embarqué tel quel dans l'application. Le workflow « iPhone »
+# (.github/workflows/ios.yml) fait les deux.
+#
+# Version affichée sur l'App Store : MARKETING_VERSION ci-dessous, à changer
+# à la main avant de soumettre une nouvelle version à Apple (le dépôt n'a pas
+# de numéro de version). Numéro de build : celui de l'exécution du workflow.
+
+name: PiAppliance
+options:
+  deploymentTarget:
+    iOS: "16.0"
+  developmentLanguage: fr
+settings:
+  base:
+    MARKETING_VERSION: "1.0.0"
+    CURRENT_PROJECT_VERSION: "1"
+targets:
+  PiAppliance:
+    type: application
+    platform: iOS
+    scheme: {} # schéma partagé « PiAppliance », pour xcodebuild
+    sources:
+      - path: PiAppliance
+        excludes:
+          - Info.plist
+      - path: site
+        type: folder
+        buildPhase: resources
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.pi-appliance.app
+        PRODUCT_NAME: PiAppliance
+        INFOPLIST_FILE: PiAppliance/Info.plist
+        GENERATE_INFOPLIST_FILE: "NO"
+        TARGETED_DEVICE_FAMILY: "1"
+        SUPPORTS_MACCATALYST: "NO"
+        SUPPORTED_PLATFORMS: "iphoneos iphonesimulator"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        SWIFT_VERSION: "5.0"
+        CODE_SIGN_STYLE: Automatic

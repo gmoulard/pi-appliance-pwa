@@ -17,7 +17,8 @@
 // version en français seulement ; une langue ajoutée ici est proposée d'après
 // la langue du téléphone. Une clé absente d'une langue reste en français.
 // Les pages gardent leur texte français dans le HTML : app.js le remplace
-// (attribut data-t) quand une autre langue est choisie.
+// (attribut data-t) quand une autre langue est choisie. Une clé « <clé>.ios »
+// remplace « <clé> » dans l'application iPhone (ios/).
 
 window.TEXTES = {
   fr: {
@@ -38,11 +39,15 @@ window.TEXTES = {
     "scanner.indisponible": "La caméra n'est pas disponible dans ce navigateur. Ajoutez le Pi en écrivant son nom.",
     "scanner.refuse": "L'accès à la caméra a été refusé. Autorisez-le dans les réglages du navigateur pour ce site, ou ajoutez le Pi en écrivant son nom.",
     "scanner.aucune": "Aucune caméra trouvée sur cet appareil. Ajoutez le Pi en écrivant son nom.",
+    "scanner.indisponible.ios": "L'appareil photo n'est pas disponible. Ajoutez le Pi en écrivant son nom.",
+    "scanner.refuse.ios": "L'accès à l'appareil photo a été refusé. Autorisez-le dans Réglages → pi-appliance, ou ajoutez le Pi en écrivant son nom.",
+    "scanner.aucune.ios": "Aucun appareil photo trouvé sur cet iPhone. Ajoutez le Pi en écrivant son nom.",
     "scanner.autre": "Ce code QR ne vient pas de la console pi-appliance. Visez celui de « Mon Pi ».",
     "menu.mespi": "Mes Pi",
     "menu.ajouter": "Ajouter un Pi",
     "mespi.titre": "Mes Pi",
     "reseau.explication": "Pour voir si vos Pi répondent à la maison, l'application doit pouvoir parler aux appareils de votre réseau. Chrome va vous demander l'autorisation : acceptez-la.",
+    "reseau.explication.ios": "Pour voir si vos Pi répondent à la maison, l'application doit pouvoir parler aux appareils de votre réseau. L'iPhone va vous demander l'autorisation (« réseau local ») : acceptez-la.",
     "reseau.verifier": "Vérifier à la maison",
     "pi.ouvrir": "Ouvrir",
     "service.maison": "à la maison seulement",
@@ -52,6 +57,8 @@ window.TEXTES = {
     "etat.internet": "Répond sur internet",
     "etat.maison": "Répond à la maison",
     "etat.aucun": "Ne répond pas — ou l'alerte du certificat n'a pas encore été acceptée dans ce navigateur",
+    "etat.aucun.ios": "Ne répond pas",
+    "etat.certificat.change": "Le certificat du Pi a changé : par prudence, l'application ne s'y connecte plus. Si le Pi a été réinstallé, supprimez-le puis ajoutez-le de nouveau.",
     "etat.aucun.internet": "Ne répond pas sur internet ; à la maison, pas encore vérifié",
     "etat.maison.inconnu": "À la maison : pas encore vérifié",
     "ajouter.titre": "Ajouter un Pi",
@@ -74,6 +81,8 @@ window.TEXTES = {
     "chercher.limite.nouveau": "Pour un nouveau Pi, utilisez le code QR de sa console, ou cherchez-le dans la liste des appareils de votre box.",
     "chercher.limite.certificat": "Un Pi n'est trouvé que si vous avez déjà accepté l'alerte du certificat de sa console dans ce navigateur. Sinon, il semble absent même s'il est là.",
     "chercher.limite.chrome": "Chrome va vous demander d'autoriser l'accès aux appareils de votre réseau : acceptez-le, sinon rien ne pourra être trouvé.",
+    "chercher.limite.certificat.ios": "Le certificat de la console, fait par le Pi lui-même, est retenu la première fois que l'application parle à un Pi de votre liste. S'il change ensuite, l'application ne s'y connecte plus et vous le dit.",
+    "chercher.limite.chrome.ios": "L'iPhone va vous demander d'autoriser l'application à trouver des appareils sur votre réseau local : acceptez, sinon rien ne pourra être trouvé.",
     "chercher.lancer": "Lancer la recherche",
     "chercher.encours": "Recherche en cours…",
     "chercher.trouve": "{n} Pi trouvé(s).",

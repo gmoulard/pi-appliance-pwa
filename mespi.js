@@ -158,6 +158,7 @@
   // pi-appliance), sinon une simple demande dont la réponse ne peut pas être
   // lue : elle aboutit si le Pi est joignable et son certificat accepté.
   async function sonder(base) {
+    if (window.piApplianceIos) return sonderIos(base);
     try {
       const r = await demande(`${base}/api/hello`, { mode: "cors" });
       if (r.ok) {
@@ -169,6 +170,25 @@
     try {
       await demande(`${base}/`, { mode: "no-cors" });
       return { repond: true, infos: null };
+    } catch (e) {
+      return { repond: false };
+    }
+  }
+
+  // Application iPhone : la demande est faite par l'application elle-même
+  // (ios/PiAppliance/Sonde.swift), sans la règle CORS. Le certificat fait par
+  // le Pi est retenu à la première connexion, seulement pour un Pi de la
+  // liste ; s'il change, la connexion est refusée (certificatChange). Un Pi
+  // pas encore ajouté est dit présent dès qu'il montre un certificat.
+  async function sonderIos(base) {
+    const ajoute = lire().some((p) => p.maison === base || p.internet === base);
+    try {
+      const r = await window.piApplianceIos.sonder(base, ajoute);
+      let infos = null;
+      if (r && typeof r.texte === "string") {
+        try { infos = JSON.parse(r.texte); } catch (e) { /* réponse inattendue */ }
+      }
+      return { repond: !!(r && r.repond), infos, certificatChange: !!(r && r.certificat === "change") };
     } catch (e) {
       return { repond: false };
     }
@@ -253,6 +273,7 @@
   function texteEtat(pi) {
     const e = etats.get(pi.maison);
     if (!e || e.enCours) return { texte: t("etat.verification"), classe: "attente" };
+    if ((e.maison && e.maison.certificatChange) || (e.internet && e.internet.certificatChange)) return { texte: t("etat.certificat.change"), classe: "arret" };
     if (e.internet && e.internet.repond) return { texte: t("etat.internet"), classe: "marche" };
     if (e.maison && e.maison.repond) return { texte: t("etat.maison"), classe: "marche" };
     if (!e.maison) return { texte: pi.internet ? t("etat.aucun.internet") : t("etat.maison.inconnu"), classe: "attente" };
@@ -289,6 +310,9 @@
                 if (appaire) desappairer(pi);
                 supprimer(pi.maison);
                 etats.delete(pi.maison);
+                if (window.piApplianceIos) { // certificats retenus pour ce Pi : oubliés
+                  for (const base of [pi.maison, pi.internet]) if (base) window.piApplianceIos.oublier(base).catch(() => {});
+                }
                 route();
               }
             },
@@ -368,6 +392,7 @@
       trouve: (hash) => { location.hash = hash; },
       autre: () => { etat.textContent = t("scanner.autre"); etat.hidden = false; },
       erreur: (cle) => { etat.textContent = t(cle); etat.hidden = false; },
+      annule: () => { location.hash = "#ajouter"; },
     });
   }
 

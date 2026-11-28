@@ -150,7 +150,10 @@
     return true;
   }
 
-  const disponible = !!(window.crypto && crypto.subtle && window.indexedDB);
+  // Pas dans l'application iPhone : la console s'y ouvre dans Safari
+  // (spécification 4.2), qui ne peut pas recevoir le formulaire envoyé ici ;
+  // le Pi s'y ajoute sans appairage (question 43 de docs/questions.md).
+  const disponible = !window.piApplianceIos && !!(window.crypto && crypto.subtle && window.indexedDB);
 
   window.cleTelephone = { disponible, cle, lireCle, appairer, connecter, retirer, empreinte, signer };
 })();

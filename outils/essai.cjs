@@ -333,6 +333,64 @@ function verifier(condition, message) {
       await page.screenshot({ path: path.join(captures, "guide.png") });
     }
     verifier(erreurs.length === 0, `aucune erreur JavaScript${erreurs.length ? ` : ${erreurs.join(" | ")}` : ""}`);
+
+    // Application iPhone (ios/) : le vrai pont.js, posé sur une fausse
+    // application (window.webkit.messageHandlers.piAppliance).
+    const pont = fs.readFileSync(path.join(__dirname, "..", "ios", "PiAppliance", "pont.js"), "utf8");
+    const iphone = await navigateur.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+    await iphone.addInitScript({ content: `(() => {
+      const appels = window.appelsIos = [];
+      const lien = "https://app.pi-appliance.com/#add?id=00112233445566778899&n=bureau&l=bureau.local&c=abcdefghijklmnop1234";
+      window.webkit = { messageHandlers: { piAppliance: { postMessage: async (m) => {
+        appels.push(m);
+        if (m.action === "scanner") return { texte: lien };
+        if (m.action === "oublier") return true;
+        if (m.base.includes("salon.local")) return { repond: true, texte: JSON.stringify({ name: "salon", id: "0123456789abcdef", services: [{ name: "Blog", address: "blog-salon.local" }] }) };
+        if (m.base.includes("garage.local")) return { repond: false, certificat: "change" };
+        return { repond: false };
+      } } } };
+    })();\n${pont}` });
+    const ios = await iphone.newPage();
+    const erreursIos = [];
+    ios.on("pageerror", (e) => erreursIos.push(e.message));
+    ios.on("dialog", (d) => d.accept());
+    await ios.goto(adresse);
+    await ios.evaluate(() => {
+      localStorage.setItem("reseauLocalAutorise", "oui");
+      localStorage.setItem("mesPi", JSON.stringify([
+        { nom: "salon", maison: "https://salon.local/pi-appliance", internet: "", services: [] },
+        { nom: "garage", maison: "https://garage.local/pi-appliance", internet: "", services: [] },
+      ]));
+    });
+    await ios.reload();
+    await ios.waitForFunction(() => !document.body.textContent.includes("Vérification…"), null, { timeout: 15000 });
+    const vueIos = await ios.evaluate(async () => ({
+      sw: (await navigator.serviceWorker.getRegistrations()).length,
+      installer: document.getElementById("menu-installer").hidden,
+      appairage: window.cleTelephone.disponible,
+      salon: document.querySelector("#liste-pi li:nth-child(2) .etat").textContent,
+      garage: document.querySelector("#liste-pi li:nth-child(1) .etat").textContent,
+      services: JSON.parse(localStorage.getItem("mesPi")).find((p) => p.nom === "salon").services.map((s) => s.nom).join(","),
+      sondes: window.appelsIos.filter((m) => m.action === "sonder").map((m) => `${m.base} ${m.ajoute}`),
+    }));
+    verifier(vueIos.sw === 0 && vueIos.installer, "iPhone : pas de service worker, pas d'« Installer l'application »");
+    verifier(!vueIos.appairage, "iPhone : pas d'appairage (la console s'ouvre dans Safari)");
+    verifier(vueIos.sondes.includes("https://salon.local/pi-appliance true"), `iPhone : Pi sondé par l'application, comme Pi de la liste (${vueIos.sondes.join(" ; ")})`);
+    verifier(vueIos.salon === "Répond à la maison" && vueIos.services === "Blog", `iPhone : état et services lus par l'application (${vueIos.salon})`);
+    verifier(vueIos.garage.includes("certificat du Pi a changé"), `iPhone : certificat changé dit à l'écran (${vueIos.garage})`);
+    await ios.goto(`${adresse}#chercher`);
+    verifier((await ios.textContent('[data-t="chercher.limite.chrome"]')).includes("L'iPhone"), "iPhone : textes propres à l'iPhone");
+    await ios.goto(adresse);
+    await ios.goto(`${adresse}#scanner`);
+    await ios.waitForSelector("#vue-lien:not([hidden])", { timeout: 15000 });
+    verifier((await ios.textContent("#lien-details h2")) === "bureau" && (await ios.textContent("#lien-ajouter")) === "Ajouter à mes Pi",
+      "iPhone : code QR lu par l'application, Pi proposé sans appairage");
+    await ios.goto(adresse);
+    await ios.locator("#liste-pi li", { hasText: "garage" }).locator("button", { hasText: "Supprimer" }).click();
+    await ios.waitForTimeout(300);
+    verifier(await ios.evaluate(() => window.appelsIos.some((m) => m.action === "oublier" && m.base === "https://garage.local/pi-appliance")),
+      "iPhone : Pi supprimé, son certificat oublié");
+    verifier(erreursIos.length === 0, `iPhone : aucune erreur JavaScript${erreursIos.length ? ` : ${erreursIos.join(" | ")}` : ""}`);
   } finally {
     await navigateur.close();
     srv.close();
